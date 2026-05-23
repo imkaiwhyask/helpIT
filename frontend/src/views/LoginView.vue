@@ -125,9 +125,9 @@ async function handleLogin() {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   margin: 24px;
-  padding: 44px 40px;
+  padding: 48px 44px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px;
@@ -143,10 +143,11 @@ async function handleLogin() {
 .logo {
   display: flex;
   align-items: center;
-  margin-bottom: 32px;
+  justify-content: center;
+  margin-bottom: 36px;
 }
 .logo-img {
-  height: 64px;
+  height: 80px;
   width: auto;
   object-fit: contain;
 }
