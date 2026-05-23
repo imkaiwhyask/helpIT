@@ -8,21 +8,7 @@
     <div class="glass-card">
       <!-- Logo -->
       <div class="logo">
-        <svg width="36" height="30" viewBox="0 0 56 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="11" height="46" rx="4" fill="white"/>
-          <rect x="45" y="0" width="11" height="46" rx="4" fill="white"/>
-          <rect x="0" y="17" width="56" height="12" rx="4" fill="url(#hbar)"/>
-          <circle cx="14" cy="23" r="3.5" fill="white" opacity="0.9"/>
-          <circle cx="28" cy="23" r="3.5" fill="white" opacity="0.9"/>
-          <circle cx="42" cy="23" r="3.5" fill="white" opacity="0.9"/>
-          <defs>
-            <linearGradient id="hbar" x1="0" y1="0" x2="56" y2="0" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#00d4e0"/>
-              <stop offset="1" stop-color="#0080c6"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <span class="logo-text">help<em>IT</em></span>
+        <img src="@/assets/helpit_logo.png" alt="helpIT" class="logo-img" />
       </div>
 
       <h1 class="heading">Welcome back</h1>
@@ -157,18 +143,12 @@ async function handleLogin() {
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
   margin-bottom: 32px;
 }
-.logo-text {
-  font-size: 26px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -0.5px;
-}
-.logo-text em {
-  font-style: italic;
-  color: #00c7d4;
+.logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 
 /* ── Headings ── */

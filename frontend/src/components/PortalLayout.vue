@@ -3,21 +3,7 @@
     <!-- Top navigation bar -->
     <header class="portal-nav">
       <RouterLink to="/portal" class="nav-brand">
-        <svg width="28" height="23" viewBox="0 0 56 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="11" height="46" rx="4" fill="white"/>
-          <rect x="45" y="0" width="11" height="46" rx="4" fill="white"/>
-          <rect x="0" y="17" width="56" height="12" rx="4" fill="url(#pl)"/>
-          <circle cx="14" cy="23" r="3.5" fill="white" opacity="0.9"/>
-          <circle cx="28" cy="23" r="3.5" fill="white" opacity="0.9"/>
-          <circle cx="42" cy="23" r="3.5" fill="white" opacity="0.9"/>
-          <defs>
-            <linearGradient id="pl" x1="0" y1="0" x2="56" y2="0" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#00d4e0"/>
-              <stop offset="1" stop-color="#0080c6"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <span class="nav-name">help<em>IT</em></span>
+        <img src="@/assets/helpit_logo.png" alt="helpIT" class="nav-logo" />
       </RouterLink>
 
       <nav class="nav-links">
@@ -82,9 +68,8 @@ function handleCmd(cmd) {
   gap: 24px;
 }
 
-.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-name { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
-.nav-name em { font-style: italic; color: #00c7d4; }
+.nav-brand { display: flex; align-items: center; text-decoration: none; }
+.nav-logo { height: 32px; width: auto; object-fit: contain; }
 
 .nav-links { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 

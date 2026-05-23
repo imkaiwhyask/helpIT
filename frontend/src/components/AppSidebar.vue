@@ -1,22 +1,7 @@
 <template>
   <aside class="sidebar">
     <div class="logo">
-      <!-- H-mark with teal crossbar -->
-      <svg width="32" height="26" viewBox="0 0 56 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="0" y="0" width="11" height="46" rx="4" fill="white"/>
-        <rect x="45" y="0" width="11" height="46" rx="4" fill="white"/>
-        <rect x="0" y="17" width="56" height="12" rx="4" fill="url(#sb)"/>
-        <circle cx="14" cy="23" r="3.5" fill="white" opacity="0.9"/>
-        <circle cx="28" cy="23" r="3.5" fill="white" opacity="0.9"/>
-        <circle cx="42" cy="23" r="3.5" fill="white" opacity="0.9"/>
-        <defs>
-          <linearGradient id="sb" x1="0" y1="0" x2="56" y2="0" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#00d4e0"/>
-            <stop offset="1" stop-color="#0080c6"/>
-          </linearGradient>
-        </defs>
-      </svg>
-      <span class="logo-text">help<em>IT</em></span>
+      <img src="@/assets/helpit_logo.png" alt="helpIT" class="logo-img" />
     </div>
 
     <nav class="nav">
@@ -66,12 +51,11 @@ const navItems = [
   display: flex; flex-direction: column; height: 100vh;
 }
 .logo {
-  display: flex; align-items: center; gap: 10px;
-  padding: 20px 20px 18px;
+  display: flex; align-items: center;
+  padding: 16px 20px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
-.logo-text { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: #fff; }
-.logo-text em { font-style: italic; color: #00c7d4; }
+.logo-img { height: 36px; width: auto; object-fit: contain; }
 .nav { flex: 1; padding: 12px 0; }
 .nav-item {
   display: flex; align-items: center; gap: 12px;
