@@ -149,7 +149,7 @@ async function handleLogin() {
 /* ── Left brand panel ── */
 .brand-panel {
   width: 45%;
-  background: linear-gradient(145deg, #0097b8 0%, #005f9e 55%, #003d7a 100%);
+  background: #0288d1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -300,15 +300,15 @@ async function handleLogin() {
   background: #fff !important;
   border: 1.5px solid #d1d5db !important;
   box-shadow: none !important;
-  border-radius: 8px !important;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  border-radius: 2px !important;
+  transition: border-color 0.2s;
 }
 .md-input :deep(.el-input__wrapper:hover) {
-  border-color: #0097b8 !important;
+  border-color: #0288d1 !important;
 }
 .md-input :deep(.el-input__wrapper.is-focus) {
-  border-color: #0097b8 !important;
-  box-shadow: 0 0 0 3px rgba(0, 151, 184, 0.12) !important;
+  border-color: #0288d1 !important;
+  box-shadow: 0 0 0 2px rgba(2, 136, 209, 0.15) !important;
 }
 .md-input :deep(.el-input__inner) {
   color: #111827 !important;
@@ -325,22 +325,24 @@ async function handleLogin() {
 .signin-btn {
   width: 100%;
   height: 48px !important;
-  background: linear-gradient(90deg, #0097b8 0%, #005f9e 100%) !important;
+  background: #0288d1 !important;
   border: none !important;
-  border-radius: 8px !important;
+  border-radius: 2px !important;
   color: #fff !important;
   font-size: 15px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.02em;
-  box-shadow: 0 2px 8px rgba(0, 100, 160, 0.3) !important;
-  transition: box-shadow 0.2s, transform 0.1s !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25) !important;
+  transition: box-shadow 0.2s, background 0.2s !important;
 }
 .signin-btn:hover {
-  box-shadow: 0 4px 16px rgba(0, 100, 160, 0.45) !important;
-  transform: translateY(-1px);
+  background: #0277bd !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
 }
 .signin-btn:active {
-  transform: translateY(0);
+  background: #01579b !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
 }
 
 /* ── Footer ── */
