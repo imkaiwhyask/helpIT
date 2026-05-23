@@ -55,7 +55,7 @@ const navItems = [
   padding: 16px 20px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
-.logo-img { height: 36px; width: auto; object-fit: contain; }
+.logo-img { height: 48px; width: auto; object-fit: contain; }
 .nav { flex: 1; padding: 12px 0; }
 .nav-item {
   display: flex; align-items: center; gap: 12px;

@@ -69,7 +69,7 @@ function handleCmd(cmd) {
 }
 
 .nav-brand { display: flex; align-items: center; text-decoration: none; }
-.nav-logo { height: 32px; width: auto; object-fit: contain; }
+.nav-logo { height: 44px; width: auto; object-fit: contain; }
 
 .nav-links { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 

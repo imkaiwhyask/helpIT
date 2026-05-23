@@ -146,7 +146,7 @@ async function handleLogin() {
   margin-bottom: 32px;
 }
 .logo-img {
-  height: 40px;
+  height: 64px;
   width: auto;
   object-fit: contain;
 }
