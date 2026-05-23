@@ -5,10 +5,24 @@
     <div class="brand-panel">
       <div class="brand-inner">
         <img src="@/assets/helpit_logo.png" alt="helpIT" class="brand-logo" />
-        <h2 class="brand-tagline">Your IT Service Desk,<br>simplified.</h2>
-        <p class="brand-sub">Resolve faster. Collaborate smarter.<br>Built for modern enterprise teams.</p>
-        <div class="brand-dots">
-          <span></span><span></span><span></span>
+
+        <div class="carousel">
+          <Transition name="fade" mode="out-in">
+            <div class="slide" :key="current">
+              <div class="slide-icon">{{ slides[current].icon }}</div>
+              <h2 class="slide-title">{{ slides[current].title }}</h2>
+              <p class="slide-body">{{ slides[current].body }}</p>
+            </div>
+          </Transition>
+        </div>
+
+        <div class="dots">
+          <span
+            v-for="(_, i) in slides"
+            :key="i"
+            :class="['dot', { active: i === current }]"
+            @click="current = i"
+          ></span>
         </div>
       </div>
     </div>
@@ -69,13 +83,47 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
 
 const auth = useAuthStore();
 const form = ref({ email: '', password: '' });
 const loading = ref(false);
 const error = ref('');
+
+const slides = [
+  {
+    icon: '🎯',
+    title: 'Your IT Service Desk,\nsimplified.',
+    body: 'Resolve faster. Collaborate smarter.\nBuilt for modern enterprise teams.',
+  },
+  {
+    icon: '⚡',
+    title: 'Resolve tickets in\nrecord time.',
+    body: 'Auto-assign, SLA tracking, and priority queues keep your team on top of every request.',
+  },
+  {
+    icon: '📊',
+    title: 'Full visibility,\nzero guesswork.',
+    body: 'Real-time dashboards and SLA reports so you always know where things stand.',
+  },
+  {
+    icon: '📚',
+    title: 'Knowledge at your\nfingertips.',
+    body: 'A built-in help center lets users find answers before they even need to submit a ticket.',
+  },
+];
+
+const current = ref(0);
+let timer = null;
+
+onMounted(() => {
+  timer = setInterval(() => {
+    current.value = (current.value + 1) % slides.length;
+  }, 4000);
+});
+
+onUnmounted(() => clearInterval(timer));
 
 async function handleLogin() {
   error.value = '';
@@ -142,34 +190,62 @@ async function handleLogin() {
   filter: brightness(0) invert(1);
 }
 
-.brand-tagline {
-  font-size: 28px;
+/* ── Carousel ── */
+.carousel {
+  min-height: 160px;
+  margin-bottom: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide {
+  text-align: center;
+}
+
+.slide-icon {
+  font-size: 40px;
+  margin-bottom: 18px;
+  line-height: 1;
+}
+
+.slide-title {
+  font-size: 26px;
   font-weight: 700;
   color: #fff;
   line-height: 1.35;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   letter-spacing: -0.3px;
+  white-space: pre-line;
 }
 
-.brand-sub {
-  font-size: 15px;
+.slide-body {
+  font-size: 14px;
   color: rgba(255,255,255,0.7);
-  line-height: 1.6;
-  margin-bottom: 48px;
+  line-height: 1.7;
+  white-space: pre-line;
 }
 
-.brand-dots {
+/* Fade transition */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.5s ease, transform 0.5s ease; }
+.fade-enter-from { opacity: 0; transform: translateY(12px); }
+.fade-leave-to   { opacity: 0; transform: translateY(-12px); }
+
+/* ── Dots ── */
+.dots {
   display: flex;
   justify-content: center;
   gap: 8px;
 }
-.brand-dots span {
+.dot {
   width: 8px; height: 8px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.35);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
-.brand-dots span:first-child {
-  background: rgba(255,255,255,0.9);
+.dot.active {
+  background: #fff;
   width: 24px;
   border-radius: 4px;
 }
