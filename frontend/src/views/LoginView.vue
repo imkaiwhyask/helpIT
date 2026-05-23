@@ -1,63 +1,70 @@
 <template>
-  <div class="login-bg">
-    <!-- Ambient blobs -->
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+  <div class="login-page">
 
-    <div class="glass-card">
-      <!-- Logo -->
-      <div class="logo">
-        <img src="@/assets/helpit_logo.png" alt="helpIT" class="logo-img" />
+    <!-- Left: brand panel -->
+    <div class="brand-panel">
+      <div class="brand-inner">
+        <img src="@/assets/helpit_logo.png" alt="helpIT" class="brand-logo" />
+        <h2 class="brand-tagline">Your IT Service Desk,<br>simplified.</h2>
+        <p class="brand-sub">Resolve faster. Collaborate smarter.<br>Built for modern enterprise teams.</p>
+        <div class="brand-dots">
+          <span></span><span></span><span></span>
+        </div>
       </div>
-
-      <h1 class="heading">Welcome back</h1>
-      <p class="subheading">Sign in to your IT Service Desk</p>
-
-      <el-form @submit.prevent="handleLogin" :model="form" label-position="top" class="form">
-        <el-form-item label="Email address">
-          <el-input
-            v-model="form.email"
-            type="email"
-            placeholder="you@company.com"
-            size="large"
-            autocomplete="email"
-            class="glass-input"
-          />
-        </el-form-item>
-        <el-form-item label="Password">
-          <el-input
-            v-model="form.password"
-            type="password"
-            placeholder="Enter your password"
-            size="large"
-            show-password
-            autocomplete="current-password"
-            class="glass-input"
-          />
-        </el-form-item>
-
-        <el-alert
-          v-if="error"
-          :title="error"
-          type="error"
-          show-icon
-          :closable="false"
-          style="margin-bottom: 16px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5;"
-        />
-
-        <el-button
-          native-type="submit"
-          size="large"
-          :loading="loading"
-          class="signin-btn"
-        >
-          Sign In
-        </el-button>
-      </el-form>
-
-      <p class="footer-note">For access issues, contact your IT Department.</p>
     </div>
+
+    <!-- Right: form panel -->
+    <div class="form-panel">
+      <div class="form-inner">
+        <h1 class="form-heading">Welcome back</h1>
+        <p class="form-sub">Sign in to continue to helpIT</p>
+
+        <el-form @submit.prevent="handleLogin" :model="form" label-position="top" class="form">
+          <el-form-item label="Email address">
+            <el-input
+              v-model="form.email"
+              type="email"
+              placeholder="you@company.com"
+              size="large"
+              autocomplete="email"
+              class="md-input"
+            />
+          </el-form-item>
+          <el-form-item label="Password">
+            <el-input
+              v-model="form.password"
+              type="password"
+              placeholder="Enter your password"
+              size="large"
+              show-password
+              autocomplete="current-password"
+              class="md-input"
+            />
+          </el-form-item>
+
+          <el-alert
+            v-if="error"
+            :title="error"
+            type="error"
+            show-icon
+            :closable="false"
+            style="margin-bottom: 20px; border-radius: 8px;"
+          />
+
+          <el-button
+            native-type="submit"
+            size="large"
+            :loading="loading"
+            class="signin-btn"
+          >
+            Sign In
+          </el-button>
+        </el-form>
+
+        <p class="footer-note">For access issues, contact your IT Department.</p>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -84,146 +91,188 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-/* ── Background ── */
-.login-bg {
+/* ── Page layout ── */
+.login-page {
   min-height: 100vh;
-  background: #070d1a;
+  display: flex;
+  background: #fff;
+}
+
+/* ── Left brand panel ── */
+.brand-panel {
+  width: 45%;
+  background: linear-gradient(145deg, #0097b8 0%, #005f9e 55%, #003d7a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 60px 48px;
   position: relative;
   overflow: hidden;
 }
 
-/* Ambient glow blobs */
-.blob {
+/* Subtle geometric decoration */
+.brand-panel::before {
+  content: '';
   position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  opacity: 0.55;
-}
-.blob-1 {
-  width: 520px; height: 520px;
-  background: radial-gradient(circle, #0057a8 0%, transparent 70%);
-  top: -160px; left: -160px;
-}
-.blob-2 {
   width: 400px; height: 400px;
-  background: radial-gradient(circle, #007a8c 0%, transparent 70%);
-  bottom: -120px; right: -120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  top: -120px; right: -120px;
 }
-.blob-3 {
-  width: 280px; height: 280px;
-  background: radial-gradient(circle, #003566 0%, transparent 70%);
-  top: 50%; left: 60%;
-  transform: translate(-50%, -50%);
+.brand-panel::after {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  bottom: -80px; left: -80px;
 }
 
-/* ── Glass card ── */
-.glass-card {
+.brand-inner {
   position: relative;
   z-index: 1;
-  width: 100%;
-  max-width: 460px;
-  margin: 24px;
-  padding: 48px 44px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow:
-    0 0 0 1px rgba(0, 180, 220, 0.08),
-    0 32px 64px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  text-align: center;
 }
 
-/* ── Logo ── */
-.logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 36px;
-}
-.logo-img {
+.brand-logo {
   height: 80px;
   width: auto;
   object-fit: contain;
+  margin-bottom: 40px;
+  filter: brightness(0) invert(1);
 }
 
-/* ── Headings ── */
-.heading {
-  font-size: 22px;
+.brand-tagline {
+  font-size: 28px;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 6px;
+  line-height: 1.35;
+  margin-bottom: 16px;
+  letter-spacing: -0.3px;
 }
-.subheading {
+
+.brand-sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+  margin-bottom: 48px;
+}
+
+.brand-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.brand-dots span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+}
+.brand-dots span:first-child {
+  background: rgba(255,255,255,0.9);
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ── Right form panel ── */
+.form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 48px;
+  background: #fafafa;
+}
+
+.form-inner {
+  width: 100%;
+  max-width: 380px;
+}
+
+.form-heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.form-sub {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.45);
-  margin-bottom: 30px;
+  color: #6b7280;
+  margin-bottom: 36px;
 }
 
 /* ── Form labels ── */
 .form :deep(.el-form-item__label) {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: #374151 !important;
   font-size: 13px !important;
-  font-weight: 500;
+  font-weight: 600 !important;
+  margin-bottom: 4px;
 }
 
-/* ── Inputs ── */
-.glass-input :deep(.el-input__wrapper) {
-  background: rgba(255, 255, 255, 0.07) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+/* ── Material-style inputs ── */
+.md-input :deep(.el-input__wrapper) {
+  background: #fff !important;
+  border: 1.5px solid #d1d5db !important;
   box-shadow: none !important;
-  border-radius: 10px !important;
-  transition: border-color 0.2s, background 0.2s;
+  border-radius: 8px !important;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.glass-input :deep(.el-input__wrapper:hover) {
-  background: rgba(255, 255, 255, 0.10) !important;
-  border-color: rgba(0, 199, 212, 0.4) !important;
+.md-input :deep(.el-input__wrapper:hover) {
+  border-color: #0097b8 !important;
 }
-.glass-input :deep(.el-input__wrapper.is-focus) {
-  background: rgba(255, 255, 255, 0.10) !important;
-  border-color: #00c7d4 !important;
-  box-shadow: 0 0 0 3px rgba(0, 199, 212, 0.15) !important;
+.md-input :deep(.el-input__wrapper.is-focus) {
+  border-color: #0097b8 !important;
+  box-shadow: 0 0 0 3px rgba(0, 151, 184, 0.12) !important;
 }
-.glass-input :deep(.el-input__inner) {
-  color: #fff !important;
+.md-input :deep(.el-input__inner) {
+  color: #111827 !important;
   font-size: 14px !important;
 }
-.glass-input :deep(.el-input__inner::placeholder) {
-  color: rgba(255, 255, 255, 0.3) !important;
+.md-input :deep(.el-input__inner::placeholder) {
+  color: #9ca3af !important;
 }
-.glass-input :deep(.el-input__suffix-inner .el-icon) {
-  color: rgba(255, 255, 255, 0.4) !important;
+.md-input :deep(.el-input__suffix-inner .el-icon) {
+  color: #6b7280 !important;
 }
 
-/* ── Button ── */
+/* ── Sign in button ── */
 .signin-btn {
   width: 100%;
-  height: 46px !important;
-  background: linear-gradient(90deg, #0097b8 0%, #0060a8 100%) !important;
+  height: 48px !important;
+  background: linear-gradient(90deg, #0097b8 0%, #005f9e 100%) !important;
   border: none !important;
-  border-radius: 10px !important;
+  border-radius: 8px !important;
   color: #fff !important;
   font-size: 15px !important;
   font-weight: 600 !important;
-  letter-spacing: 0.01em;
-  box-shadow: 0 4px 20px rgba(0, 150, 200, 0.35) !important;
-  transition: opacity 0.2s, box-shadow 0.2s !important;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 8px rgba(0, 100, 160, 0.3) !important;
+  transition: box-shadow 0.2s, transform 0.1s !important;
 }
 .signin-btn:hover {
-  opacity: 0.9 !important;
-  box-shadow: 0 6px 24px rgba(0, 150, 200, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(0, 100, 160, 0.45) !important;
+  transform: translateY(-1px);
+}
+.signin-btn:active {
+  transform: translateY(0);
 }
 
 /* ── Footer ── */
 .footer-note {
-  margin-top: 24px;
+  margin-top: 28px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.25);
+  color: #9ca3af;
   text-align: center;
+}
+
+/* ── Responsive: stack on small screens ── */
+@media (max-width: 768px) {
+  .login-page { flex-direction: column; }
+  .brand-panel { width: 100%; padding: 40px 32px; }
+  .brand-tagline { font-size: 22px; }
+  .brand-sub { display: none; }
+  .form-panel { padding: 40px 24px; }
 }
 </style>
