@@ -30,25 +30,28 @@
     <!-- Right: form panel -->
     <div class="form-panel">
       <div class="form-inner">
-        <h1 class="form-heading">Welcome back</h1>
-        <p class="form-sub">Sign in to continue to helpIT</p>
+
+        <h1 class="form-heading">Sign in</h1>
+        <p class="form-sub">Use your helpIT account</p>
 
         <el-form @submit.prevent="handleLogin" :model="form" label-position="top" class="form">
+
           <el-form-item label="Email address">
             <el-input
               v-model="form.email"
               type="email"
-              placeholder="you@company.com"
+              placeholder=" "
               size="large"
               autocomplete="email"
               class="md-input"
             />
           </el-form-item>
+
           <el-form-item label="Password">
             <el-input
               v-model="form.password"
               type="password"
-              placeholder="Enter your password"
+              placeholder=" "
               size="large"
               show-password
               autocomplete="current-password"
@@ -62,7 +65,7 @@
             type="error"
             show-icon
             :closable="false"
-            style="margin-bottom: 20px; border-radius: 8px;"
+            style="margin-bottom: 24px; border-radius: 2px;"
           />
 
           <el-button
@@ -73,6 +76,7 @@
           >
             Sign In
           </el-button>
+
         </el-form>
 
         <p class="footer-note">For access issues, contact your IT Department.</p>
@@ -122,7 +126,6 @@ onMounted(() => {
     current.value = (current.value + 1) % slides.length;
   }, 4000);
 });
-
 onUnmounted(() => clearInterval(timer));
 
 async function handleLogin() {
@@ -139,112 +142,88 @@ async function handleLogin() {
 </script>
 
 <style scoped>
-/* ── Page layout ── */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/* ── Page ── */
 .login-page {
   min-height: 100vh;
   display: flex;
+  font-family: 'Roboto', sans-serif;
   background: #fff;
 }
 
-/* ── Left brand panel ── */
+/* ── Left brand panel — flat solid color, no gradients ── */
 .brand-panel {
   width: 45%;
   background: #0288d1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 48px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Subtle geometric decoration */
-.brand-panel::before {
-  content: '';
-  position: absolute;
-  width: 400px; height: 400px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-  top: -120px; right: -120px;
-}
-.brand-panel::after {
-  content: '';
-  position: absolute;
-  width: 300px; height: 300px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.05);
-  bottom: -80px; left: -80px;
+  padding: 64px 48px;
 }
 
 .brand-inner {
-  position: relative;
-  z-index: 1;
   text-align: center;
+  width: 100%;
+  max-width: 340px;
 }
 
 .brand-logo {
-  height: 80px;
+  height: 72px;
   width: auto;
   object-fit: contain;
-  margin-bottom: 40px;
+  margin-bottom: 48px;
   filter: brightness(0) invert(1);
 }
 
 /* ── Carousel ── */
 .carousel {
-  min-height: 160px;
-  margin-bottom: 36px;
+  min-height: 168px;
+  margin-bottom: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.slide {
-  text-align: center;
-}
+.slide { text-align: center; }
 
 .slide-icon {
-  font-size: 48px !important;
+  font-size: 40px !important;
   color: rgba(255,255,255,0.9);
-  margin: 0 auto 18px;
-  display: block;
-  text-align: center;
+  margin-bottom: 16px;
 }
 .slide-icon :deep(svg) {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   display: block;
   margin: 0 auto;
 }
 
 .slide-title {
-  font-size: 26px;
-  font-weight: 700;
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 400;
   color: #fff;
-  line-height: 1.35;
-  margin-bottom: 14px;
-  letter-spacing: -0.3px;
+  line-height: 1.4;
+  margin-bottom: 12px;
   white-space: pre-line;
 }
 
 .slide-body {
+  font-family: 'Roboto', sans-serif;
   font-size: 14px;
-  color: rgba(255,255,255,0.7);
-  line-height: 1.7;
+  font-weight: 400;
+  color: rgba(255,255,255,0.70);
+  line-height: 1.6;
   white-space: pre-line;
 }
 
-/* Fade transition */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.5s ease, transform 0.5s ease; }
-.fade-enter-from { opacity: 0; transform: translateY(12px); }
-.fade-leave-to   { opacity: 0; transform: translateY(-12px); }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.4s ease, transform 0.4s ease; }
+.fade-enter-from { opacity: 0; transform: translateY(10px); }
+.fade-leave-to   { opacity: 0; transform: translateY(-10px); }
 
 /* ── Dots ── */
-.dots {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
+.dots { display: flex; justify-content: center; gap: 8px; }
 .dot {
   width: 8px; height: 8px;
   border-radius: 50%;
@@ -264,101 +243,128 @@ async function handleLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 48px;
-  background: #fafafa;
+  padding: 64px 48px;
+  background: #fff;
 }
 
 .form-inner {
   width: 100%;
-  max-width: 380px;
+  max-width: 360px;
 }
 
+/* MD1 typography — Display / Title styles */
 .form-heading {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1a1a2e;
-  margin-bottom: 6px;
-  letter-spacing: -0.3px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 34px;
+  font-weight: 400;
+  color: rgba(0,0,0,0.87);
+  margin-bottom: 8px;
+  letter-spacing: 0;
 }
 
 .form-sub {
+  font-family: 'Roboto', sans-serif;
   font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 36px;
+  font-weight: 400;
+  color: rgba(0,0,0,0.54);
+  margin-bottom: 40px;
 }
 
-/* ── Form labels ── */
+/* ── Form label (MD1: 12sp floated) ── */
 .form :deep(.el-form-item__label) {
-  color: #374151 !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  margin-bottom: 4px;
+  font-family: 'Roboto', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: #0288d1 !important;
+  line-height: 1 !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 2px !important;
 }
 
-/* ── Material-style inputs ── */
+/* ── MD1 underline inputs — no box, only bottom border ── */
 .md-input :deep(.el-input__wrapper) {
-  background: #fff !important;
-  border: 1.5px solid #d1d5db !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(0,0,0,0.42) !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
-  border-radius: 2px !important;
-  transition: border-color 0.2s;
+  padding: 4px 0 8px !important;
+  transition: border-color 0.2s !important;
 }
 .md-input :deep(.el-input__wrapper:hover) {
-  border-color: #0288d1 !important;
+  border-bottom-color: rgba(0,0,0,0.87) !important;
 }
 .md-input :deep(.el-input__wrapper.is-focus) {
-  border-color: #0288d1 !important;
-  box-shadow: 0 0 0 2px rgba(2, 136, 209, 0.15) !important;
+  border-bottom: 2px solid #0288d1 !important;
+  box-shadow: none !important;
 }
 .md-input :deep(.el-input__inner) {
-  color: #111827 !important;
-  font-size: 14px !important;
+  font-family: 'Roboto', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  color: rgba(0,0,0,0.87) !important;
+  padding: 0 !important;
 }
 .md-input :deep(.el-input__inner::placeholder) {
-  color: #9ca3af !important;
+  color: transparent !important;
 }
 .md-input :deep(.el-input__suffix-inner .el-icon) {
-  color: #6b7280 !important;
+  color: rgba(0,0,0,0.54) !important;
 }
 
-/* ── Sign in button ── */
+/* ── MD1 Raised button ── */
 .signin-btn {
   width: 100%;
-  height: 48px !important;
+  height: 36px !important;
+  margin-top: 8px;
   background: #0288d1 !important;
   border: none !important;
   border-radius: 2px !important;
   color: #fff !important;
-  font-size: 15px !important;
+  font-family: 'Roboto', sans-serif !important;
+  font-size: 14px !important;
   font-weight: 500 !important;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.25) !important;
-  transition: box-shadow 0.2s, background 0.2s !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  /* Raised: 2dp elevation */
+  box-shadow:
+    0 2px 2px rgba(0,0,0,0.14),
+    0 3px 1px rgba(0,0,0,0.12),
+    0 1px 5px rgba(0,0,0,0.20) !important;
+  transition: box-shadow 0.2s, background 0.15s !important;
 }
 .signin-btn:hover {
   background: #0277bd !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+  /* Hover: 8dp elevation */
+  box-shadow:
+    0 8px 10px rgba(0,0,0,0.14),
+    0 3px 14px rgba(0,0,0,0.12),
+    0 5px 5px rgba(0,0,0,0.20) !important;
 }
 .signin-btn:active {
   background: #01579b !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+  box-shadow:
+    0 4px 5px rgba(0,0,0,0.14),
+    0 1px 10px rgba(0,0,0,0.12),
+    0 2px 4px rgba(0,0,0,0.20) !important;
 }
 
 /* ── Footer ── */
 .footer-note {
-  margin-top: 28px;
+  margin-top: 32px;
+  font-family: 'Roboto', sans-serif;
   font-size: 12px;
-  color: #9ca3af;
+  font-weight: 400;
+  color: rgba(0,0,0,0.38);
   text-align: center;
 }
 
-/* ── Responsive: stack on small screens ── */
+/* ── Responsive ── */
 @media (max-width: 768px) {
   .login-page { flex-direction: column; }
-  .brand-panel { width: 100%; padding: 40px 32px; }
-  .brand-tagline { font-size: 22px; }
-  .brand-sub { display: none; }
-  .form-panel { padding: 40px 24px; }
+  .brand-panel { width: 100%; padding: 48px 32px; }
+  .brand-inner { max-width: 100%; }
+  .slide-body { display: none; }
+  .form-panel { padding: 48px 24px; }
 }
 </style>
