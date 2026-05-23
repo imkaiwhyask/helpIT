@@ -6,13 +6,21 @@ const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 router.use(requireAuth);
 
-const USER_SELECT = {
+function audit(action, actor, details) {
+  console.info(JSON.stringify({ audit: action, actor, ts: new Date(), ...details }));
+}
+
+const ADMIN_USER_SELECT = {
   id: true, name: true, email: true, role: true,
   department: true, phone: true, is_active: true, created_at: true,
 };
 
+const TECH_USER_SELECT = {
+  id: true, name: true, email: true, role: true, department: true,
+};
+
 // All authenticated users can list users (needed for ticket assignment dropdowns)
-// Regular users receive minimal fields only — no PII
+// Users get minimal fields, technicians get department+email, admins get full profile
 router.get('/', async (req, res) => {
   try {
     if (req.user.role === 'user') {
@@ -23,8 +31,15 @@ router.get('/', async (req, res) => {
       });
       return res.json(users);
     }
+    if (req.user.role === 'technician') {
+      const users = await prisma.user.findMany({
+        select: TECH_USER_SELECT,
+        orderBy: { name: 'asc' },
+      });
+      return res.json(users);
+    }
     const users = await prisma.user.findMany({
-      select: USER_SELECT,
+      select: ADMIN_USER_SELECT,
       orderBy: { created_at: 'desc' },
     });
     res.json(users);
@@ -42,7 +57,8 @@ router.post('/', async (req, res) => {
     const { name, email, password, role = 'technician', department = '', phone = '' } = req.body;
     if (!name || !email || !password) return res.status(400).json({ error: 'Name, email and password are required' });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email address' });
-    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    if (password.length < 12) return res.status(400).json({ error: 'Password must be at least 12 characters' });
+    if (password.length > 128) return res.status(400).json({ error: 'Password too long' });
     if (!['admin', 'technician', 'user'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
 
     const existing = await prisma.user.findUnique({ where: { email } });
@@ -51,8 +67,9 @@ router.post('/', async (req, res) => {
     const hash = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({
       data: { name, email, password_hash: hash, role, department, phone },
-      select: USER_SELECT,
+      select: ADMIN_USER_SELECT,
     });
+    audit('USER_CREATE', req.user.id, { targetId: user.id, email: user.email, role: user.role });
     res.status(201).json(user);
   } catch (err) {
     console.error(err);
@@ -81,7 +98,8 @@ router.put('/:id', async (req, res) => {
 
     let password_hash = user.password_hash;
     if (password) {
-      if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+      if (password.length < 12) return res.status(400).json({ error: 'Password must be at least 12 characters' });
+      if (password.length > 128) return res.status(400).json({ error: 'Password too long' });
       password_hash = await bcrypt.hash(password, 12);
     }
 
@@ -96,8 +114,14 @@ router.put('/:id', async (req, res) => {
         phone:       phone       ?? user.phone,
         is_active:   is_active !== undefined ? Boolean(is_active) : user.is_active,
       },
-      select: USER_SELECT,
+      select: ADMIN_USER_SELECT,
     });
+
+    const changes = {};
+    if (role && role !== user.role) changes.roleChange = { from: user.role, to: role };
+    if (is_active !== undefined && Boolean(is_active) !== user.is_active) changes.activeChange = { from: user.is_active, to: Boolean(is_active) };
+    if (Object.keys(changes).length) audit('USER_UPDATE', req.user.id, { targetId: user.id, ...changes });
+
     res.json(updated);
   } catch (err) {
     console.error(err);
@@ -124,6 +148,7 @@ router.delete('/:id', async (req, res) => {
       prisma.user.delete({ where: { id: user.id } }),
     ]);
 
+    audit('USER_DELETE', req.user.id, { targetId: user.id, email: user.email, role: user.role });
     res.json({ message: 'User deleted' });
   } catch (err) {
     console.error(err);

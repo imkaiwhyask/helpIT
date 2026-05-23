@@ -142,12 +142,17 @@ onMounted(async () => {
 
 <style scoped>
 .create-page { max-width: 760px; margin: 0 auto; }
-.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius: 10px; padding: 28px; backdrop-filter: blur(12px); }
-.form-title { font-size: 18px; font-weight: 600; color: #f1f5f9; margin-bottom: 24px; }
+.card {
+  background: #fff;
+  border-radius: 2px;
+  padding: 28px;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
+}
+.form-title { font-size: 20px; font-weight: 500; color: rgba(0,0,0,0.87); margin-bottom: 24px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .sla-hint {
-  background: rgba(0,128,198,0.12); border: 1px solid rgba(0,128,198,0.25); border-radius: 8px;
-  padding: 10px 14px; font-size: 13px; color: #60a5fa; margin-bottom: 20px;
+  background: #e3f2fd; border: 1px solid rgba(2,136,209,0.25); border-radius: 2px;
+  padding: 10px 14px; font-size: 13px; color: #1565c0; margin-bottom: 20px;
   display: flex; align-items: center; gap: 8px;
 }
 .form-actions { display: flex; gap: 10px; justify-content: flex-end; }

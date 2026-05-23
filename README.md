@@ -1,105 +1,229 @@
-# helpIT – IT Service Desk
+# helpIT — IT Service Desk
 
-> A clean and modern full-stack IT ticketing / helpdesk system.
+A full-stack IT helpdesk and ticketing system for small-to-medium IT teams. Supports three distinct roles (Admin, Technician, End User), automatic SLA tracking, a self-service portal, and a knowledge base.
 
-helpIT is a functional IT Service Desk application built to manage support tickets, track SLAs, and handle team roles efficiently. It features a responsive dashboard, ticket management with activity logging, and an automatic SLA engine.
+---
 
-## ✨ Features
+## Features
 
-- **Dashboard** — Statistics cards, SLA compliance chart, status donut, priority breakdown, and recent tickets
-- **Ticket Management** — Create, view, edit, comment, and close tickets with full activity history
-- **Smart SLA Engine** — Automatically calculates response and resolution due dates based on priority:
-  - **Critical**: 4 hours
-  - **High**: 8 hours
-  - **Medium**: 24 hours
-  - **Low**: 72 hours
-- **User Management** — Create and manage users with role-based access (`Admin` / `Technician`)
-- **Search & Filtering** on the tickets list
-- Clean UI powered by **Element Plus**
+- **Role-based access** — Admin, Technician, and End User portals with separate layouts and enforced server-side permissions
+- **Ticket management** — Create, assign, update, comment, and close tickets with full activity history
+- **SLA engine** — Automatically sets response and resolution deadlines by priority:
 
-## 🛠 Tech Stack
+  | Priority | Response | Resolution |
+  |----------|----------|------------|
+  | Critical | 1 hour   | 4 hours    |
+  | High     | 4 hours  | 8 hours    |
+  | Medium   | 8 hours  | 24 hours   |
+  | Low      | 24 hours | 72 hours   |
 
-| Layer        | Technologies                                                          |
-| ------------ | --------------------------------------------------------------------- |
-| **Frontend** | Vue 3, Vite, Element Plus, ApexCharts, Pinia, Vue Router              |
-| **Backend**  | Node.js, Express, sql.js (SQLite via WebAssembly), JWT Authentication |
+- **Auto-assign** — Round-robin assignment to the least-loaded active technician on ticket creation
+- **Dashboard** — Live stats, SLA compliance chart (7-day), status/priority breakdown, recent tickets
+- **Knowledge Base** — IT staff can publish articles; end users can read and search them
+- **Reports** — Technician performance metrics and ticket trend charts
+- **File attachments** — Upload images, PDFs, Office docs, and ZIPs (10 MB limit, magic-byte validated)
+- **Account lockout** — Accounts lock for 30 minutes after 5 failed login attempts
+- **Self-service portal** — End users submit tickets, track progress, and read KB articles without accessing the IT console
 
-## 🚀 Quick Start
+---
 
-### Prerequisites
+## Tech Stack
 
-- Node.js v18+
-- npm
+| Layer        | Technologies                                          |
+|--------------|-------------------------------------------------------|
+| **Frontend** | Vue 3, Vite, Element Plus, Pinia, ApexCharts, Vue Router |
+| **Backend**  | Node.js, Express, Prisma ORM                          |
+| **Database** | PostgreSQL 16                                         |
+| **Auth**     | JWT via httpOnly cookie                               |
+| **Infra**    | Docker, Docker Compose, Nginx (frontend)              |
 
-### 1. Clone the repo
+---
 
-```bash
-git clone https://github.com/imkaiwhyask/helpIT.git
-cd helpIT
-```
+## Quick Start
 
-### 2. Start the Backend
+### Option 1 — Docker Compose (recommended)
 
-```bash
-cd backend
-npm install
-npm run seed     # Seed demo data + default users
-npm run dev      # Runs on http://localhost:3001
-```
+**Prerequisites:** Docker and Docker Compose installed.
 
-### 3. Start the Frontend (in a new terminal)
+1. Clone the repo:
+
+   ```bash
+   git clone https://github.com/imkaiwhyask/helpIT.git
+   cd helpIT
+   ```
+
+2. Create a `.env` file in the project root:
+
+   ```env
+   DB_USER=helpit
+   DB_PASSWORD=change_me_strong_password
+   DB_NAME=helpit
+   JWT_SECRET=generate_a_64_char_random_hex_string_here
+   CORS_ORIGIN=http://localhost
+   PORT=80
+   ```
+
+3. Start all services:
+
+   ```bash
+   docker compose up -d
+   ```
+
+   The backend automatically runs `prisma migrate deploy` on startup.
+
+4. Open **http://localhost** in your browser.
+
+To stop: `docker compose down`
+To stop and wipe data: `docker compose down -v`
+
+---
+
+### Option 2 — Local Development
+
+**Prerequisites:** Node.js v18+, PostgreSQL 16 running locally.
+
+#### Backend
+
+1. Create `backend/.env`:
+
+   ```env
+   DATABASE_URL="postgresql://YOUR_USER:YOUR_PASSWORD@localhost:5432/helpit"
+   JWT_SECRET="generate_a_64_char_random_hex_string_here"
+   PORT=3001
+   NODE_ENV=development
+   ```
+
+2. Install dependencies and run migrations:
+
+   ```bash
+   cd backend
+   npm install
+   npx prisma migrate deploy
+   ```
+
+3. Seed demo accounts (**development only** — blocked in production):
+
+   ```bash
+   npm run seed
+   ```
+
+4. Start the dev server:
+
+   ```bash
+   npm run dev   # http://localhost:3001
+   ```
+
+#### Frontend
+
+In a new terminal:
 
 ```bash
 cd frontend
-npm install --legacy-peer-deps
-npm run dev      # Runs on http://localhost:5173
+npm install
+npm run dev   # http://localhost:5173
 ```
 
-Open **http://localhost:5173** in your browser.
+Open **http://localhost:5173**.
 
-## 👥 Default Demo Accounts
+---
 
-| Email                    | Password | Role       |
-| ------------------------ | -------- | ---------- |
-| admin@helpit.local       | admin123 | **Admin**  |
-| john.doe@helpit.local    | pass123  | Technician |
-| jane.smith@helpit.local  | pass123  | Technician |
-| mark.wilson@helpit.local | pass123  | Technician |
+## Environment Variables
 
-> **Note:** This project uses `sql.js` (in-memory SQLite). All data will reset when the backend server restarts. The `npm run seed` command re-populates demo data.
+| Variable      | Required | Description                                                       |
+|---------------|----------|-------------------------------------------------------------------|
+| `DATABASE_URL`| Yes      | PostgreSQL connection string                                      |
+| `JWT_SECRET`  | Yes      | Secret for signing JWTs — use a long random string in production  |
+| `PORT`        | No       | API port (default: `3001`)                                        |
+| `NODE_ENV`    | No       | Set to `production` to enable secure cookies and harden responses |
+| `CORS_ORIGIN` | No       | Allowed frontend origin (default: `http://localhost:5173`)        |
 
-## 📸 Screenshots
+Docker Compose also reads these variables from the root `.env`:
 
-_Add screenshots here (Dashboard, Ticket List, Ticket Detail, User Management)_
+| Variable      | Description                                 |
+|---------------|---------------------------------------------|
+| `DB_USER`     | PostgreSQL username (default: `helpit`)     |
+| `DB_PASSWORD` | PostgreSQL password — **required**          |
+| `DB_NAME`     | Database name (default: `helpit`)           |
 
-## 📁 Project Structure
+---
+
+## Demo Accounts
+
+Created by `npm run seed` (development only):
+
+| Email                  | Password   | Role      | Access                          |
+|------------------------|------------|-----------|---------------------------------|
+| `admin@helpit.local`   | `admin123` | Admin     | Full access — users, all tickets, reports |
+| `user@helpit.local`    | `user1234` | End User  | Self-service portal only        |
+
+> Create Technician accounts from the User Management page after logging in as Admin.
+
+---
+
+## Role Permissions
+
+| Action                        | Admin | Technician | End User |
+|-------------------------------|-------|------------|----------|
+| View all tickets              | Yes   | Yes        | Own only |
+| Create tickets                | Yes   | Yes        | Yes      |
+| Update ticket status/priority | Yes   | Yes (owned)| No       |
+| Reassign tickets              | Yes   | Yes (owned)| No       |
+| Delete tickets                | Yes   | No         | No       |
+| Internal comments             | Yes   | Yes        | No       |
+| Manage users                  | Yes   | No         | No       |
+| View reports & dashboard      | Yes   | Yes        | No       |
+| Create/edit KB articles       | Yes   | Yes        | No       |
+| Delete KB articles            | Yes   | No         | No       |
+
+---
+
+## Project Structure
 
 ```
 helpIT/
-├── backend/                 # Express API + sql.js
+├── backend/
 │   ├── src/
-│   ├── seed.js
+│   │   ├── db/
+│   │   │   ├── index.js        # Prisma client + connection pool
+│   │   │   └── seed.js         # Demo data seeder (dev only)
+│   │   ├── middleware/
+│   │   │   └── auth.js         # JWT cookie middleware
+│   │   ├── routes/
+│   │   │   ├── auth.js         # Login, logout, /me
+│   │   │   ├── tickets.js      # Tickets CRUD + comments
+│   │   │   ├── users.js        # User management (admin)
+│   │   │   ├── attachments.js  # File upload/download
+│   │   │   ├── dashboard.js    # Stats endpoint
+│   │   │   ├── reports.js      # Trends + technician metrics
+│   │   │   └── kb.js           # Knowledge base CRUD
+│   │   └── server.js           # Express app entry point
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   └── migrations/
+│   ├── uploads/                # Uploaded attachments (gitignored)
+│   ├── Dockerfile
 │   └── package.json
-├── frontend/                # Vue 3 + Vite
+├── frontend/
 │   ├── src/
-│   ├── components/
-│   └── package.json
+│   │   ├── api.js              # Axios instance
+│   │   ├── router/             # Vue Router (role-based guards)
+│   │   ├── stores/             # Pinia stores (auth)
+│   │   ├── components/         # AppLayout, Sidebar, Header, etc.
+│   │   └── views/
+│   │       ├── portal/         # Self-service portal views
+│   │       └── *.vue           # IT/Admin views
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   └── vite.config.js
+├── docker-compose.yml
 └── README.md
 ```
 
-## 🔧 Configuration
+---
 
-- Backend runs on port `3001`
-- Frontend runs on port `5173`
-- JWT secret is currently set in code (recommended to move to environment variables for production use)
+## License
 
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to fork the repo and submit a pull request.
-
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+MIT — see [LICENSE](LICENSE) for details.
 
 ---
 

@@ -1,8 +1,8 @@
 <template>
   <div class="app-layout">
-    <AppSidebar />
-    <div class="content-wrapper">
-      <AppHeader />
+    <AppHeader />
+    <div class="app-body">
+      <AppSidebar />
       <main class="page-content">
         <RouterView />
       </main>
@@ -18,19 +18,19 @@ import AppHeader from './AppHeader.vue';
 <style scoped>
 .app-layout {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   overflow: hidden;
 }
-.content-wrapper {
-  flex: 1;
+.app-body {
   display: flex;
-  flex-direction: column;
+  flex: 1;
   overflow: hidden;
 }
 .page-content {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
-  background: #070d1a;
+  background: #fafafa;
 }
 </style>

@@ -51,7 +51,7 @@ async function autoAssign() {
     FROM users u
     LEFT JOIN tickets t ON t.assigned_to = u.id
       AND t.status NOT IN ('resolved','closed')
-    WHERE u.role IN ('technician','admin') AND u.is_active = true
+    WHERE u.role = 'technician' AND u.is_active = true
     GROUP BY u.id
     ORDER BY load ASC, u.id ASC
     LIMIT 1
@@ -153,6 +153,8 @@ router.post('/', async (req, res) => {
       priority = 'medium', assigned_to, auto_assign,
     } = req.body;
     if (!title?.trim()) return res.status(400).json({ error: 'Title is required' });
+    if (title.trim().length > 200) return res.status(400).json({ error: 'Title must be 200 characters or fewer' });
+    if (description.length > 10000) return res.status(400).json({ error: 'Description must be 10,000 characters or fewer' });
     if (priority && !VALID_PRIORITIES.has(priority)) return res.status(400).json({ error: 'Invalid priority' });
 
     const now = new Date();
@@ -220,7 +222,20 @@ router.put('/:id', async (req, res) => {
       }
     }
 
+    // Technicians can only update tickets assigned to them (or unassigned ones they're claiming)
+    if (req.user.role === 'technician' && ticket.assigned_to !== null && ticket.assigned_to !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // End users cannot reassign tickets
+    if (req.user.role === 'user' && 'assigned_to' in req.body) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
     const { title, description, category, subcategory, priority, status, assigned_to } = req.body;
+
+    if (title !== undefined && title.trim().length > 200) return res.status(400).json({ error: 'Title must be 200 characters or fewer' });
+    if (description !== undefined && description.length > 10000) return res.status(400).json({ error: 'Description must be 10,000 characters or fewer' });
 
     if (priority && !VALID_PRIORITIES.has(priority)) return res.status(400).json({ error: 'Invalid priority' });
     if (status   && !VALID_STATUSES.has(status))     return res.status(400).json({ error: 'Invalid status' });
@@ -321,10 +336,10 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete ticket — admin or technician only
+// Delete ticket — admin only
 router.delete('/:id', async (req, res) => {
   try {
-    if (!['admin', 'technician'].includes(req.user.role)) {
+    if (req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Access denied' });
     }
     const id = Number(req.params.id);
@@ -332,6 +347,7 @@ router.delete('/:id', async (req, res) => {
     const ticket = await prisma.ticket.findUnique({ where: { id } });
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
     await prisma.ticket.delete({ where: { id: ticket.id } });
+    console.info(JSON.stringify({ audit: 'TICKET_DELETE', actor: req.user.id, ticketId: id, title: ticket.title, ts: new Date() }));
     res.json({ message: 'Ticket deleted' });
   } catch (err) {
     console.error(err);
@@ -346,6 +362,7 @@ router.post('/:id/comments', async (req, res) => {
     if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
     const { content, is_internal = false } = req.body;
     if (!content?.trim()) return res.status(400).json({ error: 'Comment cannot be empty' });
+    if (content.length > 5000) return res.status(400).json({ error: 'Comment must be 5,000 characters or fewer' });
 
     const ticket = await prisma.ticket.findUnique({
       where: { id },

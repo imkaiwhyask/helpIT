@@ -11,6 +11,7 @@ router.get('/stats', async (req, res) => {
 
     const now = new Date();
     const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const slaWindowStart = new Date(); slaWindowStart.setDate(slaWindowStart.getDate() - 6); slaWindowStart.setHours(0, 0, 0, 0);
 
     const [
       byStatusRaw,
@@ -18,6 +19,7 @@ router.get('/stats', async (req, res) => {
       resolvedToday,
       overdue,
       recentTickets,
+      slaRows,
     ] = await Promise.all([
       prisma.ticket.groupBy({ by: ['status'], _count: { id: true } }),
       prisma.ticket.groupBy({
@@ -42,30 +44,32 @@ router.get('/stats', async (req, res) => {
         orderBy: { created_at: 'desc' },
         take: 8,
       }),
+      prisma.$queryRaw`
+        SELECT
+          DATE(resolved_at)::text AS date,
+          COUNT(*)::int AS total,
+          COALESCE(SUM(CASE WHEN sla_resolution_breached = false THEN 1 ELSE 0 END), 0)::int AS on_time
+        FROM tickets
+        WHERE status IN ('resolved','closed')
+          AND resolved_at >= ${slaWindowStart}
+          AND resolved_at < ${now}
+        GROUP BY DATE(resolved_at)
+      `,
     ]);
 
     const byStatus   = Object.fromEntries(byStatusRaw.map(r   => [r.status,   r._count.id]));
     const byPriority = Object.fromEntries(byPriorityRaw.map(r => [r.priority, r._count.id]));
 
-    // SLA compliance for last 7 days
+    // Build 7-day SLA compliance array from single query result
+    const slaMap = new Map(slaRows.map(r => [r.date, r]));
     const slaCompliance = [];
     for (let i = 6; i >= 0; i--) {
-      const start = new Date(); start.setDate(start.getDate() - i); start.setHours(0, 0, 0, 0);
-      const end   = new Date(start); end.setHours(23, 59, 59, 999);
-      const label = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-      const [row] = await prisma.$queryRaw`
-        SELECT
-          COUNT(*)::int                                                             AS total,
-          COALESCE(SUM(CASE WHEN sla_resolution_breached = false THEN 1 ELSE 0 END), 0)::int AS on_time
-        FROM tickets
-        WHERE status IN ('resolved','closed')
-          AND resolved_at >= ${start}
-          AND resolved_at <= ${end}
-      `;
-
+      const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0, 0, 0, 0);
+      const key   = d.toISOString().slice(0, 10);
+      const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const row   = slaMap.get(key) ?? { total: 0, on_time: 0 };
       slaCompliance.push({
-        date: label,
+        date:    label,
         total:   row.total,
         on_time: row.on_time,
         rate: row.total > 0 ? Math.round((row.on_time / row.total) * 100) : null,

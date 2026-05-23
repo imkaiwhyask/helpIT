@@ -129,15 +129,15 @@ const totals = computed(() => {
 });
 
 const trendOptions = computed(() => ({
-  chart: { toolbar: { show: false }, background: 'transparent', foreColor: 'rgba(241,245,249,0.55)', theme: { mode: 'dark' } },
-  plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
+  chart: { toolbar: { show: false }, background: 'transparent', foreColor: 'rgba(0,0,0,0.54)', theme: { mode: 'light' } },
+  plotOptions: { bar: { borderRadius: 2, columnWidth: '55%' } },
   dataLabels: { enabled: false },
-  colors: ['#00c7d4', '#4ade80', '#f87171'],
-  xaxis: { categories: trendCategories.value, labels: { style: { fontSize: '11px', colors: 'rgba(241,245,249,0.55)' } } },
-  yaxis: { labels: { style: { fontSize: '11px', colors: 'rgba(241,245,249,0.55)' } } },
-  legend: { position: 'top', fontSize: '12px', labels: { colors: 'rgba(241,245,249,0.7)' } },
-  grid: { borderColor: 'rgba(255,255,255,0.08)' },
-  tooltip: { theme: 'dark' },
+  colors: ['#0288d1', '#2e7d32', '#c62828'],
+  xaxis: { categories: trendCategories.value, labels: { style: { fontSize: '11px', colors: 'rgba(0,0,0,0.54)' } } },
+  yaxis: { labels: { style: { fontSize: '11px', colors: 'rgba(0,0,0,0.54)' } } },
+  legend: { position: 'top', fontSize: '12px', labels: { colors: 'rgba(0,0,0,0.54)' } },
+  grid: { borderColor: 'rgba(0,0,0,0.12)' },
+  tooltip: { theme: 'light' },
 }));
 
 function initials(name) {
@@ -149,9 +149,9 @@ function fmtHours(h) {
   return `${(h/24).toFixed(1)}d`;
 }
 function complianceColor(pct) {
-  if (pct >= 90) return '#16a34a';
-  if (pct >= 70) return '#d97706';
-  return '#dc2626';
+  if (pct >= 90) return '#2e7d32';
+  if (pct >= 70) return '#f57f17';
+  return '#c62828';
 }
 
 async function load() {
@@ -185,39 +185,41 @@ onMounted(load);
 .reports-page { display:flex; flex-direction:column; gap:20px; }
 
 .page-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
-.page-title { font-size:18px; font-weight:700; color: #f1f5f9; margin-bottom:4px; }
-.page-sub { font-size:13px; color: rgba(255,255,255,0.5); }
+.page-title { font-size:20px; font-weight:500; color: rgba(0,0,0,0.87); margin-bottom:4px; }
+.page-sub { font-size:13px; color: rgba(0,0,0,0.54); }
 
 .stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
 .stat-card {
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
-  border-radius:10px; padding:18px 20px; backdrop-filter: blur(12px);
+  background: #fff;
+  border-radius:2px; padding:18px 20px;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
 }
-.stat-label { font-size:12px; color: rgba(255,255,255,0.5); font-weight:500; margin-bottom:6px; }
-.stat-value { font-size:26px; font-weight:800; color: #f1f5f9; }
-.text-green { color: #4ade80; }
-.text-red   { color: #f87171; }
-.text-muted { color: rgba(255,255,255,0.35); }
-.fw { font-weight:600; }
+.stat-label { font-size:12px; color: rgba(0,0,0,0.54); font-weight:500; margin-bottom:6px; }
+.stat-value { font-size:26px; font-weight:400; color: rgba(0,0,0,0.87); }
+.text-green { color: #2e7d32; }
+.text-red   { color: #c62828; }
+.text-muted { color: rgba(0,0,0,0.38); }
+.fw { font-weight:500; }
 
 .card {
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
-  border-radius:10px; overflow:hidden; backdrop-filter: blur(12px);
+  background: #fff;
+  border-radius:2px; overflow:hidden;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
 }
 .chart-card { padding:20px 24px; }
-.chart-title { font-size:14px; font-weight:600; color: #f1f5f9; margin-bottom:16px; }
+.chart-title { font-size:14px; font-weight:500; color: rgba(0,0,0,0.87); margin-bottom:16px; }
 
 .user-cell { display:flex; align-items:center; gap:10px; }
 .avatar {
   width:32px; height:32px;
-  background: linear-gradient(135deg, #0080c6, #00c7d4);
+  background: #0288d1;
   border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-size:12px; font-weight:700; color:#fff; flex-shrink:0;
+  font-size:12px; font-weight:500; color:#fff; flex-shrink:0;
 }
-.uname  { font-size:13px; font-weight:600; color: #f1f5f9; }
-.uemail { font-size:11.5px; color: rgba(255,255,255,0.45); }
+.uname  { font-size:13px; font-weight:500; color: rgba(0,0,0,0.87); }
+.uemail { font-size:11.5px; color: rgba(0,0,0,0.54); }
 
 .compliance-wrap { display:flex; align-items:center; gap:8px; justify-content:center; }
-.comp-pct { font-size:12px; font-weight:600; color: rgba(255,255,255,0.8); min-width:32px; }
+.comp-pct { font-size:12px; font-weight:500; color: rgba(0,0,0,0.87); min-width:32px; }
 </style>

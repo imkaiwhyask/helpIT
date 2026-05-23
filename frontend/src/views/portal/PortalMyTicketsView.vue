@@ -3,7 +3,7 @@
     <div class="page-header">
       <h2 class="page-title">My Requests</h2>
       <RouterLink to="/portal/tickets/new">
-        <el-button type="primary" style="background:#4f46e5;border-color:#4f46e5">
+        <el-button type="primary">
           <el-icon><Plus /></el-icon> New Request
         </el-button>
       </RouterLink>
@@ -42,7 +42,7 @@
 
       <div v-if="!loading && !tickets.length" class="empty">
         <el-empty description="No requests found">
-          <el-button type="primary" @click="$router.push('/portal/tickets/new')" style="background:#4f46e5;border-color:#4f46e5">
+          <el-button type="primary" @click="$router.push('/portal/tickets/new')">
             Submit your first request
           </el-button>
         </el-empty>
@@ -103,39 +103,40 @@ onMounted(fetchTickets);
 <style scoped>
 .my-tickets-page { max-width: 860px; margin: 0 auto; padding: 36px 24px; }
 .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.page-title { font-size:20px; font-weight:700; color: #f1f5f9; }
+.page-title { font-size:20px; font-weight:500; color: rgba(0,0,0,0.87); }
 .filters { display:flex; gap:10px; margin-bottom:20px; }
 
-.ticket-list { display:flex; flex-direction:column; gap:10px; }
+.ticket-list { display:flex; flex-direction:column; gap:8px; }
 
 .ticket-row {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius:12px;
+  background: #fff;
+  border-radius:2px;
   padding:16px 20px;
   display:flex;
   align-items:center;
   gap:16px;
   cursor:pointer;
-  backdrop-filter: blur(12px);
-  transition: border-color 0.15s, background 0.15s;
+  transition: box-shadow 0.15s;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
 }
-.ticket-row:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
+.ticket-row:hover {
+  box-shadow: 0 4px 5px rgba(0,0,0,0.14), 0 1px 10px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.20);
+}
 
-.tr-id { font-family:monospace; font-size:12px; color: rgba(255,255,255,0.38); font-weight:600; min-width:52px; }
+.tr-id { font-family:monospace; font-size:12px; color: rgba(0,0,0,0.38); font-weight:500; min-width:52px; }
 .tr-info { flex:1; min-width:0; }
-.tr-title { font-size:14px; font-weight:600; color: #f1f5f9; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.tr-meta { font-size:12px; color: rgba(255,255,255,0.4); }
+.tr-title { font-size:14px; font-weight:500; color: rgba(0,0,0,0.87); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tr-meta { font-size:12px; color: rgba(0,0,0,0.54); }
 
 .tr-right { display:flex; align-items:center; gap:12px; }
-.tr-arrow { color: rgba(255,255,255,0.25); font-size:14px; }
+.tr-arrow { color: rgba(0,0,0,0.38); font-size:14px; }
 
-.sta { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; }
-.sta-open        { background: rgba(37,99,235,0.15); color: #60a5fa; }
-.sta-in_progress { background: rgba(124,58,237,0.15); color: #a78bfa; }
-.sta-on_hold     { background: rgba(234,88,12,0.15); color: #fb923c; }
-.sta-resolved    { background: rgba(22,163,74,0.15); color: #4ade80; }
-.sta-closed      { background: rgba(100,116,139,0.15); color: #94a3b8; }
+.sta { display:inline-block; padding:3px 10px; border-radius:2px; font-size:11px; font-weight:500; white-space:nowrap; }
+.sta-open        { background: #e3f2fd; color: #1565c0; }
+.sta-in_progress { background: #ede7f6; color: #4527a0; }
+.sta-on_hold     { background: #fff3e0; color: #e65100; }
+.sta-resolved    { background: #c8e6c9; color: #2e7d32; }
+.sta-closed      { background: #eceff1; color: #546e7a; }
 
 .pager { display:flex; justify-content:center; margin-top:20px; }
 .empty { padding:48px 0; }

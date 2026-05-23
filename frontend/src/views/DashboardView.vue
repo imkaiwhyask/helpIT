@@ -2,7 +2,7 @@
   <div>
     <!-- Stat cards -->
     <div class="stat-grid">
-      <div class="stat-card" v-for="s in statCards" :key="s.label">
+      <div class="stat-card" v-for="s in statCards" :key="s.label" :style="{ borderLeftColor: s.color }">
         <div class="stat-icon" :style="{ background: s.bg }">
           <el-icon :style="{ color: s.color }"><component :is="s.icon" /></el-icon>
         </div>
@@ -82,25 +82,25 @@ const router = useRouter();
 const data = ref(null);
 
 const statCards = [
-  { key: 'open',           label: 'Open',            icon: 'FolderOpened',  color: '#60a5fa', bg: 'rgba(37,99,235,0.15)' },
-  { key: 'in_progress',   label: 'In Progress',     icon: 'Loading',       color: '#a78bfa', bg: 'rgba(124,58,237,0.15)' },
-  { key: 'on_hold',       label: 'On Hold',         icon: 'VideoPause',    color: '#fbbf24', bg: 'rgba(217,119,6,0.15)' },
-  { key: 'overdue',       label: 'Overdue',         icon: 'Warning',       color: '#f87171', bg: 'rgba(220,38,38,0.15)' },
-  { key: 'resolved_today',label: 'Resolved Today',  icon: 'CircleCheck',   color: '#4ade80', bg: 'rgba(22,163,74,0.15)' },
+  { key: 'open',           label: 'Open',            icon: 'FolderOpened',  color: '#1565c0', bg: '#e3f2fd' },
+  { key: 'in_progress',   label: 'In Progress',     icon: 'Loading',       color: '#4527a0', bg: '#ede7f6' },
+  { key: 'on_hold',       label: 'On Hold',         icon: 'VideoPause',    color: '#e65100', bg: '#fff3e0' },
+  { key: 'overdue',       label: 'Overdue',         icon: 'Warning',       color: '#c62828', bg: '#ffcdd2' },
+  { key: 'resolved_today',label: 'Resolved Today',  icon: 'CircleCheck',   color: '#2e7d32', bg: '#c8e6c9' },
 ];
 
 const slaReady = computed(() => !!data.value);
 
 const slaOptions = computed(() => ({
-  chart: { type: 'area', toolbar: { show: false }, sparkline: { enabled: false }, background: 'transparent', foreColor: 'rgba(241,245,249,0.55)' },
+  chart: { type: 'area', toolbar: { show: false }, sparkline: { enabled: false }, background: 'transparent', foreColor: 'rgba(0,0,0,0.54)' },
   stroke: { curve: 'smooth', width: 2 },
-  fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05 } },
+  fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.02 } },
   dataLabels: { enabled: false },
-  xaxis: { categories: data.value?.sla_compliance.map(d => d.date) || [], labels: { style: { colors: 'rgba(241,245,249,0.55)' } } },
-  yaxis: { min: 0, max: 100, labels: { formatter: v => v + '%', style: { colors: 'rgba(241,245,249,0.55)' } } },
-  colors: ['#00c7d4'],
-  tooltip: { y: { formatter: v => (v ?? 'N/A') + '%' }, theme: 'dark' },
-  grid: { borderColor: 'rgba(255,255,255,0.08)' },
+  xaxis: { categories: data.value?.sla_compliance.map(d => d.date) || [], labels: { style: { colors: 'rgba(0,0,0,0.54)' } } },
+  yaxis: { min: 0, max: 100, labels: { formatter: v => v + '%', style: { colors: 'rgba(0,0,0,0.54)' } } },
+  colors: ['#0288d1'],
+  tooltip: { y: { formatter: v => (v ?? 'N/A') + '%' }, theme: 'light' },
+  grid: { borderColor: 'rgba(0,0,0,0.12)' },
   markers: { size: 4 },
 }));
 
@@ -110,15 +110,15 @@ const slaSeries = computed(() => [{
 }]);
 
 const priorityOptions = {
-  chart: { type: 'bar', toolbar: { show: false }, background: 'transparent', foreColor: 'rgba(241,245,249,0.55)' },
-  plotOptions: { bar: { borderRadius: 4, distributed: true } },
+  chart: { type: 'bar', toolbar: { show: false }, background: 'transparent', foreColor: 'rgba(0,0,0,0.54)' },
+  plotOptions: { bar: { borderRadius: 2, distributed: true } },
   legend: { show: false },
   dataLabels: { enabled: false },
-  xaxis: { categories: ['Critical', 'High', 'Medium', 'Low'], labels: { style: { colors: 'rgba(241,245,249,0.55)' } } },
-  yaxis: { labels: { style: { colors: 'rgba(241,245,249,0.55)' } } },
-  colors: ['#f87171', '#fb923c', '#fbbf24', '#4ade80'],
-  grid: { borderColor: 'rgba(255,255,255,0.08)' },
-  tooltip: { theme: 'dark' },
+  xaxis: { categories: ['Critical', 'High', 'Medium', 'Low'], labels: { style: { colors: 'rgba(0,0,0,0.54)' } } },
+  yaxis: { labels: { style: { colors: 'rgba(0,0,0,0.54)' } } },
+  colors: ['#c62828', '#e65100', '#f57f17', '#2e7d32'],
+  grid: { borderColor: 'rgba(0,0,0,0.12)' },
+  tooltip: { theme: 'light' },
 };
 
 const prioritySeries = computed(() => [{
@@ -133,12 +133,12 @@ const prioritySeries = computed(() => [{
 
 const statusOptions = {
   labels: ['Open', 'In Progress', 'On Hold', 'Resolved', 'Closed'],
-  colors: ['#60a5fa', '#a78bfa', '#fb923c', '#4ade80', '#94a3b8'],
-  legend: { position: 'bottom', fontSize: '12px', labels: { colors: 'rgba(241,245,249,0.7)' } },
+  colors: ['#1565c0', '#4527a0', '#e65100', '#2e7d32', '#546e7a'],
+  legend: { position: 'bottom', fontSize: '12px', labels: { colors: 'rgba(0,0,0,0.54)' } },
   dataLabels: { enabled: false },
   plotOptions: { pie: { donut: { size: '60%' } } },
-  chart: { background: 'transparent', foreColor: 'rgba(241,245,249,0.55)' },
-  tooltip: { theme: 'dark' },
+  chart: { background: 'transparent', foreColor: 'rgba(0,0,0,0.54)' },
+  tooltip: { theme: 'light' },
 };
 
 const statusSeries = computed(() => [
@@ -188,31 +188,30 @@ onMounted(async () => {
 @media (max-width: 1100px) { .stat-grid { grid-template-columns: repeat(3, 1fr); } }
 
 .stat-card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 10px;
-  padding: 18px;
+  background: #fff;
+  border-radius: 2px;
+  border-left: 3px solid transparent;
+  padding: 18px 18px 18px 16px;
   display: flex;
   align-items: center;
   gap: 14px;
-  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
 }
 .stat-icon {
   width: 44px; height: 44px;
-  border-radius: 10px;
+  border-radius: 2px;
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; flex-shrink: 0;
 }
-.stat-value { font-size: 24px; font-weight: 700; color: #f1f5f9; }
-.stat-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.stat-value { font-size: 24px; font-weight: 400; color: rgba(0,0,0,0.87); }
+.stat-label { font-size: 12px; color: rgba(0,0,0,0.54); margin-top: 2px; }
 
 .charts-row { display: flex; gap: 16px; margin-bottom: 20px; }
 .card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 10px;
+  background: #fff;
+  border-radius: 2px;
   padding: 20px;
-  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
 }
 .chart-wide { flex: 2; min-width: 0; }
 .chart-narrow { flex: 1; min-width: 0; }
@@ -223,11 +222,11 @@ onMounted(async () => {
   justify-content: space-between;
   margin-bottom: 14px;
 }
-.card-header h3 { font-size: 14px; font-weight: 600; color: #f1f5f9; }
-.card-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
-.see-all { font-size: 12px; color: #00c7d4; text-decoration: none; }
+.card-header h3 { font-size: 14px; font-weight: 500; color: rgba(0,0,0,0.87); }
+.card-sub { font-size: 12px; color: rgba(0,0,0,0.54); }
+.see-all { font-size: 12px; color: #0288d1; text-decoration: none; }
 
-.chart-empty { height: 220px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); }
+.chart-empty { height: 220px; display: flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.38); }
 
-.ticket-id { font-family: monospace; font-size: 12px; color: rgba(255,255,255,0.45); }
+.ticket-id { font-family: monospace; font-size: 12px; color: rgba(0,0,0,0.38); }
 </style>

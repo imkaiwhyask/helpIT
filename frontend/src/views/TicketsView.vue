@@ -185,19 +185,15 @@ onMounted(fetchTickets);
 .filter-spacer { flex: 1; }
 
 .card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 10px;
+  background: #fff;
+  border-radius: 2px;
   padding: 0;
   overflow: hidden;
-  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
 }
 
-.tid { font-family: monospace; font-size: 12px; color: rgba(255,255,255,0.45); font-weight: 600; }
-.ticket-title { font-size: 13px; font-weight: 500; color: #f1f5f9; }
+.tid { font-family: monospace; font-size: 12px; color: rgba(0,0,0,0.38); font-weight: 500; }
+.ticket-title { font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.87); }
 
 .pagination { padding: 14px 16px; display: flex; justify-content: flex-end; }
-
-:global(.clickable-row) { cursor: pointer; }
-:global(.clickable-row:hover td) { background: rgba(255,255,255,0.05) !important; }
 </style>

@@ -63,7 +63,7 @@
 
         <!-- SLA preview -->
         <div class="sla-bar">
-          <el-icon style="color:#0072bc"><Clock /></el-icon>
+          <el-icon><Clock /></el-icon>
           <span>Expected response within <strong>{{ slaResponse }}</strong> · Resolution within <strong>{{ slaResolution }}</strong></span>
         </div>
 
@@ -76,7 +76,7 @@
             native-type="submit"
             :loading="loading"
             :disabled="!form.title.trim()"
-            style="background:#0072bc;border-color:#0072bc;min-width:140px"
+            style="min-width:140px"
           >
             Submit Request
           </el-button>
@@ -165,56 +165,61 @@ async function submit() {
 .create-page { max-width: 720px; margin: 0 auto; padding: 36px 24px; }
 .breadcrumb {
   display:inline-flex; align-items:center; gap:6px;
-  color: #00c7d4; font-size:13px; font-weight:500;
+  color: #0288d1; font-size:13px; font-weight:500;
   text-decoration:none; margin-bottom:20px;
 }
 .breadcrumb:hover { text-decoration:underline; }
 
-.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius:16px; padding:36px; backdrop-filter: blur(12px); }
-.form-title { font-size:20px; font-weight:700; color: #f1f5f9; margin-bottom:6px; }
-.form-sub { font-size:14px; color: rgba(255,255,255,0.5); margin-bottom:28px; }
+.card {
+  background: #fff;
+  border-radius:2px; padding:36px;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
+}
+.form-title { font-size:20px; font-weight:500; color: rgba(0,0,0,0.87); margin-bottom:6px; }
+.form-sub { font-size:14px; color: rgba(0,0,0,0.54); margin-bottom:28px; }
 
 .cat-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
 .cat-card {
-  border:2px solid rgba(255,255,255,0.10); border-radius:10px; padding:14px 8px 12px;
+  border:1px solid rgba(0,0,0,0.23); border-radius:2px; padding:14px 8px 12px;
   text-align:center; cursor:pointer; transition:all 0.15s;
-  display:flex; flex-direction:column; align-items:center; gap:8px; background: transparent;
+  display:flex; flex-direction:column; align-items:center; gap:8px; background: #fff;
 }
-.cat-card:hover { border-color: #00c7d4; background: rgba(0,199,212,0.06); }
-.cat-selected { border-color: #00c7d4; background: rgba(0,199,212,0.10); }
+.cat-card:hover { border-color: #0288d1; background: rgba(2,136,209,0.04); }
+.cat-selected { border-color: #0288d1; border-width: 2px; background: #e3f2fd; }
 .cat-icon-wrap {
   width:40px; height:40px;
-  background: rgba(255,255,255,0.06); border-radius:10px;
+  background: #f5f5f5; border-radius:2px;
   display:flex; align-items:center; justify-content:center;
   flex-shrink:0;
 }
-.cat-selected .cat-icon-wrap { background: rgba(0,199,212,0.15); }
-.cat-icon { font-size:20px; color: rgba(255,255,255,0.5); }
-.cat-selected .cat-icon { color: #00c7d4; }
-.cat-name { font-size:12px; font-weight:600; color: rgba(255,255,255,0.7); line-height:1; }
+.cat-selected .cat-icon-wrap { background: rgba(2,136,209,0.12); }
+.cat-icon { font-size:20px; color: rgba(0,0,0,0.38); }
+.cat-selected .cat-icon { color: #0288d1; }
+.cat-name { font-size:12px; font-weight:500; color: rgba(0,0,0,0.54); line-height:1; }
+.cat-selected .cat-name { color: #0288d1; }
 
 .urgency-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
 .urgency-card {
-  border:2px solid rgba(255,255,255,0.10); border-radius:10px; padding:14px 12px;
-  cursor:pointer; transition:all 0.15s;
+  border:1px solid rgba(0,0,0,0.23); border-radius:2px; padding:14px 12px;
+  cursor:pointer; transition:all 0.15s; background: #fff;
 }
-.urgency-card:hover { border-color: rgba(255,255,255,0.25); }
-.urgency-label { font-size:13px; font-weight:700; margin-bottom:4px; color: rgba(255,255,255,0.7); }
-.urgency-desc { font-size:11px; color: rgba(255,255,255,0.4); line-height:1.3; }
+.urgency-card:hover { border-color: rgba(0,0,0,0.54); }
+.urgency-label { font-size:13px; font-weight:500; margin-bottom:4px; color: rgba(0,0,0,0.54); }
+.urgency-desc { font-size:11px; color: rgba(0,0,0,0.38); line-height:1.3; }
 
-.urgency-selected.urgency-low      { border-color: #4ade80; background: rgba(22,163,74,0.10); }
-.urgency-selected.urgency-medium   { border-color: #00c7d4; background: rgba(0,199,212,0.10); }
-.urgency-selected.urgency-high     { border-color: #fbbf24; background: rgba(234,179,8,0.10); }
-.urgency-selected.urgency-critical { border-color: #f87171; background: rgba(220,38,38,0.10); }
+.urgency-selected.urgency-low      { border-color: #2e7d32; border-width:2px; background: #f1f8e9; }
+.urgency-selected.urgency-medium   { border-color: #0288d1; border-width:2px; background: #e3f2fd; }
+.urgency-selected.urgency-high     { border-color: #f57f17; border-width:2px; background: #fff8e1; }
+.urgency-selected.urgency-critical { border-color: #c62828; border-width:2px; background: #ffebee; }
 
-.urgency-selected.urgency-low .urgency-label      { color: #4ade80; }
-.urgency-selected.urgency-medium .urgency-label   { color: #00c7d4; }
-.urgency-selected.urgency-high .urgency-label     { color: #fbbf24; }
-.urgency-selected.urgency-critical .urgency-label { color: #f87171; }
+.urgency-selected.urgency-low .urgency-label      { color: #2e7d32; }
+.urgency-selected.urgency-medium .urgency-label   { color: #0288d1; }
+.urgency-selected.urgency-high .urgency-label     { color: #f57f17; }
+.urgency-selected.urgency-critical .urgency-label { color: #c62828; }
 
 .sla-bar {
-  background: rgba(0,128,198,0.10); border: 1px solid rgba(0,128,198,0.25); border-radius:8px;
-  padding:10px 14px; font-size:13px; color: #60a5fa; margin-bottom:20px;
+  background: #e3f2fd; border: 1px solid rgba(2,136,209,0.25); border-radius:2px;
+  padding:10px 14px; font-size:13px; color: #1565c0; margin-bottom:20px;
   display:flex; align-items:center; gap:8px;
 }
 

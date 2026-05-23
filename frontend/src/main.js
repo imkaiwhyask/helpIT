@@ -22,13 +22,13 @@ app.use(VueApexCharts);
 
 if (typeof window !== 'undefined') {
   window.Apex = {
-    theme: { mode: 'dark' },
-    chart: { background: 'transparent', foreColor: '#94a3b8' },
-    grid: { borderColor: 'rgba(255,255,255,0.08)' },
-    tooltip: { theme: 'dark' },
-    xaxis: { labels: { style: { colors: 'rgba(241,245,249,0.55)' } } },
-    yaxis: { labels: { style: { colors: 'rgba(241,245,249,0.55)' } } },
-    legend: { labels: { colors: 'rgba(241,245,249,0.7)' } },
+    theme: { mode: 'light' },
+    chart: { background: 'transparent', foreColor: 'rgba(0,0,0,0.54)', fontFamily: 'Roboto, sans-serif' },
+    grid: { borderColor: 'rgba(0,0,0,0.12)' },
+    tooltip: { theme: 'light' },
+    xaxis: { labels: { style: { colors: 'rgba(0,0,0,0.54)', fontFamily: 'Roboto, sans-serif' } } },
+    yaxis: { labels: { style: { colors: 'rgba(0,0,0,0.54)', fontFamily: 'Roboto, sans-serif' } } },
+    legend: { labels: { colors: 'rgba(0,0,0,0.54)' } },
   };
 }
 

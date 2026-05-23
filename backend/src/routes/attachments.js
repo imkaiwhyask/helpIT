@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const FileType = require('file-type');
 const { prisma } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
@@ -20,8 +21,6 @@ const ALLOWED_MIME_TYPES = new Set([
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/zip','application/x-zip-compressed',
-  'application/json','application/xml',
-  'video/mp4',
 ]);
 
 const ALLOWED_EXTENSIONS = new Set([
@@ -31,8 +30,6 @@ const ALLOWED_EXTENSIONS = new Set([
   '.xls','.xlsx',
   '.doc','.docx',
   '.zip',
-  '.json','.xml',
-  '.mp4',
 ]);
 
 const storage = multer.diskStorage({
@@ -86,6 +83,21 @@ router.get('/tickets/:ticketId/attachments', async (req, res) => {
 // Upload attachment to a ticket
 router.post('/tickets/:ticketId/attachments', upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No valid file uploaded (max 10 MB, allowed types only)' });
+
+  // Magic byte validation — verify actual file content matches claimed type
+  try {
+    const detected = await FileType.fromFile(req.file.path);
+    const claimedMime = req.file.mimetype;
+    // text/plain and text/csv have no magic bytes — allow them through if extension is valid
+    const isTextType = claimedMime === 'text/plain' || claimedMime === 'text/csv';
+    if (!isTextType && (!detected || !ALLOWED_MIME_TYPES.has(detected.mime))) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'File content does not match its extension' });
+    }
+  } catch {
+    fs.unlinkSync(req.file.path);
+    return res.status(400).json({ error: 'Could not verify file type' });
+  }
 
   try {
     const ticketId = Number(req.params.ticketId);

@@ -51,17 +51,15 @@ function handleCmd(cmd) {
 </script>
 
 <style scoped>
-.portal-app { min-height: 100vh; display: flex; flex-direction: column; background: #070d1a; }
+.portal-app { min-height: 100vh; display: flex; flex-direction: column; background: #fafafa; }
 
 .portal-nav {
   position: sticky;
   top: 0;
   z-index: 100;
-  height: 58px;
-  background: rgba(5,12,24,0.9);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  height: 56px;
+  background: #0288d1;
+  box-shadow: 0 4px 5px rgba(0,0,0,0.14), 0 1px 10px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.20);
   display: flex;
   align-items: center;
   padding: 0 32px;
@@ -69,30 +67,34 @@ function handleCmd(cmd) {
 }
 
 .nav-brand { display: flex; align-items: center; text-decoration: none; }
-.nav-logo { height: 44px; width: auto; object-fit: contain; }
+.nav-logo { height: 40px; width: auto; object-fit: contain; filter: brightness(0) invert(1); }
 
-.nav-links { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.nav-links { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 
 .nav-link {
   text-decoration: none;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.9);
   font-size: 14px;
   font-weight: 500;
   padding: 6px 14px;
-  border-radius: 6px;
+  border-radius: 2px;
   transition: background 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 13px;
 }
-.nav-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
-.nav-link.router-link-active { color: #fff; background: rgba(255,255,255,0.15); }
+.nav-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.nav-link.router-link-active { color: #fff; background: rgba(255,255,255,0.18); }
 
 .nav-link-submit {
-  background: #00c7d4;
+  background: rgba(255,255,255,0.2);
   color: #fff !important;
   display: flex;
   align-items: center;
   gap: 5px;
+  border: 1px solid rgba(255,255,255,0.4);
 }
-.nav-link-submit:hover { background: #00a8b4 !important; }
+.nav-link-submit:hover { background: rgba(255,255,255,0.3) !important; }
 
 .nav-user {
   display: flex;
@@ -102,21 +104,21 @@ function handleCmd(cmd) {
   color: rgba(255,255,255,0.9);
   font-size: 13px;
   padding: 5px 10px;
-  border-radius: 8px;
+  border-radius: 2px;
   transition: background 0.15s;
 }
-.nav-user:hover { background: rgba(255,255,255,0.1); }
+.nav-user:hover { background: rgba(255,255,255,0.12); }
 
 .nav-avatar {
   width: 28px;
   height: 28px;
-  background: linear-gradient(135deg, #0080c6, #00c7d4);
+  background: rgba(255,255,255,0.25);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
   color: #fff;
 }
 

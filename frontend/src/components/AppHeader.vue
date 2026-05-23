@@ -1,9 +1,13 @@
 <template>
   <header class="app-header">
-    <div class="page-title">{{ pageTitle }}</div>
+    <div class="header-left">
+      <img src="@/assets/helpit_logo.png" alt="helpIT" class="header-logo" />
+      <div class="header-divider"></div>
+      <div class="page-title">{{ pageTitle }}</div>
+    </div>
     <div class="header-actions">
       <RouterLink to="/tickets/new">
-        <el-button type="primary" size="small">
+        <el-button class="header-btn" size="small">
           <el-icon><Plus /></el-icon> New Ticket
         </el-button>
       </RouterLink>
@@ -28,15 +32,16 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-
 const auth = useAuthStore();
 const route = useRoute();
 
 const titleMap = {
-  '/dashboard': 'Dashboard',
-  '/tickets':   'Tickets',
-  '/tickets/new': 'New Ticket',
-  '/users':     'User Management',
+  '/dashboard':  'Dashboard',
+  '/tickets':    'Tickets',
+  '/tickets/new':'New Ticket',
+  '/users':      'User Management',
+  '/kb':         'Knowledge Base',
+  '/reports':    'Reports',
 };
 
 const pageTitle = computed(() => {
@@ -55,25 +60,52 @@ function handleCommand(cmd) {
 
 <style scoped>
 .app-header {
-  background: rgba(5,12,24,0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: #0288d1;
+  box-shadow: 0 4px 5px rgba(0,0,0,0.14), 0 1px 10px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.20);
   padding: 0 24px; height: 56px;
   display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  z-index: 10;
 }
-.page-title { font-size: 16px; font-weight: 600; color: #f1f5f9; }
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header-logo {
+  height: 36px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  flex-shrink: 0;
+}
+.header-divider {
+  width: 1px;
+  height: 26px;
+  background: rgba(255,255,255,0.35);
+  flex-shrink: 0;
+}
+.page-title { font-size: 20px; font-weight: 500; color: #fff; letter-spacing: 0; }
 .header-actions { display: flex; align-items: center; gap: 14px; }
 .user-chip {
   display: flex; align-items: center; gap: 8px; cursor: pointer;
-  font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.75);
-  padding: 4px 8px; border-radius: 6px; transition: background 0.15s;
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.9);
+  padding: 4px 8px; border-radius: 2px; transition: background 0.15s;
 }
-.user-chip:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.user-chip:hover { background: rgba(255,255,255,0.12); color: #fff; }
 .avatar-sm {
   width: 28px; height: 28px; border-radius: 50%;
-  background: linear-gradient(135deg, #0080c6, #00c7d4);
+  background: rgba(255,255,255,0.25);
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 600; color: #fff;
+  font-size: 11px; font-weight: 500; color: #fff;
+}
+.header-btn {
+  background: #fff !important;
+  border-color: #fff !important;
+  color: #0288d1 !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.20) !important;
+}
+.header-btn:hover {
+  background: #e3f2fd !important;
+  border-color: #e3f2fd !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.20) !important;
 }
 </style>

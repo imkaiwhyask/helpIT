@@ -34,7 +34,7 @@ const router = createRouter({
         { path: 'tickets',      component: TicketsView },
         { path: 'tickets/new',  component: CreateTicketView },
         { path: 'tickets/:id',  component: TicketDetailView },
-        { path: 'users',        component: UserManagementView },
+        { path: 'users',        component: UserManagementView, meta: { roles: ['admin'] } },
         { path: 'kb',           component: KnowledgeBaseView },
         { path: 'reports',      component: ReportsView },
       ],

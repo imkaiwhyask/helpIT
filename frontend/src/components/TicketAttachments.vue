@@ -149,35 +149,35 @@ defineExpose({ load });
 .attachments { display:flex; flex-direction:column; gap:10px; }
 
 .att-header { display:flex; align-items:center; gap:8px; }
-.att-title { font-size:13px; font-weight:600; color: rgba(255,255,255,0.8); }
+.att-title { font-size:13px; font-weight:500; color: rgba(0,0,0,0.87); }
 .att-count {
-  font-size:11px; font-weight:700; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
-  padding:1px 7px; border-radius:10px;
+  font-size:11px; font-weight:500; background: #e3f2fd; color: #1565c0;
+  padding:1px 7px; border-radius:2px;
 }
 
 .att-list { display:flex; flex-direction:column; gap:6px; }
 .att-item {
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-  border-radius:8px; padding:8px 10px; display:flex; align-items:center; gap:10px;
+  background: #f5f5f5; border: 1px solid rgba(0,0,0,0.12);
+  border-radius:2px; padding:8px 10px; display:flex; align-items:center; gap:10px;
 }
-.att-file-icon { font-size:18px; color: rgba(255,255,255,0.45); flex-shrink:0; }
+.att-file-icon { font-size:18px; color: rgba(0,0,0,0.38); flex-shrink:0; }
 .att-info { flex:1; min-width:0; }
-.att-name { font-size:12.5px; font-weight:500; color: #f1f5f9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.att-meta { font-size:11px; color: rgba(255,255,255,0.4); }
+.att-name { font-size:12.5px; font-weight:500; color: rgba(0,0,0,0.87); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.att-meta { font-size:11px; color: rgba(0,0,0,0.54); }
 .att-actions { display:flex; gap:4px; }
-.att-empty { font-size:12.5px; color: rgba(255,255,255,0.35); }
+.att-empty { font-size:12.5px; color: rgba(0,0,0,0.38); }
 
 .drop-zone {
-  border:2px dashed rgba(255,255,255,0.15); border-radius:8px; padding:14px 16px;
-  text-align:center; cursor:pointer; font-size:12.5px; color: rgba(255,255,255,0.4);
+  border:2px dashed rgba(0,0,0,0.23); border-radius:2px; padding:14px 16px;
+  text-align:center; cursor:pointer; font-size:12.5px; color: rgba(0,0,0,0.54);
   display:flex; align-items:center; justify-content:center; gap:8px;
   transition:border-color 0.15s, background 0.15s;
 }
-.drop-zone:hover, .drop-over { border-color: #00c7d4; color: #00c7d4; background: rgba(0,199,212,0.06); }
+.drop-zone:hover, .drop-over { border-color: #0288d1; color: #0288d1; background: rgba(2,136,209,0.04); }
 .drop-icon { font-size:16px; }
-.size-hint { color: rgba(255,255,255,0.2); font-size:11px; }
+.size-hint { color: rgba(0,0,0,0.38); font-size:11px; }
 
-.upload-progress { display:flex; align-items:center; gap:8px; font-size:12.5px; color: rgba(255,255,255,0.6); }
+.upload-progress { display:flex; align-items:center; gap:8px; font-size:12.5px; color: rgba(0,0,0,0.54); }
 @keyframes spin { to { transform:rotate(360deg); } }
 .spin { animation:spin 1s linear infinite; }
 </style>

@@ -1,11 +1,15 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { prisma } = require('../db');
 const { requireAuth, JWT_SECRET } = require('../middleware/auth');
 
-// Dummy hash prevents timing-based user enumeration (always runs bcrypt even when user not found)
-const DUMMY_HASH = '$2a$12$aaaaaaaaaaaaaaaaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+// Generated once at startup — prevents timing-based user enumeration
+const DUMMY_HASH = bcrypt.hashSync(crypto.randomBytes(32).toString('hex'), 12);
+
+const MAX_FAILED_LOGINS = 5;
+const LOCKOUT_MINUTES   = 30;
 
 const router = express.Router();
 
@@ -29,11 +33,37 @@ router.post('/login', async (req, res) => {
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
     const user = await prisma.user.findFirst({ where: { email, is_active: true } });
+
+    // Account lockout check
+    if (user?.locked_until && user.locked_until > new Date()) {
+      return res.status(429).json({ error: 'Account temporarily locked. Try again later.' });
+    }
+
     const hash = user ? user.password_hash : DUMMY_HASH;
     const valid = await bcrypt.compare(password, hash);
+
     if (!user || !valid) {
+      // Increment failed attempt counter; lock after MAX_FAILED_LOGINS
+      if (user) {
+        const count = user.failed_login_count + 1;
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            failed_login_count: count,
+            locked_until: count >= MAX_FAILED_LOGINS
+              ? new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000)
+              : null,
+          },
+        });
+      }
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
+    // Successful login — reset lockout state
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { failed_login_count: 0, locked_until: null },
+    });
 
     const token = jwt.sign(
       { id: user.id, email: user.email, name: user.name, role: user.role },
@@ -43,7 +73,7 @@ router.post('/login', async (req, res) => {
 
     res.cookie('token', token, COOKIE_OPTIONS);
 
-    const { password_hash, ...safeUser } = user;
+    const { password_hash, failed_login_count, locked_until, ...safeUser } = user;
     res.json({ user: safeUser });
   } catch (err) {
     console.error(err);

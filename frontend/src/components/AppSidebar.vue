@@ -1,13 +1,14 @@
 <template>
   <aside class="sidebar">
-    <div class="logo">
-      <img src="@/assets/helpit_logo.png" alt="helpIT" class="logo-img" />
-    </div>
-
     <nav class="nav">
-      <RouterLink v-for="item in navItems" :key="item.to" :to="item.to" class="nav-item">
-        <el-icon><component :is="item.icon" /></el-icon>
-        <span>{{ item.label }}</span>
+      <RouterLink
+        v-for="item in navItems"
+        :key="item.to"
+        :to="item.to"
+        class="nav-item"
+      >
+        <el-icon class="nav-icon"><component :is="item.icon" /></el-icon>
+        <span class="nav-label">{{ item.label }}</span>
       </RouterLink>
     </nav>
 
@@ -28,53 +29,116 @@ import { computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
 
 const auth = useAuthStore();
+
 const initials = computed(() => {
   const name = auth.user?.name || '';
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 });
 
-const navItems = [
-  { to: '/dashboard', label: 'Dashboard',        icon: 'Odometer' },
-  { to: '/tickets',   label: 'Tickets',           icon: 'Tickets' },
-  { to: '/users',     label: 'User Management',   icon: 'UserFilled' },
-  { to: '/kb',        label: 'Knowledge Base',    icon: 'Document' },
-  { to: '/reports',   label: 'Reports',           icon: 'DataAnalysis' },
+const allNavItems = [
+  { to: '/dashboard', label: 'Dashboard',      icon: 'Odometer',     roles: null           },
+  { to: '/tickets',   label: 'Tickets',         icon: 'Tickets',      roles: null           },
+  { to: '/users',     label: 'User Management', icon: 'UserFilled',   roles: ['admin']      },
+  { to: '/kb',        label: 'Knowledge Base',  icon: 'Document',     roles: null           },
+  { to: '/reports',   label: 'Reports',         icon: 'DataAnalysis', roles: null           },
 ];
+
+const navItems = computed(() =>
+  allNavItems.filter(item => !item.roles || item.roles.includes(auth.user?.role))
+);
 </script>
 
 <style scoped>
+/* ─── Shell ─────────────────────────────────────────────────────── */
 .sidebar {
-  width: 240px; min-width: 240px;
-  background: #050c18;
-  border-right: 1px solid rgba(255,255,255,0.08);
-  color: rgba(241,245,249,0.6);
-  display: flex; flex-direction: column; height: 100vh;
+  width: 57px;
+  background: #fff;
+  border-right: 1px solid rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  flex-shrink: 0;
+  overflow: hidden;
+  will-change: width;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 20;
 }
-.logo {
-  display: flex; align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.logo-img { height: 48px; width: auto; object-fit: contain; }
-.nav { flex: 1; padding: 12px 0; }
+.sidebar:hover { width: 240px; }
+
+/* ─── Nav ────────────────────────────────────────────────────────── */
+.nav { flex: 1; padding: 4px 0; }
+
 .nav-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 20px; text-decoration: none;
-  color: rgba(255,255,255,0.5); font-size: 14px; font-weight: 500;
-  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  padding: 12px 0 12px 17px;
+  text-decoration: none;
+  color: rgba(0,0,0,0.54);
+  font-size: 14px;
+  font-weight: 500;
   border-left: 3px solid transparent;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
 }
-.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
-.nav-item.router-link-active { background: rgba(0,199,212,0.1); color: #00c7d4; border-left-color: #00c7d4; }
-.nav-item .el-icon { font-size: 17px; }
-.sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
-.user-info { display: flex; align-items: center; gap: 10px; }
+.nav-item:hover { background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.87); }
+.nav-item.router-link-active {
+  background: rgba(2,136,209,0.08);
+  color: #0288d1;
+  border-left-color: #0288d1;
+}
+
+.nav-icon { font-size: 18px; flex-shrink: 0; }
+
+/* Label slides in alongside the sidebar width transition */
+.nav-label {
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  margin-left: 0;
+  white-space: nowrap;
+  transition: max-width    0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity      0.2s  cubic-bezier(0.4, 0, 0.2, 1),
+              margin-left  0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sidebar:hover .nav-label {
+  max-width: 180px;
+  opacity: 1;
+  margin-left: 14px;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────── */
+.sidebar-footer {
+  padding: 14px 0 14px 11px;
+  border-top: 1px solid rgba(0,0,0,0.12);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.user-info { display: flex; align-items: center; }
+
 .avatar {
   width: 34px; height: 34px; flex-shrink: 0;
-  background: linear-gradient(135deg, #0080c6, #00c7d4);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 600; color: #fff;
+  background: #0288d1;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500; color: #fff;
 }
-.user-name { font-size: 13px; font-weight: 600; color: #f1f5f9; }
-.user-role { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: capitalize; margin-top: 1px; }
+
+.user-details {
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  margin-left: 0;
+  white-space: nowrap;
+  transition: max-width    0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity      0.2s  cubic-bezier(0.4, 0, 0.2, 1),
+              margin-left  0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sidebar:hover .user-details {
+  max-width: 160px;
+  opacity: 1;
+  margin-left: 10px;
+}
+
+.user-name { font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.87); }
+.user-role { font-size: 11px; color: rgba(0,0,0,0.38); text-transform: capitalize; margin-top: 1px; }
 </style>

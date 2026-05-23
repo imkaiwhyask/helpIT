@@ -21,6 +21,9 @@ const app  = express();
 const PORT = process.env.PORT || 3001;
 const isProd = process.env.NODE_ENV === 'production';
 
+// Trust the first proxy (nginx) so rate limiters use real client IP
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet());
 
@@ -60,6 +63,11 @@ const authLimiter = rateLimit({
   message: { error: 'Too many login attempts. Try again in 15 minutes.' },
 });
 app.use('/api/auth/login', authLimiter);
+
+// Health check — no auth required, used by Docker/k8s
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // Routes
 app.use('/api/auth',      authRoutes);

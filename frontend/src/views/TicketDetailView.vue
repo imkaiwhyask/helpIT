@@ -78,9 +78,10 @@
         </el-select>
 
         <div class="label">Assigned To</div>
-        <el-select v-model="editAssigned" style="width:100%" clearable placeholder="Unassigned" @change="saveAssigned">
-          <el-option v-for="u in allUsers" :key="u.id" :value="u.id" :label="u.name" />
+        <el-select v-if="isItStaff" v-model="editAssigned" style="width:100%" clearable placeholder="Unassigned" @change="saveAssigned">
+          <el-option v-for="u in itStaff" :key="u.id" :value="u.id" :label="u.name" />
         </el-select>
+        <div v-else class="readonly-value">{{ ticket.assigned_name || 'Unassigned' }}</div>
       </div>
 
       <!-- Ticket info -->
@@ -110,7 +111,7 @@
         <TicketAttachments :ticket-id="ticket.id" />
       </div>
 
-      <div class="card danger-zone">
+      <div v-if="isAdmin" class="card danger-zone">
         <el-popconfirm title="Delete this ticket? This cannot be undone." @confirm="deleteTicket">
           <template #reference>
             <el-button type="danger" plain size="small" style="width:100%">Delete Ticket</el-button>
@@ -139,9 +140,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import api from '../api';
 import TicketAttachments from '../components/TicketAttachments.vue';
+import { useAuthStore } from '../stores/auth';
 
 const route  = useRoute();
 const router = useRouter();
+const auth   = useAuthStore();
+const isItStaff = computed(() => auth.user?.role === 'admin' || auth.user?.role === 'technician');
+const isAdmin   = computed(() => auth.user?.role === 'admin');
 const ticket = ref(null);
 const notFound = ref(false);
 const allUsers = ref([]);
@@ -167,6 +172,10 @@ const priorityOpts = [
   { value: 'medium',   label: 'Medium' },
   { value: 'low',      label: 'Low' },
 ];
+
+const itStaff = computed(() =>
+  allUsers.value.filter(u => u.role === 'admin' || u.role === 'technician')
+);
 
 const slaStatus = computed(() => {
   if (!ticket.value) return 'ok';
@@ -263,64 +272,63 @@ onMounted(load);
 .detail-sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
 
 .card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.10);
-  backdrop-filter: blur(12px);
-  border-radius: 10px;
+  background: #fff;
+  border-radius: 2px;
   padding: 20px;
+  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
 }
 
 .ticket-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 12px; }
-.ticket-num { font-size: 12px; color: rgba(255,255,255,0.4); font-family: monospace; margin-bottom: 4px; }
-.ticket-title-full { font-size: 18px; font-weight: 600; color: #f1f5f9; line-height: 1.3; }
+.ticket-num { font-size: 12px; color: rgba(0,0,0,0.38); font-family: monospace; margin-bottom: 4px; }
+.ticket-title-full { font-size: 18px; font-weight: 500; color: rgba(0,0,0,0.87); line-height: 1.3; }
 .header-badges { display: flex; gap: 6px; flex-shrink: 0; }
 
-.description-block .label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-.description-text { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.6; white-space: pre-wrap; }
+.description-block .label { font-size: 12px; font-weight: 500; color: rgba(0,0,0,0.54); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.description-text { font-size: 14px; color: rgba(0,0,0,0.87); line-height: 1.6; white-space: pre-wrap; }
 
-.section-heading { font-size: 13px; font-weight: 600; color: #f1f5f9; margin-bottom: 12px; }
+.section-heading { font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.87); margin-bottom: 12px; }
 
 .comments-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
 .comment { display: flex; gap: 10px; }
-.comment-internal { opacity: 0.9; }
 .comment-internal .comment-body {
-  background: rgba(234,179,8,0.08);
-  border: 1px solid rgba(234,179,8,0.2);
-  border-radius: 8px;
+  background: #fffde7;
+  border: 1px solid rgba(249,168,37,0.3);
+  border-radius: 2px;
   padding: 8px 12px;
   flex: 1;
 }
 .comment-public .comment-body {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 8px;
+  background: #f5f5f5;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 2px;
   padding: 8px 12px;
   flex: 1;
 }
 .comment-avatar {
   width: 30px; height: 30px;
-  background: linear-gradient(135deg, #0080c6, #00c7d4); border-radius: 50%;
+  background: #0288d1; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600; color: #fff; flex-shrink: 0;
+  font-size: 12px; font-weight: 500; color: #fff; flex-shrink: 0;
 }
 .comment-meta { display: flex; gap: 8px; align-items: baseline; margin-bottom: 4px; font-size: 12px; }
-.comment-meta strong { color: #f1f5f9; }
-.comment-time { color: rgba(255,255,255,0.4); margin-left: auto; }
-.internal-tag { background: rgba(234,179,8,0.2); color: #fbbf24; border-radius: 3px; padding: 1px 5px; font-size: 10px; font-weight: 600; }
-.comment-text { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+.comment-meta strong { color: rgba(0,0,0,0.87); }
+.comment-time { color: rgba(0,0,0,0.38); margin-left: auto; }
+.internal-tag { background: #fff8e1; color: #f57f17; border-radius: 2px; padding: 1px 5px; font-size: 10px; font-weight: 500; }
+.comment-text { font-size: 13px; color: rgba(0,0,0,0.87); line-height: 1.5; }
 
-.no-comments { text-align: center; color: rgba(255,255,255,0.4); font-size: 13px; padding: 20px 0; }
+.no-comments { text-align: center; color: rgba(0,0,0,0.38); font-size: 13px; padding: 20px 0; }
 
-.comment-form { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; }
+.comment-form { border-top: 1px solid rgba(0,0,0,0.12); padding-top: 16px; }
 .comment-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
 
-.label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.label { font-size: 12px; font-weight: 500; color: rgba(0,0,0,0.54); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
 
 .info-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .info-table td { padding: 5px 0; vertical-align: top; }
-.info-table td:first-child { color: rgba(255,255,255,0.45); width: 45%; }
-.info-table td:last-child { color: #f1f5f9; font-weight: 500; }
+.info-table td:first-child { color: rgba(0,0,0,0.54); width: 45%; }
+.info-table td:last-child { color: rgba(0,0,0,0.87); font-weight: 500; }
 
+.readonly-value { font-size: 13px; color: rgba(0,0,0,0.87); padding: 6px 0; }
 .danger-zone { padding: 12px; }
 
 .empty-state, .loading-state { padding: 40px; }
