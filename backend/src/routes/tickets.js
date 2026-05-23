@@ -35,6 +35,15 @@ const TICKET_INCLUDE = {
   creator:       { select: { name: true } },
 };
 
+async function isValidAssignee(id) {
+  if (!id) return false;
+  const u = await prisma.user.findUnique({
+    where: { id, is_active: true },
+    select: { role: true },
+  });
+  return u?.role === 'technician' || u?.role === 'admin';
+}
+
 // Pick least-loaded active technician for round-robin auto-assign
 async function autoAssign() {
   const result = await prisma.$queryRaw`
@@ -151,7 +160,14 @@ router.post('/', async (req, res) => {
     const resolutionDue = addHours(now, SLA[priority]?.resolution ?? 24);
 
     // Users cannot choose their assignee — always auto-assign
-    let assignee = (req.user.role !== 'user' && assigned_to) ? Number(assigned_to) : null;
+    let assignee = null;
+    if (req.user.role !== 'user' && assigned_to) {
+      const candidateId = Number(assigned_to);
+      if (!(await isValidAssignee(candidateId))) {
+        return res.status(400).json({ error: 'Assignee must be an active technician or admin' });
+      }
+      assignee = candidateId;
+    }
     if (!assignee && (auto_assign || req.user.role === 'user')) {
       assignee = await autoAssign();
     }
@@ -212,9 +228,18 @@ router.put('/:id', async (req, res) => {
     const now = new Date();
     const newPriority  = priority  ?? ticket.priority;
     const newStatus    = status    ?? ticket.status;
-    const newAssigned  = 'assigned_to' in req.body
-      ? (assigned_to ? Number(assigned_to) : null)
-      : ticket.assigned_to;
+    let newAssigned = ticket.assigned_to;
+    if ('assigned_to' in req.body) {
+      if (assigned_to) {
+        const candidateId = Number(assigned_to);
+        if (!(await isValidAssignee(candidateId))) {
+          return res.status(400).json({ error: 'Assignee must be an active technician or admin' });
+        }
+        newAssigned = candidateId;
+      } else {
+        newAssigned = null;
+      }
+    }
 
     let resolved_at           = ticket.resolved_at;
     let sla_resolution_breached = ticket.sla_resolution_breached;
