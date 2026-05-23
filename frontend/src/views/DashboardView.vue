@@ -82,25 +82,25 @@ const router = useRouter();
 const data = ref(null);
 
 const statCards = [
-  { key: 'open',           label: 'Open',            icon: 'FolderOpened',  color: '#2563eb', bg: '#eff6ff' },
-  { key: 'in_progress',   label: 'In Progress',     icon: 'Loading',       color: '#7c3aed', bg: '#f5f3ff' },
-  { key: 'on_hold',       label: 'On Hold',         icon: 'VideoPause',    color: '#d97706', bg: '#fffbeb' },
-  { key: 'overdue',       label: 'Overdue',         icon: 'Warning',       color: '#dc2626', bg: '#fef2f2' },
-  { key: 'resolved_today',label: 'Resolved Today',  icon: 'CircleCheck',   color: '#16a34a', bg: '#f0fdf4' },
+  { key: 'open',           label: 'Open',            icon: 'FolderOpened',  color: '#60a5fa', bg: 'rgba(37,99,235,0.15)' },
+  { key: 'in_progress',   label: 'In Progress',     icon: 'Loading',       color: '#a78bfa', bg: 'rgba(124,58,237,0.15)' },
+  { key: 'on_hold',       label: 'On Hold',         icon: 'VideoPause',    color: '#fbbf24', bg: 'rgba(217,119,6,0.15)' },
+  { key: 'overdue',       label: 'Overdue',         icon: 'Warning',       color: '#f87171', bg: 'rgba(220,38,38,0.15)' },
+  { key: 'resolved_today',label: 'Resolved Today',  icon: 'CircleCheck',   color: '#4ade80', bg: 'rgba(22,163,74,0.15)' },
 ];
 
 const slaReady = computed(() => !!data.value);
 
 const slaOptions = computed(() => ({
-  chart: { type: 'area', toolbar: { show: false }, sparkline: { enabled: false } },
+  chart: { type: 'area', toolbar: { show: false }, sparkline: { enabled: false }, background: 'transparent', foreColor: 'rgba(241,245,249,0.55)' },
   stroke: { curve: 'smooth', width: 2 },
   fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05 } },
   dataLabels: { enabled: false },
-  xaxis: { categories: data.value?.sla_compliance.map(d => d.date) || [] },
-  yaxis: { min: 0, max: 100, labels: { formatter: v => v + '%' } },
-  colors: ['#2563eb'],
-  tooltip: { y: { formatter: v => (v ?? 'N/A') + '%' } },
-  grid: { borderColor: '#f1f5f9' },
+  xaxis: { categories: data.value?.sla_compliance.map(d => d.date) || [], labels: { style: { colors: 'rgba(241,245,249,0.55)' } } },
+  yaxis: { min: 0, max: 100, labels: { formatter: v => v + '%', style: { colors: 'rgba(241,245,249,0.55)' } } },
+  colors: ['#00c7d4'],
+  tooltip: { y: { formatter: v => (v ?? 'N/A') + '%' }, theme: 'dark' },
+  grid: { borderColor: 'rgba(255,255,255,0.08)' },
   markers: { size: 4 },
 }));
 
@@ -110,13 +110,15 @@ const slaSeries = computed(() => [{
 }]);
 
 const priorityOptions = {
-  chart: { type: 'bar', toolbar: { show: false } },
+  chart: { type: 'bar', toolbar: { show: false }, background: 'transparent', foreColor: 'rgba(241,245,249,0.55)' },
   plotOptions: { bar: { borderRadius: 4, distributed: true } },
   legend: { show: false },
   dataLabels: { enabled: false },
-  xaxis: { categories: ['Critical', 'High', 'Medium', 'Low'] },
-  colors: ['#ef4444', '#f97316', '#eab308', '#22c55e'],
-  grid: { borderColor: '#f1f5f9' },
+  xaxis: { categories: ['Critical', 'High', 'Medium', 'Low'], labels: { style: { colors: 'rgba(241,245,249,0.55)' } } },
+  yaxis: { labels: { style: { colors: 'rgba(241,245,249,0.55)' } } },
+  colors: ['#f87171', '#fb923c', '#fbbf24', '#4ade80'],
+  grid: { borderColor: 'rgba(255,255,255,0.08)' },
+  tooltip: { theme: 'dark' },
 };
 
 const prioritySeries = computed(() => [{
@@ -131,10 +133,12 @@ const prioritySeries = computed(() => [{
 
 const statusOptions = {
   labels: ['Open', 'In Progress', 'On Hold', 'Resolved', 'Closed'],
-  colors: ['#2563eb', '#7c3aed', '#f97316', '#16a34a', '#6b7280'],
-  legend: { position: 'bottom', fontSize: '12px' },
+  colors: ['#60a5fa', '#a78bfa', '#fb923c', '#4ade80', '#94a3b8'],
+  legend: { position: 'bottom', fontSize: '12px', labels: { colors: 'rgba(241,245,249,0.7)' } },
   dataLabels: { enabled: false },
   plotOptions: { pie: { donut: { size: '60%' } } },
+  chart: { background: 'transparent', foreColor: 'rgba(241,245,249,0.55)' },
+  tooltip: { theme: 'dark' },
 };
 
 const statusSeries = computed(() => [
@@ -184,13 +188,14 @@ onMounted(async () => {
 @media (max-width: 1100px) { .stat-grid { grid-template-columns: repeat(3, 1fr); } }
 
 .stat-card {
-  background: #fff;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
   border-radius: 10px;
   padding: 18px;
   display: flex;
   align-items: center;
   gap: 14px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  backdrop-filter: blur(12px);
 }
 .stat-icon {
   width: 44px; height: 44px;
@@ -198,15 +203,16 @@ onMounted(async () => {
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; flex-shrink: 0;
 }
-.stat-value { font-size: 24px; font-weight: 700; color: #0f172a; }
-.stat-label { font-size: 12px; color: #64748b; margin-top: 2px; }
+.stat-value { font-size: 24px; font-weight: 700; color: #f1f5f9; }
+.stat-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
 
 .charts-row { display: flex; gap: 16px; margin-bottom: 20px; }
 .card {
-  background: #fff;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  backdrop-filter: blur(12px);
 }
 .chart-wide { flex: 2; min-width: 0; }
 .chart-narrow { flex: 1; min-width: 0; }
@@ -217,34 +223,11 @@ onMounted(async () => {
   justify-content: space-between;
   margin-bottom: 14px;
 }
-.card-header h3 { font-size: 14px; font-weight: 600; color: #0f172a; }
-.card-sub { font-size: 12px; color: #94a3b8; }
-.see-all { font-size: 12px; color: #2563eb; text-decoration: none; }
+.card-header h3 { font-size: 14px; font-weight: 600; color: #f1f5f9; }
+.card-sub { font-size: 12px; color: rgba(255,255,255,0.4); }
+.see-all { font-size: 12px; color: #00c7d4; text-decoration: none; }
 
-.chart-empty { height: 220px; display: flex; align-items: center; justify-content: center; color: #94a3b8; }
+.chart-empty { height: 220px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); }
 
-.ticket-id { font-family: monospace; font-size: 12px; color: #64748b; }
-
-/* Badges */
-.badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-.pri-critical { background: #fef2f2; color: #dc2626; }
-.pri-high     { background: #fff7ed; color: #ea580c; }
-.pri-medium   { background: #fefce8; color: #ca8a04; }
-.pri-low      { background: #f0fdf4; color: #16a34a; }
-.sta-open        { background: #eff6ff; color: #2563eb; }
-.sta-in_progress { background: #f5f3ff; color: #7c3aed; }
-.sta-on_hold     { background: #fff7ed; color: #ea580c; }
-.sta-resolved    { background: #f0fdf4; color: #16a34a; }
-.sta-closed      { background: #f9fafb; color: #6b7280; }
-.sla-ok      { background: #f0fdf4; color: #16a34a; }
-.sla-risk    { background: #fffbeb; color: #d97706; }
-.sla-breached{ background: #fef2f2; color: #dc2626; }
-.sla-met     { background: #f0fdf4; color: #16a34a; }
+.ticket-id { font-family: monospace; font-size: 12px; color: rgba(255,255,255,0.45); }
 </style>

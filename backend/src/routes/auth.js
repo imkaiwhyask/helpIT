@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 const { prisma } = require('../db');
 const { requireAuth, JWT_SECRET } = require('../middleware/auth');
 
+// Dummy hash prevents timing-based user enumeration (always runs bcrypt even when user not found)
+const DUMMY_HASH = '$2a$12$aaaaaaaaaaaaaaaaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+
 const router = express.Router();
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -26,7 +29,9 @@ router.post('/login', async (req, res) => {
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
     const user = await prisma.user.findFirst({ where: { email, is_active: true } });
-    if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+    const hash = user ? user.password_hash : DUMMY_HASH;
+    const valid = await bcrypt.compare(password, hash);
+    if (!user || !valid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 

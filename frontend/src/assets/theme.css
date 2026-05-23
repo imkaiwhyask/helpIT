@@ -1,0 +1,238 @@
+/* ============================================================
+   helpIT – Global Dark Glassmorphism Theme
+   Applied on top of Element Plus default CSS
+   ============================================================ */
+
+/* ── Tables ── */
+.el-table { background: transparent !important; }
+.el-table__header-wrapper,
+.el-table__body-wrapper { background: transparent !important; }
+.el-table th.el-table__cell {
+  background: rgba(255,255,255,0.03) !important;
+  color: rgba(241,245,249,0.55) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+.el-table td.el-table__cell {
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  color: #f1f5f9 !important;
+}
+.el-table tr { background: transparent !important; }
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+  background: rgba(255,255,255,0.05) !important;
+}
+.el-table__inner-wrapper::before { background: rgba(255,255,255,0.08) !important; }
+.el-table__empty-block { background: transparent !important; }
+.el-table__empty-text { color: rgba(241,245,249,0.4) !important; }
+
+/* ── Inputs ── */
+.el-input__wrapper {
+  background: rgba(255,255,255,0.06) !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.12) inset !important;
+}
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px #00c7d4 inset !important;
+}
+.el-input__inner { color: #f1f5f9 !important; }
+.el-input__inner::placeholder { color: rgba(255,255,255,0.3) !important; }
+.el-textarea__inner {
+  background: rgba(255,255,255,0.06) !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.12) inset !important;
+  color: #f1f5f9 !important;
+}
+.el-textarea__inner:focus {
+  box-shadow: 0 0 0 1px #00c7d4 inset !important;
+}
+.el-textarea__inner::placeholder { color: rgba(255,255,255,0.3) !important; }
+
+/* ── Selects ── */
+.el-select__wrapper {
+  background: rgba(255,255,255,0.06) !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.12) inset !important;
+  color: #f1f5f9 !important;
+}
+.el-select__wrapper.is-focused {
+  box-shadow: 0 0 0 1px #00c7d4 inset !important;
+}
+.el-select__placeholder,
+.el-select__selected-item { color: #f1f5f9 !important; }
+.el-select-dropdown {
+  background: #0d1a2e !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+.el-select-dropdown__item { color: rgba(241,245,249,0.8) !important; }
+.el-select-dropdown__item:hover,
+.el-select-dropdown__item.hover {
+  background: rgba(255,255,255,0.08) !important;
+}
+.el-select-dropdown__item.selected,
+.el-select-dropdown__item.is-selected { color: #00c7d4 !important; }
+
+/* ── Dialog ── */
+.el-dialog {
+  background: #0d1a2e !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+.el-dialog__title { color: #f1f5f9 !important; }
+.el-dialog__body { color: rgba(241,245,249,0.8) !important; }
+.el-dialog__header {
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  padding-bottom: 16px !important;
+}
+.el-dialog__footer { border-top: 1px solid rgba(255,255,255,0.08) !important; }
+.el-overlay { background: rgba(7,13,26,0.85) !important; }
+.el-dialog__headerbtn .el-dialog__close { color: rgba(241,245,249,0.5) !important; }
+.el-dialog__headerbtn:hover .el-dialog__close { color: #f1f5f9 !important; }
+
+/* ── Pagination ── */
+.el-pagination button,
+.el-pagination .el-pager li {
+  background: rgba(255,255,255,0.05) !important;
+  color: rgba(241,245,249,0.7) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+.el-pagination .el-pager li.is-active {
+  background: #00c7d4 !important;
+  color: #fff !important;
+  border-color: #00c7d4 !important;
+}
+.el-pagination__total,
+.el-pagination__jump { color: rgba(241,245,249,0.5) !important; }
+.el-pagination__editor.el-input .el-input__inner { color: rgba(241,245,249,0.7) !important; }
+
+/* ── Dropdown menu ── */
+.el-dropdown-menu {
+  background: #0d1a2e !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+.el-dropdown-menu__item { color: rgba(241,245,249,0.8) !important; }
+.el-dropdown-menu__item:not(.is-disabled):hover {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+}
+.el-dropdown-menu__item.is-disabled { color: rgba(241,245,249,0.3) !important; }
+.el-popper.is-light .el-popper__arrow::before { display: none !important; }
+
+/* ── Form ── */
+.el-form-item__label { color: rgba(241,245,249,0.7) !important; }
+
+/* ── Checkbox ── */
+.el-checkbox__label { color: rgba(241,245,249,0.8) !important; }
+.el-checkbox__inner {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+
+/* ── Popover / Popconfirm ── */
+.el-popover.el-popper {
+  background: #0d1a2e !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  color: rgba(241,245,249,0.85) !important;
+}
+.el-popconfirm__main { color: rgba(241,245,249,0.85) !important; }
+.el-popper__arrow::before {
+  background: #0d1a2e !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+.el-popconfirm__action .el-button--text { color: rgba(241,245,249,0.7) !important; }
+
+/* ── Loading ── */
+.el-loading-mask { background: rgba(7,13,26,0.7) !important; }
+.el-loading-text { color: rgba(241,245,249,0.7) !important; }
+
+/* ── Skeleton ── */
+.el-skeleton__item {
+  background: rgba(255,255,255,0.08) !important;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.08) 25%,
+    rgba(255,255,255,0.12) 37%,
+    rgba(255,255,255,0.08) 63%
+  ) !important;
+}
+
+/* ── Empty ── */
+.el-empty__description p { color: rgba(241,245,249,0.45) !important; }
+.el-empty__image svg path { fill: rgba(255,255,255,0.08) !important; }
+
+/* ── Switch ── */
+.el-switch__label { color: rgba(241,245,249,0.7) !important; }
+
+/* ── Tag ── */
+.el-tag { border-color: transparent !important; }
+
+/* ── Input icon colors ── */
+.el-input__prefix-inner .el-icon,
+.el-input__suffix-inner .el-icon { color: rgba(255,255,255,0.4) !important; }
+.el-select__suffix .el-icon,
+.el-select__prefix .el-icon { color: rgba(255,255,255,0.4) !important; }
+
+/* ── Divider ── */
+.el-divider { border-top-color: rgba(255,255,255,0.08) !important; }
+.el-divider--horizontal { border-top-color: rgba(255,255,255,0.08) !important; }
+
+/* ── Alert ── */
+.el-alert { border: 1px solid rgba(255,255,255,0.1) !important; }
+
+/* ── Result ── */
+.el-result__title p { color: #f1f5f9 !important; }
+.el-result__subtitle p { color: rgba(241,245,249,0.5) !important; }
+
+/* ── Progress ── */
+.el-progress__text { color: rgba(241,245,249,0.7) !important; }
+.el-progress-bar__outer { background: rgba(255,255,255,0.1) !important; }
+
+/* ── Clickable row hover ── */
+.clickable-row { cursor: pointer; }
+.clickable-row:hover td { background: rgba(255,255,255,0.05) !important; }
+
+/* ============================================================
+   Global Badge Classes (override scoped styles with !important)
+   ============================================================ */
+.badge {
+  display: inline-block !important;
+  padding: 2px 8px !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: capitalize !important;
+  white-space: nowrap !important;
+}
+
+/* Priority badges */
+.pri-critical { background: rgba(220,38,38,0.15) !important; color: #f87171 !important; }
+.pri-high     { background: rgba(234,88,12,0.15) !important; color: #fb923c !important; }
+.pri-medium   { background: rgba(234,179,8,0.15) !important; color: #fbbf24 !important; }
+.pri-low      { background: rgba(22,163,74,0.15) !important; color: #4ade80 !important; }
+
+/* Status badges */
+.sta-open        { background: rgba(37,99,235,0.15) !important; color: #60a5fa !important; }
+.sta-in_progress { background: rgba(124,58,237,0.15) !important; color: #a78bfa !important; }
+.sta-on_hold     { background: rgba(234,88,12,0.15) !important; color: #fb923c !important; }
+.sta-resolved    { background: rgba(22,163,74,0.15) !important; color: #4ade80 !important; }
+.sta-closed      { background: rgba(100,116,139,0.15) !important; color: #94a3b8 !important; }
+
+/* SLA badges */
+.sla-ok      { background: rgba(22,163,74,0.15) !important; color: #4ade80 !important; }
+.sla-met     { background: rgba(22,163,74,0.15) !important; color: #4ade80 !important; }
+.sla-risk    { background: rgba(234,179,8,0.15) !important; color: #fbbf24 !important; }
+.sla-breached{ background: rgba(220,38,38,0.15) !important; color: #f87171 !important; }
+
+/* Role badges */
+.role-admin      { background: rgba(29,78,216,0.15) !important; color: #60a5fa !important; }
+.role-technician { background: rgba(22,163,74,0.15) !important; color: #4ade80 !important; }
+.role-user       { background: rgba(124,58,237,0.15) !important; color: #a78bfa !important; }
+
+/* ============================================================
+   Custom Scrollbar
+   ============================================================ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 3px;
+}
+*::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }

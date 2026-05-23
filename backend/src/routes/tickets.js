@@ -90,8 +90,10 @@ router.get('/', async (req, res) => {
 // Get single ticket with comments
 router.get('/:id', async (req, res) => {
   try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
     const ticket = await prisma.ticket.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id },
       include: {
         assigned_user: { select: { name: true, email: true } },
         creator:       { select: { name: true, email: true } },
@@ -148,7 +150,8 @@ router.post('/', async (req, res) => {
     const responseDue  = addHours(now, SLA[priority]?.response   ?? 8);
     const resolutionDue = addHours(now, SLA[priority]?.resolution ?? 24);
 
-    let assignee = assigned_to ? Number(assigned_to) : null;
+    // Users cannot choose their assignee — always auto-assign
+    let assignee = (req.user.role !== 'user' && assigned_to) ? Number(assigned_to) : null;
     if (!assignee && (auto_assign || req.user.role === 'user')) {
       assignee = await autoAssign();
     }
@@ -188,7 +191,9 @@ router.post('/', async (req, res) => {
 // Update ticket
 router.put('/:id', async (req, res) => {
   try {
-    const ticket = await prisma.ticket.findUnique({ where: { id: Number(req.params.id) } });
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
+    const ticket = await prisma.ticket.findUnique({ where: { id } });
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
     if (req.user.role === 'user') {
@@ -297,7 +302,9 @@ router.delete('/:id', async (req, res) => {
     if (!['admin', 'technician'].includes(req.user.role)) {
       return res.status(403).json({ error: 'Access denied' });
     }
-    const ticket = await prisma.ticket.findUnique({ where: { id: Number(req.params.id) } });
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
+    const ticket = await prisma.ticket.findUnique({ where: { id } });
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
     await prisma.ticket.delete({ where: { id: ticket.id } });
     res.json({ message: 'Ticket deleted' });
@@ -310,11 +317,13 @@ router.delete('/:id', async (req, res) => {
 // Add comment
 router.post('/:id/comments', async (req, res) => {
   try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
     const { content, is_internal = false } = req.body;
     if (!content?.trim()) return res.status(400).json({ error: 'Comment cannot be empty' });
 
     const ticket = await prisma.ticket.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id },
       select: { id: true, created_by: true },
     });
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
@@ -322,7 +331,7 @@ router.post('/:id/comments', async (req, res) => {
     if (req.user.role === 'user' && ticket.created_by !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
-    const forcePublic = req.user.role === 'user' ? false : Boolean(is_internal);
+    const isInternal = req.user.role === 'user' ? false : Boolean(is_internal);
 
     const [comment] = await prisma.$transaction([
       prisma.ticketComment.create({
@@ -330,7 +339,7 @@ router.post('/:id/comments', async (req, res) => {
           ticket_id: ticket.id,
           user_id: req.user.id,
           content: content.trim(),
-          is_internal: forcePublic,
+          is_internal: isInternal,
         },
         include: { user: { select: { name: true, role: true } } },
       }),

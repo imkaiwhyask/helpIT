@@ -11,11 +11,36 @@ router.use(requireAuth);
 const UPLOAD_DIR = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
+const ALLOWED_MIME_TYPES = new Set([
+  'image/jpeg','image/png','image/gif','image/webp',
+  'application/pdf',
+  'text/plain','text/csv',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/zip','application/x-zip-compressed',
+  'application/json','application/xml',
+  'video/mp4',
+]);
+
+const ALLOWED_EXTENSIONS = new Set([
+  '.jpg','.jpeg','.png','.gif','.webp',
+  '.pdf',
+  '.txt','.csv',
+  '.xls','.xlsx',
+  '.doc','.docx',
+  '.zip',
+  '.json','.xml',
+  '.mp4',
+]);
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => {
     const unique = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    cb(null, `${unique}${path.extname(file.originalname)}`);
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${unique}${ext}`);
   },
 });
 
@@ -23,27 +48,21 @@ const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
   fileFilter: (req, file, cb) => {
-    const allowed = [
-      'image/jpeg','image/png','image/gif','image/webp',
-      'application/pdf',
-      'text/plain','text/csv',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/zip','application/x-zip-compressed',
-      'application/json','application/xml',
-      'video/mp4',
-    ];
-    cb(null, allowed.includes(file.mimetype));
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!ALLOWED_MIME_TYPES.has(file.mimetype) || !ALLOWED_EXTENSIONS.has(ext)) {
+      return cb(null, false);
+    }
+    cb(null, true);
   },
 });
 
 // List attachments for a ticket
 router.get('/tickets/:ticketId/attachments', async (req, res) => {
   try {
+    const ticketId = Number(req.params.ticketId);
+    if (!Number.isInteger(ticketId) || ticketId < 1) return res.status(400).json({ error: 'Invalid ID' });
     const ticket = await prisma.ticket.findUnique({
-      where: { id: Number(req.params.ticketId) },
+      where: { id: ticketId },
       select: { id: true, created_by: true },
     });
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
@@ -66,11 +85,16 @@ router.get('/tickets/:ticketId/attachments', async (req, res) => {
 
 // Upload attachment to a ticket
 router.post('/tickets/:ticketId/attachments', upload.single('file'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No valid file uploaded (max 10 MB)' });
+  if (!req.file) return res.status(400).json({ error: 'No valid file uploaded (max 10 MB, allowed types only)' });
 
   try {
+    const ticketId = Number(req.params.ticketId);
+    if (!Number.isInteger(ticketId) || ticketId < 1) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
     const ticket = await prisma.ticket.findUnique({
-      where: { id: Number(req.params.ticketId) },
+      where: { id: ticketId },
       select: { id: true, created_by: true },
     });
     if (!ticket) {
@@ -110,8 +134,10 @@ router.post('/tickets/:ticketId/attachments', upload.single('file'), async (req,
 // Download / serve attachment
 router.get('/attachments/:id/download', async (req, res) => {
   try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
     const att = await prisma.ticketAttachment.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id },
       include: { ticket: { select: { created_by: true } } },
     });
 
@@ -126,7 +152,8 @@ router.get('/attachments/:id/download', async (req, res) => {
     }
     if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found on disk' });
 
-    res.setHeader('Content-Disposition', `attachment; filename="${att.original_name}"`);
+    const safeFilename = encodeURIComponent(att.original_name.replace(/[\r\n]/g, ''));
+    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${safeFilename}`);
     res.setHeader('Content-Type', att.mimetype || 'application/octet-stream');
     res.sendFile(filePath);
   } catch (err) {
@@ -138,8 +165,10 @@ router.get('/attachments/:id/download', async (req, res) => {
 // Delete attachment
 router.delete('/attachments/:id', async (req, res) => {
   try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
     const att = await prisma.ticketAttachment.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id },
       include: { ticket: { select: { created_by: true } } },
     });
 

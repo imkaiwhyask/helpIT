@@ -11,7 +11,7 @@ router.get('/technicians', async (req, res) => {
     if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
 
     const { days = 30 } = req.query;
-    const safeDays = Math.min(Math.max(Number(days), 1), 365);
+    const safeDays = Number.isFinite(Number(days)) ? Math.min(Math.max(Number(days), 1), 365) : 30;
     const since = new Date(Date.now() - safeDays * 86400000);
 
     const techs = await prisma.$queryRaw`
@@ -56,7 +56,7 @@ router.get('/trends', async (req, res) => {
     if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
 
     const { days = 30 } = req.query;
-    const safeDays = Math.min(Math.max(Number(days), 1), 365);
+    const safeDays = Number.isFinite(Number(days)) ? Math.min(Math.max(Number(days), 1), 365) : 30;
     const since = new Date(Date.now() - safeDays * 86400000);
 
     const rows = await prisma.$queryRaw`

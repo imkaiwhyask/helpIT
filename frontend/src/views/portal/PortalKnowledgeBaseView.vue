@@ -130,7 +130,7 @@ onMounted(load);
 </script>
 
 <style scoped>
-.kb-portal { min-height: 100vh; display:flex; flex-direction:column; background:#f4f6f9; }
+.kb-portal { min-height: 100vh; display:flex; flex-direction:column; background: #070d1a; }
 
 .kb-hero {
   background: linear-gradient(150deg, #0d1e30 0%, #0a2840 55%, #063040 100%);
@@ -149,48 +149,48 @@ onMounted(load);
 
 .cat-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px; }
 .chip {
-  padding:5px 14px; border-radius:20px; font-size:12.5px; font-weight:500;
-  border:1px solid #e2e8f0; color:#64748b; cursor:pointer; background:#fff;
-  transition:all 0.15s;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.6); cursor:pointer; padding:5px 14px;
+  border-radius:20px; font-size:12.5px; font-weight:500; transition:all 0.15s;
 }
-.chip:hover { border-color:#0072bc; color:#0072bc; }
-.chip-active { background:#0072bc; color:#fff; border-color:#0072bc; }
+.chip:hover { border-color: #00c7d4; color: #00c7d4; }
+.chip-active { background: rgba(0,199,212,0.15); color: #00c7d4; border-color: #00c7d4; }
 
 .articles-list { display:flex; flex-direction:column; gap:8px; }
 .empty-state { text-align:center; padding:40px 0; }
 
 .article-row {
-  background:#fff; border:1px solid #e2e8f0; border-radius:10px;
-  padding:16px 18px; display:flex; align-items:center; gap:14px;
-  cursor:pointer; transition:border-color 0.15s, box-shadow 0.15s;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+  border-radius:10px; padding:16px 18px; display:flex; align-items:center; gap:14px;
+  cursor:pointer; backdrop-filter: blur(12px); transition:border-color 0.15s, background 0.15s;
 }
-.article-row:hover { border-color:#0072bc; box-shadow:0 4px 12px rgba(0,114,188,0.08); }
+.article-row:hover { border-color: #00c7d4; background: rgba(255,255,255,0.08); }
 
 .article-icon-wrap {
-  width:40px; height:40px; background:#f0f7ff; border-radius:10px;
-  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  background: rgba(0,199,212,0.12); border-radius:10px;
+  width:40px; height:40px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
 }
-.article-icon { font-size:20px; color:#0072bc; }
+.article-icon { font-size:20px; color: #00c7d4; }
 
 .article-info { flex:1; min-width:0; }
-.article-title { font-size:14px; font-weight:600; color:#0d1e30; margin-bottom:3px; }
+.article-title { font-size:14px; font-weight:600; color: #f1f5f9; margin-bottom:3px; }
 .article-excerpt {
-  font-size:12.5px; color:#64748b; margin-bottom:6px;
+  font-size:12.5px; color: rgba(255,255,255,0.5); margin-bottom:6px;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-.article-meta { display:flex; align-items:center; gap:5px; font-size:11.5px; color:#94a3b8; }
+.article-meta { display:flex; align-items:center; gap:5px; font-size:11.5px; color: rgba(255,255,255,0.38); }
 .article-cat-badge {
   font-size:10.5px; font-weight:700; text-transform:uppercase;
-  background:#f0f7ff; color:#0072bc; padding:1px 7px; border-radius:3px;
+  background: rgba(0,199,212,0.12); color: #00c7d4; padding:1px 7px; border-radius:3px;
 }
-.dot { color:#cbd5e1; }
-.row-arrow { font-size:14px; color:#c0cad8; flex-shrink:0; }
-.article-row:hover .row-arrow { color:#0072bc; }
+.dot { color: rgba(255,255,255,0.2); }
+.row-arrow { font-size:14px; color: rgba(255,255,255,0.25); flex-shrink:0; }
+.article-row:hover .row-arrow { color: #00c7d4; }
 
 /* Detail dialog */
 .article-detail { padding:4px 0; }
-.ad-meta { display:flex; align-items:center; gap:8px; margin-bottom:20px; font-size:12.5px; color:#64748b; flex-wrap:wrap; }
-.ad-content { font-size:14px; color:#1e293b; line-height:1.8; white-space:pre-wrap; }
+.ad-meta { display:flex; align-items:center; gap:8px; margin-bottom:20px; font-size:12.5px; color: rgba(255,255,255,0.5); flex-wrap:wrap; }
+.ad-content { color: rgba(255,255,255,0.85); line-height:1.8; white-space:pre-wrap; font-size:14px; }
 .ad-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:20px; }
-.tag-chip { background:#f1f5f9; color:#64748b; font-size:12px; padding:3px 10px; border-radius:4px; }
+.tag-chip { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); font-size:12px; padding:3px 10px; border-radius:4px; }
 </style>

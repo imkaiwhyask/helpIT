@@ -92,7 +92,7 @@
         </div>
         <div class="dialog-row">
           <el-form-item :label="editingId ? 'New Password (leave blank to keep)' : 'Password *'">
-            <el-input v-model="form.password" type="password" show-password :placeholder="editingId ? 'Leave blank to keep current' : 'Min. 6 characters'" />
+            <el-input v-model="form.password" type="password" show-password :placeholder="editingId ? 'Leave blank to keep current' : 'Min. 8 characters'" />
           </el-form-item>
           <el-form-item label="Role *">
             <el-select v-model="form.role" style="width:100%">
@@ -190,7 +190,7 @@ async function createUser() {
   formError.value = '';
   if (!form.value.name.trim())         { formError.value = 'Name is required'; return; }
   if (!form.value.email.trim())        { formError.value = 'Email is required'; return; }
-  if (form.value.password.length < 6)  { formError.value = 'Password must be at least 6 characters'; return; }
+  if (form.value.password.length < 6)  { formError.value = 'Password must be at least 8 characters'; return; }
 
   saving.value = true;
   try {
@@ -209,7 +209,7 @@ async function updateUser() {
   formError.value = '';
   if (!form.value.name.trim())  { formError.value = 'Name is required'; return; }
   if (!form.value.email.trim()) { formError.value = 'Email is required'; return; }
-  if (form.value.password && form.value.password.length < 6) { formError.value = 'Password must be at least 6 characters'; return; }
+  if (form.value.password && form.value.password.length < 6) { formError.value = 'Password must be at least 8 characters'; return; }
 
   saving.value = true;
   const payload = { ...form.value };
@@ -244,24 +244,18 @@ onMounted(load);
 .toolbar { display: flex; align-items: center; margin-bottom: 16px; gap: 10px; }
 .toolbar-spacer { flex: 1; }
 
-.card { background:#fff; border-radius:10px; overflow:hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10); border-radius:10px; overflow:hidden; backdrop-filter: blur(12px); }
 
 .user-cell { display:flex; align-items:center; gap:10px; }
 .uavatar {
-  width:32px; height:32px; background:#2563eb; border-radius:50%;
+  width:32px; height:32px;
+  background: linear-gradient(135deg, #0080c6, #00c7d4);
+  border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:600; color:#fff; flex-shrink:0;
 }
-.uname  { font-size:13px; font-weight:600; color:#0f172a; }
-.uemail { font-size:12px; color:#64748b; }
-
-.badge {
-  display:inline-block; padding:2px 8px; border-radius:4px;
-  font-size:11px; font-weight:600; text-transform:capitalize;
-}
-.role-admin       { background:#eff6ff; color:#1d4ed8; }
-.role-technician  { background:#f0fdf4; color:#16a34a; }
-.role-user        { background:#f5f3ff; color:#7c3aed; }
+.uname  { font-size:13px; font-weight:600; color:#f1f5f9; }
+.uemail { font-size:12px; color:rgba(255,255,255,0.45); }
 
 .action-btns { display:flex; gap:6px; }
 .dialog-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }

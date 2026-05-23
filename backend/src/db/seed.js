@@ -3,6 +3,10 @@ const bcrypt = require('bcryptjs');
 const { prisma } = require('./index');
 
 async function seed() {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('ERROR: Refusing to run seed in production — this would destroy all data.');
+    process.exit(1);
+  }
   console.log('Clearing existing data...');
 
   await prisma.ticketComment.deleteMany();

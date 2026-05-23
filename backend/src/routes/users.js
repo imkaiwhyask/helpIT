@@ -12,8 +12,17 @@ const USER_SELECT = {
 };
 
 // All authenticated users can list users (needed for ticket assignment dropdowns)
+// Regular users receive minimal fields only — no PII
 router.get('/', async (req, res) => {
   try {
+    if (req.user.role === 'user') {
+      const users = await prisma.user.findMany({
+        where: { role: { in: ['technician', 'admin'] }, is_active: true },
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+      });
+      return res.json(users);
+    }
     const users = await prisma.user.findMany({
       select: USER_SELECT,
       orderBy: { created_at: 'desc' },
@@ -32,13 +41,14 @@ router.post('/', async (req, res) => {
 
     const { name, email, password, role = 'technician', department = '', phone = '' } = req.body;
     if (!name || !email || !password) return res.status(400).json({ error: 'Name, email and password are required' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email address' });
     if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
     if (!['admin', 'technician', 'user'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return res.status(409).json({ error: 'Email already in use' });
 
-    const hash = bcrypt.hashSync(password, 12);
+    const hash = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({
       data: { name, email, password_hash: hash, role, department, phone },
       select: USER_SELECT,
@@ -72,7 +82,7 @@ router.put('/:id', async (req, res) => {
     let password_hash = user.password_hash;
     if (password) {
       if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
-      password_hash = bcrypt.hashSync(password, 12);
+      password_hash = await bcrypt.hash(password, 12);
     }
 
     const updated = await prisma.user.update({

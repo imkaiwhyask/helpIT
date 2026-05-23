@@ -55,44 +55,25 @@ function handleCommand(cmd) {
 
 <style scoped>
 .app-header {
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 24px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
+  background: rgba(5,12,24,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 0 24px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
 }
-.page-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #0f172a;
-}
+.page-title { font-size: 16px; font-weight: 600; color: #f1f5f9; }
 .header-actions { display: flex; align-items: center; gap: 14px; }
 .user-chip {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  color: #374151;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: background 0.15s;
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.75);
+  padding: 4px 8px; border-radius: 6px; transition: background 0.15s;
 }
-.user-chip:hover { background: #f1f5f9; }
+.user-chip:hover { background: rgba(255,255,255,0.08); color: #fff; }
 .avatar-sm {
-  width: 28px;
-  height: 28px;
-  background: #2563eb;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: #fff;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, #0080c6, #00c7d4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #fff;
 }
 </style>

@@ -7,6 +7,8 @@ router.use(requireAuth);
 
 router.get('/stats', async (req, res) => {
   try {
+    if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
+
     const now = new Date();
     const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
 
@@ -30,7 +32,7 @@ router.get('/stats', async (req, res) => {
         where: { status: { notIn: ['resolved', 'closed'] }, resolution_due: { lt: now } },
       }),
       prisma.ticket.findMany({
-        where: req.user.role === 'user' ? { created_by: req.user.id } : {},
+        where: {},
         select: {
           id: true, title: true, priority: true, status: true,
           category: true, created_at: true, resolution_due: true,

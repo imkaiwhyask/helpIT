@@ -12,7 +12,7 @@ model User {
   name          String
   email         String   @unique
   password_hash String
-  role          String   @default("technician")
+  role          String   @default("user")
   department    String   @default("")
   phone         String   @default("")
   is_active     Boolean  @default(true)
@@ -107,5 +107,6 @@ model KbArticle {
 
   @@index([author_id])
   @@index([is_published])
+  @@index([category])
   @@map("kb_articles")
 }

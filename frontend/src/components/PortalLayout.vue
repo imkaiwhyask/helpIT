@@ -65,15 +65,17 @@ function handleCmd(cmd) {
 </script>
 
 <style scoped>
-.portal-app { min-height: 100vh; display: flex; flex-direction: column; background: #f0f2f5; }
+.portal-app { min-height: 100vh; display: flex; flex-direction: column; background: #070d1a; }
 
 .portal-nav {
   position: sticky;
   top: 0;
   z-index: 100;
   height: 58px;
-  background: #0d1e30;
-  border-bottom: 1px solid #1a2f45;
+  background: rgba(5,12,24,0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   display: flex;
   align-items: center;
   padding: 0 32px;
@@ -99,13 +101,13 @@ function handleCmd(cmd) {
 .nav-link.router-link-active { color: #fff; background: rgba(255,255,255,0.15); }
 
 .nav-link-submit {
-  background: #4f46e5;
+  background: #00c7d4;
   color: #fff !important;
   display: flex;
   align-items: center;
   gap: 5px;
 }
-.nav-link-submit:hover { background: #4338ca !important; }
+.nav-link-submit:hover { background: #00a8b4 !important; }
 
 .nav-user {
   display: flex;
@@ -123,7 +125,7 @@ function handleCmd(cmd) {
 .nav-avatar {
   width: 28px;
   height: 28px;
-  background: #4f46e5;
+  background: linear-gradient(135deg, #0080c6, #00c7d4);
   border-radius: 50%;
   display: flex;
   align-items: center;

@@ -185,41 +185,19 @@ onMounted(fetchTickets);
 .filter-spacer { flex: 1; }
 
 .card {
-  background: #fff;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
   border-radius: 10px;
   padding: 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   overflow: hidden;
+  backdrop-filter: blur(12px);
 }
 
-.tid { font-family: monospace; font-size: 12px; color: #64748b; font-weight: 600; }
-.ticket-title { font-size: 13px; font-weight: 500; color: #1e293b; }
+.tid { font-family: monospace; font-size: 12px; color: rgba(255,255,255,0.45); font-weight: 600; }
+.ticket-title { font-size: 13px; font-weight: 500; color: #f1f5f9; }
 
 .pagination { padding: 14px 16px; display: flex; justify-content: flex-end; }
 
 :global(.clickable-row) { cursor: pointer; }
-:global(.clickable-row:hover td) { background: #f8fafc !important; }
-
-.badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: capitalize;
-  white-space: nowrap;
-}
-.pri-critical { background: #fef2f2; color: #dc2626; }
-.pri-high     { background: #fff7ed; color: #ea580c; }
-.pri-medium   { background: #fefce8; color: #ca8a04; }
-.pri-low      { background: #f0fdf4; color: #16a34a; }
-.sta-open        { background: #eff6ff; color: #2563eb; }
-.sta-in_progress { background: #f5f3ff; color: #7c3aed; }
-.sta-on_hold     { background: #fff7ed; color: #ea580c; }
-.sta-resolved    { background: #f0fdf4; color: #16a34a; }
-.sta-closed      { background: #f9fafb; color: #6b7280; }
-.sla-ok      { background: #f0fdf4; color: #16a34a; }
-.sla-risk    { background: #fffbeb; color: #d97706; }
-.sla-breached{ background: #fef2f2; color: #dc2626; }
-.sla-met     { background: #f0fdf4; color: #16a34a; }
+:global(.clickable-row:hover td) { background: rgba(255,255,255,0.05) !important; }
 </style>

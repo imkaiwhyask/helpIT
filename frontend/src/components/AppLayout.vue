@@ -31,6 +31,6 @@ import AppHeader from './AppHeader.vue';
   flex: 1;
   overflow-y: auto;
   padding: 24px;
-  background: #f1f5f9;
+  background: #070d1a;
 }
 </style>

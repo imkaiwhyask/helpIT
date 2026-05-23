@@ -58,8 +58,10 @@ router.get('/', async (req, res) => {
 // Get single article (increments view count)
 router.get('/:id', async (req, res) => {
   try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
     const article = await prisma.kbArticle.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id },
       include: { author: { select: { name: true } } },
     });
 
@@ -112,8 +114,9 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
-
-    const article = await prisma.kbArticle.findUnique({ where: { id: Number(req.params.id) } });
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
+    const article = await prisma.kbArticle.findUnique({ where: { id } });
     if (!article) return res.status(404).json({ error: 'Article not found' });
 
     const { title, content, category, tags, is_published } = req.body;
@@ -143,8 +146,9 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-
-    const article = await prisma.kbArticle.findUnique({ where: { id: Number(req.params.id) } });
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid ID' });
+    const article = await prisma.kbArticle.findUnique({ where: { id } });
     if (!article) return res.status(404).json({ error: 'Article not found' });
 
     await prisma.kbArticle.delete({ where: { id: article.id } });
