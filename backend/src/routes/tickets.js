@@ -12,6 +12,10 @@ const SLA = {
   low:      { response: 24, resolution: 72 },
 };
 
+const VALID_PRIORITIES = new Set(['critical', 'high', 'medium', 'low']);
+const VALID_STATUSES   = new Set(['open', 'in_progress', 'on_hold', 'resolved', 'closed']);
+const MAX_PAGE_LIMIT   = 100;
+
 function addHours(date, h) {
   return new Date(new Date(date).getTime() + h * 3600000);
 }
@@ -50,7 +54,8 @@ async function autoAssign() {
 router.get('/', async (req, res) => {
   try {
     const { status, priority, category, search, page = 1, limit = 20 } = req.query;
-    const offset = (Number(page) - 1) * Number(limit);
+    const safeLimit = Math.min(Number(limit), MAX_PAGE_LIMIT);
+    const offset = (Number(page) - 1) * safeLimit;
 
     const where = {};
     if (req.user.role === 'user') where.created_by = req.user.id;
@@ -71,11 +76,11 @@ router.get('/', async (req, res) => {
         include: TICKET_INCLUDE,
         orderBy: { created_at: 'desc' },
         skip: offset,
-        take: Number(limit),
+        take: safeLimit,
       }),
     ]);
 
-    res.json({ tickets: tickets.map(flattenTicket), total, page: Number(page), limit: Number(limit) });
+    res.json({ tickets: tickets.map(flattenTicket), total, page: Number(page), limit: safeLimit });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -136,7 +141,8 @@ router.post('/', async (req, res) => {
       title, description = '', category = 'Other', subcategory = '',
       priority = 'medium', assigned_to, auto_assign,
     } = req.body;
-    if (!title) return res.status(400).json({ error: 'Title is required' });
+    if (!title?.trim()) return res.status(400).json({ error: 'Title is required' });
+    if (priority && !VALID_PRIORITIES.has(priority)) return res.status(400).json({ error: 'Invalid priority' });
 
     const now = new Date();
     const responseDue  = addHours(now, SLA[priority]?.response   ?? 8);
@@ -186,8 +192,11 @@ router.put('/:id', async (req, res) => {
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
     const { title, description, category, subcategory, priority, status, assigned_to } = req.body;
-    const now = new Date();
 
+    if (priority && !VALID_PRIORITIES.has(priority)) return res.status(400).json({ error: 'Invalid priority' });
+    if (status   && !VALID_STATUSES.has(status))     return res.status(400).json({ error: 'Invalid status' });
+
+    const now = new Date();
     const newPriority  = priority  ?? ticket.priority;
     const newStatus    = status    ?? ticket.status;
     const newAssigned  = 'assigned_to' in req.body

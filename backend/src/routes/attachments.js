@@ -148,7 +148,10 @@ router.delete('/attachments/:id', async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const filePath = path.join(UPLOAD_DIR, att.filename);
+    const filePath = path.resolve(UPLOAD_DIR, att.filename);
+    if (!filePath.startsWith(path.resolve(UPLOAD_DIR))) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
 
     await prisma.ticketAttachment.delete({ where: { id: att.id } });
