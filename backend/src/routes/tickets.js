@@ -191,6 +191,14 @@ router.put('/:id', async (req, res) => {
     const ticket = await prisma.ticket.findUnique({ where: { id: Number(req.params.id) } });
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
+    if (req.user.role === 'user') {
+      if (ticket.created_by !== req.user.id) return res.status(403).json({ error: 'Access denied' });
+      const { status, priority, assigned_to } = req.body;
+      if (status !== undefined || priority !== undefined || assigned_to !== undefined) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+    }
+
     const { title, description, category, subcategory, priority, status, assigned_to } = req.body;
 
     if (priority && !VALID_PRIORITIES.has(priority)) return res.status(400).json({ error: 'Invalid priority' });

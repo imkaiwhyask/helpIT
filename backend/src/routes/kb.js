@@ -5,12 +5,15 @@ const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 router.use(requireAuth);
 
+const MAX_KB_LIMIT = 100;
+
 // List articles — all roles can read published; IT staff see all
 router.get('/', async (req, res) => {
   try {
     const { category, search, page = 1, limit = 20 } = req.query;
     const isIT = req.user.role !== 'user';
-    const offset = (Number(page) - 1) * Number(limit);
+    const safeLimit = Math.min(Number(limit), MAX_KB_LIMIT);
+    const offset = (Number(page) - 1) * safeLimit;
 
     const where = {};
     if (!isIT) where.is_published = true;
@@ -35,7 +38,7 @@ router.get('/', async (req, res) => {
         },
         orderBy: { updated_at: 'desc' },
         skip: offset,
-        take: Number(limit),
+        take: safeLimit,
       }),
     ]);
 
@@ -45,7 +48,7 @@ router.get('/', async (req, res) => {
       excerpt: content.slice(0, 160),
     }));
 
-    res.json({ articles: rows, total, page: Number(page), limit: Number(limit) });
+    res.json({ articles: rows, total, page: Number(page), limit: safeLimit });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

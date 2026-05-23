@@ -30,6 +30,7 @@ router.get('/stats', async (req, res) => {
         where: { status: { notIn: ['resolved', 'closed'] }, resolution_due: { lt: now } },
       }),
       prisma.ticket.findMany({
+        where: req.user.role === 'user' ? { created_by: req.user.id } : {},
         select: {
           id: true, title: true, priority: true, status: true,
           category: true, created_at: true, resolution_due: true,

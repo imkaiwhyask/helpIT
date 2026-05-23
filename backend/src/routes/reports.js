@@ -11,7 +11,8 @@ router.get('/technicians', async (req, res) => {
     if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
 
     const { days = 30 } = req.query;
-    const since = new Date(Date.now() - Number(days) * 86400000);
+    const safeDays = Math.min(Math.max(Number(days), 1), 365);
+    const since = new Date(Date.now() - safeDays * 86400000);
 
     const techs = await prisma.$queryRaw`
       SELECT
@@ -42,7 +43,7 @@ router.get('/technicians', async (req, res) => {
         : null,
     }));
 
-    res.json({ technicians: result, period_days: Number(days) });
+    res.json({ technicians: result, period_days: safeDays });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -55,7 +56,8 @@ router.get('/trends', async (req, res) => {
     if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
 
     const { days = 30 } = req.query;
-    const since = new Date(Date.now() - Number(days) * 86400000);
+    const safeDays = Math.min(Math.max(Number(days), 1), 365);
+    const since = new Date(Date.now() - safeDays * 86400000);
 
     const rows = await prisma.$queryRaw`
       SELECT
@@ -69,7 +71,7 @@ router.get('/trends', async (req, res) => {
       ORDER BY date ASC
     `;
 
-    res.json({ trends: rows, period_days: Number(days) });
+    res.json({ trends: rows, period_days: safeDays });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

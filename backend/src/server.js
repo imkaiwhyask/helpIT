@@ -60,9 +60,6 @@ app.use('/api/kb',        kbRoutes);
 app.use('/api',           attachmentRoutes);
 app.use('/api/reports',   reportsRoutes);
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err);

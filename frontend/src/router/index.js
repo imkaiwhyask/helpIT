@@ -59,17 +59,16 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  const token = localStorage.getItem('helpit_token');
-  const user  = JSON.parse(localStorage.getItem('helpit_user') || 'null');
-  const role  = user?.role;
+  const user = JSON.parse(localStorage.getItem('helpit_user') || 'null');
+  const role = user?.role;
 
-  if (!to.meta.public && !token) return '/login';
+  if (!to.meta.public && !user) return '/login';
 
-  if (to.path === '/login' && token) {
+  if (to.path === '/login' && user) {
     return role === 'user' ? '/portal' : '/dashboard';
   }
 
-  if (to.meta.roles && token && !to.meta.roles.includes(role)) {
+  if (to.meta.roles && user && !to.meta.roles.includes(role)) {
     return role === 'user' ? '/portal' : '/dashboard';
   }
 });
