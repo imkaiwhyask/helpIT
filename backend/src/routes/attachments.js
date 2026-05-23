@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { getDb } = require('../db');
+const { prisma } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -40,82 +40,123 @@ const upload = multer({
 });
 
 // List attachments for a ticket
-router.get('/tickets/:ticketId/attachments', (req, res) => {
-  const db = getDb();
-  const ticket = db.prepare('SELECT id, created_by FROM tickets WHERE id = ?').get(req.params.ticketId);
-  if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
-  if (req.user.role === 'user' && ticket.created_by !== req.user.id) return res.status(403).json({ error: 'Access denied' });
+router.get('/tickets/:ticketId/attachments', async (req, res) => {
+  try {
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: Number(req.params.ticketId) },
+      select: { id: true, created_by: true },
+    });
+    if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
+    if (req.user.role === 'user' && ticket.created_by !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
 
-  const attachments = db.prepare(`
-    SELECT a.*, u.name AS uploader_name
-    FROM ticket_attachments a
-    LEFT JOIN users u ON a.uploaded_by = u.id
-    WHERE a.ticket_id = ?
-    ORDER BY a.created_at ASC
-  `).all(req.params.ticketId);
-  res.json(attachments);
+    const attachments = await prisma.ticketAttachment.findMany({
+      where: { ticket_id: ticket.id },
+      include: { uploader: { select: { name: true } } },
+      orderBy: { created_at: 'asc' },
+    });
+
+    res.json(attachments.map(({ uploader, ...a }) => ({ ...a, uploader_name: uploader?.name ?? null })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Upload attachment to a ticket
-router.post('/tickets/:ticketId/attachments', upload.single('file'), (req, res) => {
+router.post('/tickets/:ticketId/attachments', upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No valid file uploaded (max 10 MB)' });
 
-  const db = getDb();
-  const ticket = db.prepare('SELECT id, created_by FROM tickets WHERE id = ?').get(req.params.ticketId);
-  if (!ticket) { fs.unlinkSync(req.file.path); return res.status(404).json({ error: 'Ticket not found' }); }
-  if (req.user.role === 'user' && ticket.created_by !== req.user.id) {
-    fs.unlinkSync(req.file.path);
-    return res.status(403).json({ error: 'Access denied' });
+  try {
+    const ticket = await prisma.ticket.findUnique({
+      where: { id: Number(req.params.ticketId) },
+      select: { id: true, created_by: true },
+    });
+    if (!ticket) {
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+    if (req.user.role === 'user' && ticket.created_by !== req.user.id) {
+      fs.unlinkSync(req.file.path);
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const [attachment] = await prisma.$transaction([
+      prisma.ticketAttachment.create({
+        data: {
+          ticket_id:     ticket.id,
+          filename:      req.file.filename,
+          original_name: req.file.originalname,
+          size:          req.file.size,
+          mimetype:      req.file.mimetype,
+          uploaded_by:   req.user.id,
+        },
+      }),
+      prisma.ticket.update({
+        where: { id: ticket.id },
+        data: { updated_at: new Date() },
+      }),
+    ]);
+
+    res.status(201).json(attachment);
+  } catch (err) {
+    if (req.file?.path) fs.unlinkSync(req.file.path);
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  const result = db.prepare(
-    'INSERT INTO ticket_attachments (ticket_id,filename,original_name,size,mimetype,uploaded_by) VALUES (?,?,?,?,?,?)'
-  ).run(req.params.ticketId, req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, req.user.id);
-
-  db.prepare('UPDATE tickets SET updated_at = ? WHERE id = ?').run(new Date().toISOString(), req.params.ticketId);
-
-  const attachment = db.prepare('SELECT * FROM ticket_attachments WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json(attachment);
 });
 
 // Download / serve attachment
-router.get('/attachments/:id/download', (req, res) => {
-  const db = getDb();
-  const att = db.prepare(`
-    SELECT a.*, t.created_by AS ticket_creator
-    FROM ticket_attachments a
-    JOIN tickets t ON a.ticket_id = t.id
-    WHERE a.id = ?
-  `).get(req.params.id);
+router.get('/attachments/:id/download', async (req, res) => {
+  try {
+    const att = await prisma.ticketAttachment.findUnique({
+      where: { id: Number(req.params.id) },
+      include: { ticket: { select: { created_by: true } } },
+    });
 
-  if (!att) return res.status(404).json({ error: 'Attachment not found' });
-  if (req.user.role === 'user' && att.ticket_creator !== req.user.id) return res.status(403).json({ error: 'Access denied' });
+    if (!att) return res.status(404).json({ error: 'Attachment not found' });
+    if (req.user.role === 'user' && att.ticket.created_by !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
 
-  const filePath = path.join(UPLOAD_DIR, att.filename);
-  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found on disk' });
+    const filePath = path.resolve(UPLOAD_DIR, att.filename);
+    if (!filePath.startsWith(path.resolve(UPLOAD_DIR))) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found on disk' });
 
-  res.setHeader('Content-Disposition', `attachment; filename="${att.original_name}"`);
-  res.setHeader('Content-Type', att.mimetype || 'application/octet-stream');
-  res.sendFile(filePath);
+    res.setHeader('Content-Disposition', `attachment; filename="${att.original_name}"`);
+    res.setHeader('Content-Type', att.mimetype || 'application/octet-stream');
+    res.sendFile(filePath);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Delete attachment
-router.delete('/attachments/:id', (req, res) => {
-  const db = getDb();
-  const att = db.prepare(`
-    SELECT a.*, t.created_by AS ticket_creator
-    FROM ticket_attachments a
-    JOIN tickets t ON a.ticket_id = t.id
-    WHERE a.id = ?
-  `).get(req.params.id);
+router.delete('/attachments/:id', async (req, res) => {
+  try {
+    const att = await prisma.ticketAttachment.findUnique({
+      where: { id: Number(req.params.id) },
+      include: { ticket: { select: { created_by: true } } },
+    });
 
-  if (!att) return res.status(404).json({ error: 'Attachment not found' });
-  if (req.user.role === 'user' && att.ticket_creator !== req.user.id) return res.status(403).json({ error: 'Access denied' });
+    if (!att) return res.status(404).json({ error: 'Attachment not found' });
+    if (req.user.role === 'user' && att.ticket.created_by !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
 
-  const filePath = path.join(UPLOAD_DIR, att.filename);
-  if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-  db.prepare('DELETE FROM ticket_attachments WHERE id = ?').run(att.id);
-  res.json({ message: 'Attachment deleted' });
+    const filePath = path.join(UPLOAD_DIR, att.filename);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+    await prisma.ticketAttachment.delete({ where: { id: att.id } });
+    res.json({ message: 'Attachment deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 module.exports = router;

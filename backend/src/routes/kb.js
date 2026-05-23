@@ -1,108 +1,155 @@
 const express = require('express');
-const { getDb } = require('../db');
+const { prisma } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 router.use(requireAuth);
 
 // List articles — all roles can read published; IT staff see all
-router.get('/', (req, res) => {
-  const db = getDb();
-  const { category, search, page = 1, limit = 20 } = req.query;
-  const isIT = req.user.role !== 'user';
+router.get('/', async (req, res) => {
+  try {
+    const { category, search, page = 1, limit = 20 } = req.query;
+    const isIT = req.user.role !== 'user';
+    const offset = (Number(page) - 1) * Number(limit);
 
-  let where = isIT ? 'WHERE 1=1' : 'WHERE a.is_published = 1';
-  const params = [];
+    const where = {};
+    if (!isIT) where.is_published = true;
+    if (category) where.category = category;
+    if (search) {
+      where.OR = [
+        { title:   { contains: search, mode: 'insensitive' } },
+        { content: { contains: search, mode: 'insensitive' } },
+        { tags:    { contains: search, mode: 'insensitive' } },
+      ];
+    }
 
-  if (category) { where += ' AND a.category = ?'; params.push(category); }
-  if (search)   { where += ' AND (a.title LIKE ? OR a.content LIKE ? OR a.tags LIKE ?)'; params.push(`%${search}%`, `%${search}%`, `%${search}%`); }
+    const [total, articles] = await prisma.$transaction([
+      prisma.kbArticle.count({ where }),
+      prisma.kbArticle.findMany({
+        where,
+        select: {
+          id: true, title: true, category: true, tags: true,
+          is_published: true, view_count: true, created_at: true, updated_at: true,
+          author: { select: { name: true } },
+          content: true,
+        },
+        orderBy: { updated_at: 'desc' },
+        skip: offset,
+        take: Number(limit),
+      }),
+    ]);
 
-  const offset = (Number(page) - 1) * Number(limit);
-  const total = db.prepare(`SELECT COUNT(*) AS cnt FROM kb_articles a ${where}`).get(...params).cnt;
+    const rows = articles.map(({ author, content, ...a }) => ({
+      ...a,
+      author_name: author?.name ?? null,
+      excerpt: content.slice(0, 160),
+    }));
 
-  const rows = db.prepare(`
-    SELECT a.id, a.title, a.category, a.tags, a.is_published, a.view_count,
-           a.created_at, a.updated_at,
-           u.name AS author_name,
-           SUBSTR(a.content, 1, 160) AS excerpt
-    FROM kb_articles a
-    LEFT JOIN users u ON a.author_id = u.id
-    ${where}
-    ORDER BY a.updated_at DESC
-    LIMIT ? OFFSET ?
-  `).all(...params, Number(limit), offset);
-
-  res.json({ articles: rows, total, page: Number(page), limit: Number(limit) });
+    res.json({ articles: rows, total, page: Number(page), limit: Number(limit) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Get single article (increments view count)
-router.get('/:id', (req, res) => {
-  const db = getDb();
-  const article = db.prepare(`
-    SELECT a.*, u.name AS author_name
-    FROM kb_articles a
-    LEFT JOIN users u ON a.author_id = u.id
-    WHERE a.id = ?
-  `).get(req.params.id);
+router.get('/:id', async (req, res) => {
+  try {
+    const article = await prisma.kbArticle.findUnique({
+      where: { id: Number(req.params.id) },
+      include: { author: { select: { name: true } } },
+    });
 
-  if (!article) return res.status(404).json({ error: 'Article not found' });
-  if (!article.is_published && req.user.role === 'user') {
-    return res.status(403).json({ error: 'Article not available' });
+    if (!article) return res.status(404).json({ error: 'Article not found' });
+    if (!article.is_published && req.user.role === 'user') {
+      return res.status(403).json({ error: 'Article not available' });
+    }
+
+    await prisma.kbArticle.update({
+      where: { id: article.id },
+      data: { view_count: { increment: 1 } },
+    });
+
+    const { author, ...rest } = article;
+    res.json({ ...rest, author_name: author?.name ?? null, view_count: rest.view_count + 1 });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  db.prepare('UPDATE kb_articles SET view_count = view_count + 1 WHERE id = ?').run(article.id);
-  res.json({ ...article, view_count: article.view_count + 1 });
 });
 
 // Create article (IT staff only)
-router.post('/', (req, res) => {
-  if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
-  const { title, content = '', category = 'General', tags = '', is_published = 1 } = req.body;
-  if (!title?.trim()) return res.status(400).json({ error: 'Title is required' });
+router.post('/', async (req, res) => {
+  try {
+    if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
+    const { title, content = '', category = 'General', tags = '', is_published = true } = req.body;
+    if (!title?.trim()) return res.status(400).json({ error: 'Title is required' });
 
-  const db = getDb();
-  const now = new Date().toISOString();
-  const result = db.prepare(
-    'INSERT INTO kb_articles (title,content,category,tags,author_id,is_published,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)'
-  ).run(title.trim(), content, category, tags, req.user.id, is_published ? 1 : 0, now, now);
+    const now = new Date();
+    const article = await prisma.kbArticle.create({
+      data: {
+        title: title.trim(), content, category, tags,
+        author_id: req.user.id,
+        is_published: Boolean(is_published),
+        created_at: now,
+        updated_at: now,
+      },
+      include: { author: { select: { name: true } } },
+    });
 
-  const article = db.prepare('SELECT a.*, u.name AS author_name FROM kb_articles a LEFT JOIN users u ON a.author_id = u.id WHERE a.id = ?').get(result.lastInsertRowid);
-  res.status(201).json(article);
+    const { author, ...rest } = article;
+    res.status(201).json({ ...rest, author_name: author?.name ?? null });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Update article (IT staff only)
-router.put('/:id', (req, res) => {
-  if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
-  const db = getDb();
-  const article = db.prepare('SELECT * FROM kb_articles WHERE id = ?').get(req.params.id);
-  if (!article) return res.status(404).json({ error: 'Article not found' });
+router.put('/:id', async (req, res) => {
+  try {
+    if (req.user.role === 'user') return res.status(403).json({ error: 'Forbidden' });
 
-  const { title, content, category, tags, is_published } = req.body;
-  const now = new Date().toISOString();
+    const article = await prisma.kbArticle.findUnique({ where: { id: Number(req.params.id) } });
+    if (!article) return res.status(404).json({ error: 'Article not found' });
 
-  db.prepare(`
-    UPDATE kb_articles SET title=?, content=?, category=?, tags=?, is_published=?, updated_at=? WHERE id=?
-  `).run(
-    title ?? article.title,
-    content ?? article.content,
-    category ?? article.category,
-    tags ?? article.tags,
-    is_published !== undefined ? (is_published ? 1 : 0) : article.is_published,
-    now, article.id
-  );
+    const { title, content, category, tags, is_published } = req.body;
 
-  const updated = db.prepare('SELECT a.*, u.name AS author_name FROM kb_articles a LEFT JOIN users u ON a.author_id = u.id WHERE a.id = ?').get(article.id);
-  res.json(updated);
+    const updated = await prisma.kbArticle.update({
+      where: { id: article.id },
+      data: {
+        title:        title        ?? article.title,
+        content:      content      ?? article.content,
+        category:     category     ?? article.category,
+        tags:         tags         ?? article.tags,
+        is_published: is_published !== undefined ? Boolean(is_published) : article.is_published,
+        updated_at:   new Date(),
+      },
+      include: { author: { select: { name: true } } },
+    });
+
+    const { author, ...rest } = updated;
+    res.json({ ...rest, author_name: author?.name ?? null });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Delete article (admin only)
-router.delete('/:id', (req, res) => {
-  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
-  const db = getDb();
-  const article = db.prepare('SELECT id FROM kb_articles WHERE id = ?').get(req.params.id);
-  if (!article) return res.status(404).json({ error: 'Article not found' });
-  db.prepare('DELETE FROM kb_articles WHERE id = ?').run(article.id);
-  res.json({ message: 'Article deleted' });
+router.delete('/:id', async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
+
+    const article = await prisma.kbArticle.findUnique({ where: { id: Number(req.params.id) } });
+    if (!article) return res.status(404).json({ error: 'Article not found' });
+
+    await prisma.kbArticle.delete({ where: { id: article.id } });
+    res.json({ message: 'Article deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 module.exports = router;

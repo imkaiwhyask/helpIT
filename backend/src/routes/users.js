@@ -1,81 +1,124 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { getDb } = require('../db');
+const { prisma } = require('../db');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 router.use(requireAuth);
 
-router.get('/', (req, res) => {
-  const db = getDb();
-  const users = db.prepare(
-    'SELECT id,name,email,role,department,phone,is_active,created_at FROM users ORDER BY created_at DESC'
-  ).all();
-  res.json(users);
+const USER_SELECT = {
+  id: true, name: true, email: true, role: true,
+  department: true, phone: true, is_active: true, created_at: true,
+};
+
+// All authenticated users can list users (needed for ticket assignment dropdowns)
+router.get('/', async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: USER_SELECT,
+      orderBy: { created_at: 'desc' },
+    });
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-router.post('/', (req, res) => {
-  const { name, email, password, role = 'technician', department = '', phone = '' } = req.body;
-  if (!name || !email || !password) return res.status(400).json({ error: 'Name, email and password are required' });
-  if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+// Admin only — create user
+router.post('/', async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
 
-  const db = getDb();
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
-  if (existing) return res.status(409).json({ error: 'Email already in use' });
+    const { name, email, password, role = 'technician', department = '', phone = '' } = req.body;
+    if (!name || !email || !password) return res.status(400).json({ error: 'Name, email and password are required' });
+    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    if (!['admin', 'technician', 'user'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
 
-  const hash = bcrypt.hashSync(password, 10);
-  const result = db.prepare(
-    'INSERT INTO users (name,email,password_hash,role,department,phone) VALUES (?,?,?,?,?,?)'
-  ).run(name, email, hash, role, department, phone);
-
-  const user = db.prepare('SELECT id,name,email,role,department,phone,is_active,created_at FROM users WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json(user);
-});
-
-router.put('/:id', (req, res) => {
-  const db = getDb();
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
-  if (!user) return res.status(404).json({ error: 'User not found' });
-
-  const { name, email, role, department, phone, is_active, password } = req.body;
-
-  if (email && email !== user.email) {
-    const existing = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(email, user.id);
+    const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return res.status(409).json({ error: 'Email already in use' });
+
+    const hash = bcrypt.hashSync(password, 12);
+    const user = await prisma.user.create({
+      data: { name, email, password_hash: hash, role, department, phone },
+      select: USER_SELECT,
+    });
+    res.status(201).json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  let passwordHash = user.password_hash;
-  if (password) {
-    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
-    passwordHash = bcrypt.hashSync(password, 10);
-  }
-
-  db.prepare(
-    'UPDATE users SET name=?,email=?,password_hash=?,role=?,department=?,phone=?,is_active=? WHERE id=?'
-  ).run(
-    name ?? user.name, email ?? user.email, passwordHash, role ?? user.role,
-    department ?? user.department, phone ?? user.phone,
-    is_active !== undefined ? (is_active ? 1 : 0) : user.is_active, user.id
-  );
-
-  const updated = db.prepare('SELECT id,name,email,role,department,phone,is_active,created_at FROM users WHERE id=?').get(user.id);
-  res.json(updated);
 });
 
-router.delete('/:id', (req, res) => {
-  if (Number(req.params.id) === req.user.id) {
-    return res.status(400).json({ error: 'Cannot delete your own account' });
+// Admin only — update user
+router.put('/:id', async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+
+    const user = await prisma.user.findUnique({ where: { id: Number(req.params.id) } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const { name, email, role, department, phone, is_active, password } = req.body;
+
+    if (role && !['admin', 'technician', 'user'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+
+    if (email && email !== user.email) {
+      const existing = await prisma.user.findFirst({ where: { email, NOT: { id: user.id } } });
+      if (existing) return res.status(409).json({ error: 'Email already in use' });
+    }
+
+    let password_hash = user.password_hash;
+    if (password) {
+      if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+      password_hash = bcrypt.hashSync(password, 12);
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        name:        name        ?? user.name,
+        email:       email       ?? user.email,
+        password_hash,
+        role:        role        ?? user.role,
+        department:  department  ?? user.department,
+        phone:       phone       ?? user.phone,
+        is_active:   is_active !== undefined ? Boolean(is_active) : user.is_active,
+      },
+      select: USER_SELECT,
+    });
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
+});
 
-  const db = getDb();
-  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.params.id);
-  if (!user) return res.status(404).json({ error: 'User not found' });
+// Admin only — delete user
+router.delete('/:id', async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+    if (Number(req.params.id) === req.user.id) {
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
 
-  // Unassign open tickets before deleting
-  db.prepare("UPDATE tickets SET assigned_to = NULL WHERE assigned_to = ? AND status NOT IN ('resolved','closed')").run(user.id);
-  db.prepare('DELETE FROM users WHERE id = ?').run(user.id);
+    const user = await prisma.user.findUnique({ where: { id: Number(req.params.id) } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-  res.json({ message: 'User deleted' });
+    await prisma.$transaction([
+      prisma.ticket.updateMany({
+        where: { assigned_to: user.id, status: { notIn: ['resolved', 'closed'] } },
+        data: { assigned_to: null },
+      }),
+      prisma.user.delete({ where: { id: user.id } }),
+    ]);
+
+    res.json({ message: 'User deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 module.exports = router;

@@ -1,5 +1,29 @@
+# Dependencies
 node_modules/
-backend/data/
+**/node_modules/
+
+# Build output
 frontend/dist/
+
+# Environment — NEVER commit these
 .env
+**/.env
 *.local
+
+# SQLite legacy (no longer used)
+backend/data/
+
+# Uploads (user files — store in object storage in production)
+backend/uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
