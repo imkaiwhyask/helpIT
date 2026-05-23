@@ -9,7 +9,7 @@
         <div class="carousel">
           <Transition name="fade" mode="out-in">
             <div class="slide" :key="current">
-              <div class="slide-icon">{{ slides[current].icon }}</div>
+              <el-icon class="slide-icon"><component :is="slides[current].icon" /></el-icon>
               <h2 class="slide-title">{{ slides[current].title }}</h2>
               <p class="slide-body">{{ slides[current].body }}</p>
             </div>
@@ -93,22 +93,22 @@ const error = ref('');
 
 const slides = [
   {
-    icon: '🎯',
+    icon: 'Tickets',
     title: 'Your IT Service Desk,\nsimplified.',
     body: 'Resolve faster. Collaborate smarter.\nBuilt for modern enterprise teams.',
   },
   {
-    icon: '⚡',
+    icon: 'Odometer',
     title: 'Resolve tickets in\nrecord time.',
     body: 'Auto-assign, SLA tracking, and priority queues keep your team on top of every request.',
   },
   {
-    icon: '📊',
+    icon: 'DataAnalysis',
     title: 'Full visibility,\nzero guesswork.',
     body: 'Real-time dashboards and SLA reports so you always know where things stand.',
   },
   {
-    icon: '📚',
+    icon: 'Document',
     title: 'Knowledge at your\nfingertips.',
     body: 'A built-in help center lets users find answers before they even need to submit a ticket.',
   },
@@ -204,9 +204,11 @@ async function handleLogin() {
 }
 
 .slide-icon {
-  font-size: 40px;
+  font-size: 48px !important;
+  color: rgba(255,255,255,0.9);
   margin-bottom: 18px;
-  line-height: 1;
+  display: flex;
+  justify-content: center;
 }
 
 .slide-title {
