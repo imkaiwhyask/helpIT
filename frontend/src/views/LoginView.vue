@@ -206,9 +206,15 @@ async function handleLogin() {
 .slide-icon {
   font-size: 48px !important;
   color: rgba(255,255,255,0.9);
-  margin-bottom: 18px;
-  display: flex;
-  justify-content: center;
+  margin: 0 auto 18px;
+  display: block;
+  text-align: center;
+}
+.slide-icon :deep(svg) {
+  width: 48px;
+  height: 48px;
+  display: block;
+  margin: 0 auto;
 }
 
 .slide-title {
