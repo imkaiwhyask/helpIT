@@ -12,7 +12,8 @@ function audit(action, actor, details) {
 
 const ADMIN_USER_SELECT = {
   id: true, name: true, email: true, role: true,
-  department: true, phone: true, is_active: true, created_at: true,
+  department: true, phone: true, is_active: true,
+  must_change_password: true, created_at: true,
 };
 
 const TECH_USER_SELECT = {
@@ -97,10 +98,12 @@ router.put('/:id', async (req, res) => {
     }
 
     let password_hash = user.password_hash;
+    let passwordReset = false;
     if (password) {
       if (password.length < 12) return res.status(400).json({ error: 'Password must be at least 12 characters' });
       if (password.length > 128) return res.status(400).json({ error: 'Password too long' });
       password_hash = await bcrypt.hash(password, 12);
+      passwordReset = true;
     }
 
     const updated = await prisma.user.update({
@@ -113,6 +116,7 @@ router.put('/:id', async (req, res) => {
         department:  department  ?? user.department,
         phone:       phone       ?? user.phone,
         is_active:   is_active !== undefined ? Boolean(is_active) : user.is_active,
+        ...(passwordReset && { must_change_password: true }),
       },
       select: ADMIN_USER_SELECT,
     });

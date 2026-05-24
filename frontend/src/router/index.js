@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import LoginView from '../views/LoginView.vue';
+import ChangePasswordView from '../views/ChangePasswordView.vue';
 // IT/Admin layout
 import AppLayout from '../components/AppLayout.vue';
 import DashboardView from '../views/DashboardView.vue';
@@ -22,6 +23,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/login', component: LoginView, meta: { public: true } },
+    { path: '/change-password', component: ChangePasswordView },
 
     // ── IT / Admin portal ──
     {

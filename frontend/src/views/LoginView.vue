@@ -63,6 +63,12 @@
             />
           </el-form-item>
 
+          <div class="remember-row">
+            <el-checkbox v-model="form.rememberMe" class="remember-cb">
+              Remember me
+            </el-checkbox>
+          </div>
+
           <el-alert
             v-if="error"
             :title="error"
@@ -97,7 +103,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 import { useAuthStore } from "../stores/auth";
 
 const auth = useAuthStore();
-const form = ref({ email: "", password: "" });
+const form = ref({ email: "", password: "", rememberMe: false });
 const loading = ref(false);
 const error = ref("");
 
@@ -138,7 +144,7 @@ async function handleLogin() {
   error.value = "";
   loading.value = true;
   try {
-    await auth.login(form.value.email, form.value.password);
+    await auth.login(form.value.email, form.value.password, form.value.rememberMe);
   } catch (e) {
     error.value =
       e.response?.data?.error || "Invalid credentials. Please try again.";
@@ -347,6 +353,29 @@ async function handleLogin() {
 }
 .md-input :deep(.el-input__suffix-inner .el-icon) {
   color: rgba(0, 0, 0, 0.54) !important;
+}
+
+/* ── Remember me row ── */
+.remember-row {
+  margin: 16px 0 20px;
+}
+
+.remember-cb :deep(.el-checkbox__inner) {
+  border-color: rgba(0, 0, 0, 0.42);
+  border-radius: 2px;
+}
+.remember-cb :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+  background-color: #0288d1;
+  border-color: #0288d1;
+}
+.remember-cb :deep(.el-checkbox__input.is-checked + .el-checkbox__label) {
+  color: #0288d1;
+}
+.remember-cb :deep(.el-checkbox__label) {
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.54);
 }
 
 /* ── MD1 Raised button ── */

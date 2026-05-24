@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /proc/43913/cwd 2>/dev/null && cat /proc/43913/cmdline | tr '\\\\0' ' ')",
+      "Read(//proc/43913/**)"
+    ]
+  }
+}

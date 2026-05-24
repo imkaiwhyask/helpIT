@@ -9,12 +9,23 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(JSON.parse(localStorage.getItem('helpit_user') || 'null'));
   const isAuthenticated = computed(() => !!user.value);
 
-  async function login(email, password) {
-    const res = await api.post('/auth/login', { email, password });
+  async function login(email, password, rememberMe = false) {
+    const res = await api.post('/auth/login', { email, password, rememberMe });
     user.value = res.data.user;
     localStorage.setItem('helpit_user', JSON.stringify(res.data.user));
 
-    // Role-based redirect
+    if (res.data.user.must_change_password) {
+      router.push('/change-password');
+      return;
+    }
+
+    router.push(res.data.user.role === 'user' ? '/portal' : '/dashboard');
+  }
+
+  async function changePassword(newPassword) {
+    const res = await api.post('/auth/change-password', { new_password: newPassword });
+    user.value = res.data.user;
+    localStorage.setItem('helpit_user', JSON.stringify(res.data.user));
     router.push(res.data.user.role === 'user' ? '/portal' : '/dashboard');
   }
 
@@ -40,5 +51,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { user, isAuthenticated, login, logout, fetchMe };
+  return { user, isAuthenticated, login, logout, fetchMe, changePassword };
 });
