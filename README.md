@@ -23,6 +23,8 @@ A full-stack IT helpdesk and ticketing system for small-to-medium IT teams. Supp
 - **Reports** — Technician performance metrics and ticket trend charts
 - **File attachments** — Upload images, PDFs, Office docs, and ZIPs (10 MB limit, magic-byte validated)
 - **Account lockout** — Accounts lock for 30 minutes after 5 failed login attempts
+- **Remember me** — Optional persistent session: 30-day cookie vs. 8-hour default
+- **Forced password change** — New accounts must set a new password (≥ 12 characters) on first login
 - **Self-service portal** — End users submit tickets, track progress, and read KB articles without accessing the IT console
 
 ---
@@ -156,7 +158,9 @@ Created by `npm run seed` (development only):
 | `admin@helpit.local`   | `admin123` | Admin     | Full access — users, all tickets, reports |
 | `user@helpit.local`    | `user1234` | End User  | Self-service portal only        |
 
-> Create Technician accounts from the User Management page after logging in as Admin.
+> All seeded accounts have `must_change_password = true`, so you will be prompted to set a new password (≥ 12 characters) immediately after first login.
+
+> Create Technician accounts from the User Management page after logging in as Admin. New accounts created via User Management also require a password change on first login.
 
 ---
 
