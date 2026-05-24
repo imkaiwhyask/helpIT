@@ -86,6 +86,8 @@
           For access issues, contact your IT Department.
         </p>
       </div>
+
+      <p class="copyright">© 2026 helpIT. All rights reserved.</p>
     </div>
   </div>
 </template>
@@ -264,15 +266,27 @@ async function handleLogin() {
 .form-panel {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 64px 48px;
   background: #fff;
+  position: relative;
 }
 
 .form-inner {
   width: 100%;
   max-width: 360px;
+}
+
+.copyright {
+  position: absolute;
+  bottom: 24px;
+  font-family: "Roboto", sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.38);
+  text-align: center;
 }
 
 /* MD1 typography — Display / Title styles */
