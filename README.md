@@ -33,7 +33,7 @@ A full-stack IT helpdesk and ticketing system for small-to-medium IT teams. Supp
 
 | Layer        | Technologies                                          |
 |--------------|-------------------------------------------------------|
-| **Frontend** | Vue 3, Vite, Element Plus, Pinia, ApexCharts, Vue Router |
+| **Frontend** | Vue 3, Vite, Element Plus, Pinia, ApexCharts, Chart.js, Vue Router |
 | **Backend**  | Node.js, Express, Prisma ORM                          |
 | **Database** | PostgreSQL 16                                         |
 | **Auth**     | JWT via httpOnly cookie                               |
@@ -103,7 +103,7 @@ To stop and wipe data: `docker compose down -v`
    npx prisma migrate deploy
    ```
 
-3. Seed demo accounts (**development only** — blocked in production):
+3. Seed demo accounts (**development only** — blocked when `NODE_ENV=production`):
 
    ```bash
    npm run seed
@@ -151,16 +151,22 @@ Docker Compose also reads these variables from the root `.env`:
 
 ## Demo Accounts
 
-Created by `npm run seed` (development only):
+Created by `npm run seed` (requires `NODE_ENV=development` in `backend/.env`):
 
-| Email                  | Password   | Role      | Access                          |
-|------------------------|------------|-----------|---------------------------------|
-| `admin@helpit.local`   | `admin123` | Admin     | Full access — users, all tickets, reports |
-| `user@helpit.local`    | `user1234` | End User  | Self-service portal only        |
+| Email                            | Password     | Role       | Access                                    |
+|----------------------------------|--------------|------------|-------------------------------------------|
+| `admin@helpit.local`             | `Admin@1234` | Admin      | Full access — users, all tickets, reports |
+| `sarah.thompson@helpit.local`    | `Tech@1234`  | Technician | All tickets, dashboard, KB, reports       |
+| `james.kim@helpit.local`         | `Tech@1234`  | Technician | All tickets, dashboard, KB, reports       |
+| `alice.morgan@helpit.local`      | `User@1234`  | End User   | Self-service portal only                  |
+| `bob.johnson@helpit.local`       | `User@1234`  | End User   | Self-service portal only                  |
+| `carol.white@helpit.local`       | `User@1234`  | End User   | Self-service portal only                  |
+| `david.lee@helpit.local`         | `User@1234`  | End User   | Self-service portal only                  |
+| `emma.rodriguez@helpit.local`    | `User@1234`  | End User   | Self-service portal only                  |
 
-> All seeded accounts have `must_change_password = true`, so you will be prompted to set a new password (≥ 12 characters) immediately after first login.
+The seed also creates 51 realistic tickets, comments, and 6 KB articles so the dashboard and reports have meaningful data immediately.
 
-> Create Technician accounts from the User Management page after logging in as Admin. New accounts created via User Management also require a password change on first login.
+> New accounts created manually via User Management have `must_change_password = true` and will be prompted to set a new password (≥ 12 characters) on first login.
 
 ---
 
@@ -209,7 +215,7 @@ helpIT/
 │   └── package.json
 ├── frontend/
 │   ├── src/
-│   │   ├── api.js              # Axios instance
+│   │   ├── api/                # Axios instance + request helpers
 │   │   ├── router/             # Vue Router (role-based guards)
 │   │   ├── stores/             # Pinia stores (auth)
 │   │   ├── components/         # AppLayout, Sidebar, Header, etc.
