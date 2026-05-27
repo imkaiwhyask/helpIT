@@ -26,6 +26,7 @@
               <div>
                 <div class="uname">{{ row.name }}</div>
                 <div class="uemail">{{ row.email }}</div>
+                <div v-if="row.username" class="uusername">@{{ row.username }}</div>
               </div>
             </div>
           </template>
@@ -115,18 +116,19 @@
           </el-form-item>
         </div>
         <div class="dialog-row">
+          <el-form-item label="Username">
+            <el-input v-model="form.username" placeholder="john.doe" autocomplete="off" />
+          </el-form-item>
+        </div>
+        <div class="dialog-row">
           <el-form-item
-            :label="
-              editingId ? 'New Password (leave blank to keep)' : 'Password *'
-            "
+            :label="editingId ? 'New Password (leave blank to keep)' : 'Password *'"
           >
             <el-input
               v-model="form.password"
               type="password"
               show-password
-              :placeholder="
-                editingId ? 'Leave blank to keep current' : 'Min. 12 characters'
-              "
+              :placeholder="editingId ? 'Leave blank to keep current' : 'Min. 8 characters'"
             />
           </el-form-item>
           <el-form-item label="Role *">
@@ -198,6 +200,7 @@ const formError = ref("");
 const emptyForm = () => ({
   name: "",
   email: "",
+  username: "",
   password: "",
   role: "technician",
   department: "",
@@ -213,6 +216,7 @@ const filteredUsers = computed(() => {
         (u) =>
           u.name.toLowerCase().includes(q) ||
           u.email.toLowerCase().includes(q) ||
+          (u.username || "").toLowerCase().includes(q) ||
           (u.department || "").toLowerCase().includes(q),
       )
     : users.value;
@@ -246,6 +250,7 @@ function openEdit(row) {
   form.value = {
     name: row.name,
     email: row.email,
+    username: row.username || "",
     password: "",
     role: row.role,
     department: row.department || "",
@@ -276,8 +281,8 @@ async function createUser() {
     formError.value = "Email is required";
     return;
   }
-  if (form.value.password.length < 12) {
-    formError.value = "Password must be at least 12 characters";
+  if (form.value.password.length < 8) {
+    formError.value = "Password must be at least 8 characters";
     return;
   }
 
@@ -304,8 +309,8 @@ async function updateUser() {
     formError.value = "Email is required";
     return;
   }
-  if (form.value.password && form.value.password.length < 12) {
-    formError.value = "Password must be at least 12 characters";
+  if (form.value.password && form.value.password.length < 8) {
+    formError.value = "Password must be at least 8 characters";
     return;
   }
 
@@ -367,7 +372,7 @@ onMounted(load);
 .uavatar {
   width: 32px;
   height: 32px;
-  background: #0288d1;
+  background: #2196F3;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -385,6 +390,11 @@ onMounted(load);
 .uemail {
   font-size: 12px;
   color: rgba(0, 0, 0, 0.54);
+}
+.uusername {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.38);
+  font-family: monospace;
 }
 
 .action-btns {

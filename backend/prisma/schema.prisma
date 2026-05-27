@@ -11,14 +11,15 @@ model User {
   id            Int      @id @default(autoincrement())
   name          String
   email         String   @unique
+  username      String?  @unique
   password_hash String
   role          String   @default("user")
   department    String   @default("")
   phone         String   @default("")
   is_active            Boolean  @default(true)
+  must_change_password Boolean  @default(true)
   failed_login_count   Int      @default(0)
   locked_until         DateTime? @db.Timestamptz
-  must_change_password Boolean  @default(true)
   created_at           DateTime @default(now()) @db.Timestamptz
 
   assigned_tickets  Ticket[]          @relation("AssignedTo")
@@ -48,6 +49,8 @@ model Ticket {
   first_response_at     DateTime? @db.Timestamptz
   sla_response_breached   Boolean @default(false)
   sla_resolution_breached Boolean @default(false)
+  on_hold_since           DateTime? @db.Timestamptz
+  merged_into             Int?
 
   assigned_user User?             @relation("AssignedTo", fields: [assigned_to], references: [id], onDelete: SetNull)
   creator       User              @relation("CreatedBy", fields: [created_by], references: [id])
@@ -102,6 +105,7 @@ model KbArticle {
   tags         String   @default("")
   author_id    Int?
   is_published Boolean  @default(true)
+  visibility   String   @default("public")
   view_count   Int      @default(0)
   created_at   DateTime @default(now()) @db.Timestamptz
   updated_at   DateTime @default(now()) @db.Timestamptz
@@ -109,7 +113,7 @@ model KbArticle {
   author User? @relation(fields: [author_id], references: [id], onDelete: SetNull)
 
   @@index([author_id])
-  @@index([is_published])
+  @@index([visibility])
   @@index([category])
   @@map("kb_articles")
 }

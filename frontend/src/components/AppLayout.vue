@@ -4,7 +4,11 @@
     <div class="app-body">
       <AppSidebar />
       <main class="page-content">
-        <RouterView />
+        <RouterView v-slot="{ Component }">
+          <transition name="page" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </RouterView>
       </main>
     </div>
   </div>
@@ -31,6 +35,12 @@ import AppHeader from './AppHeader.vue';
   flex: 1;
   overflow-y: auto;
   padding: 24px;
-  background: #fafafa;
+  background: var(--md1-grey-100);
 }
+
+/* MD1 page transition */
+.page-enter-active { transition: opacity 0.18s ease, transform 0.18s ease; }
+.page-leave-active { transition: opacity 0.14s ease; }
+.page-enter-from   { opacity: 0; transform: translateY(10px); }
+.page-leave-to     { opacity: 0; }
 </style>

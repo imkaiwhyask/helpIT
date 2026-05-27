@@ -50,29 +50,29 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="department" label="Dept" width="130" />
+        <el-table-column prop="department" label="Dept" width="120" />
 
-        <el-table-column label="Assigned" width="90" align="center">
+        <el-table-column label="Assigned" width="100" align="center">
           <template #default="{ row }">{{ row.total_assigned }}</template>
         </el-table-column>
 
-        <el-table-column label="Resolved" width="90" align="center">
+        <el-table-column label="Resolved" width="100" align="center">
           <template #default="{ row }">
             <span class="text-green fw">{{ row.resolved }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="Open" width="80" align="center">
+        <el-table-column label="Open" width="70" align="center">
           <template #default="{ row }">{{ row.open }}</template>
         </el-table-column>
 
-        <el-table-column label="SLA Breached" width="110" align="center">
+        <el-table-column label="Breached" width="100" align="center">
           <template #default="{ row }">
             <span :class="row.breached > 0 ? 'text-red fw' : 'text-muted'">{{ row.breached }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="SLA Compliance" width="150" align="center">
+        <el-table-column label="SLA Compliance" width="160" align="center">
           <template #default="{ row }">
             <div v-if="row.sla_compliance !== null" class="compliance-wrap">
               <el-progress
@@ -88,7 +88,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="Avg Resolution" width="130" align="center">
+        <el-table-column label="Avg. Resolution" width="140" align="center">
           <template #default="{ row }">
             <span v-if="row.avg_resolution_hours !== null">{{ fmtHours(row.avg_resolution_hours) }}</span>
             <span v-else class="text-muted">—</span>
@@ -132,7 +132,7 @@ const trendOptions = computed(() => ({
   chart: { toolbar: { show: false }, background: 'transparent', foreColor: 'rgba(0,0,0,0.54)', theme: { mode: 'light' } },
   plotOptions: { bar: { borderRadius: 2, columnWidth: '55%' } },
   dataLabels: { enabled: false },
-  colors: ['#0288d1', '#2e7d32', '#c62828'],
+  colors: ['#2196F3', '#2e7d32', '#c62828'],
   xaxis: { categories: trendCategories.value, labels: { style: { fontSize: '11px', colors: 'rgba(0,0,0,0.54)' } } },
   yaxis: { labels: { style: { fontSize: '11px', colors: 'rgba(0,0,0,0.54)' } } },
   legend: { position: 'top', fontSize: '12px', labels: { colors: 'rgba(0,0,0,0.54)' } },
@@ -212,7 +212,7 @@ onMounted(load);
 .user-cell { display:flex; align-items:center; gap:10px; }
 .avatar {
   width:32px; height:32px;
-  background: #0288d1;
+  background: #2196F3;
   border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:500; color:#fff; flex-shrink:0;
@@ -222,4 +222,6 @@ onMounted(load);
 
 .compliance-wrap { display:flex; align-items:center; gap:8px; justify-content:center; }
 .comp-pct { font-size:12px; font-weight:500; color: rgba(0,0,0,0.87); min-width:32px; }
+
+:deep(.el-table__header .cell) { white-space: nowrap; }
 </style>

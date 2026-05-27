@@ -24,46 +24,15 @@
 }
 .el-table tr { background: #fff !important; }
 .el-table--enable-row-hover .el-table__body tr:hover > td {
-  background: rgba(2,136,209,0.04) !important;
+  background: var(--md1-grey-200) !important;
 }
 .el-table__inner-wrapper::before { background: rgba(0,0,0,0.12) !important; }
 .el-table__empty-block { background: transparent !important; }
 .el-table__empty-text { color: rgba(0,0,0,0.38) !important; }
 
-/* ── Inputs ── */
-.el-input__wrapper {
-  background: #fff !important;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.23) inset !important;
-  border-radius: 2px !important;
-}
-.el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 2px #0288d1 inset !important;
-}
-.el-input__inner { color: rgba(0,0,0,0.87) !important; font-size: 14px !important; }
-.el-input__inner::placeholder { color: rgba(0,0,0,0.38) !important; }
-.el-textarea__inner {
-  background: #fff !important;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.23) inset !important;
-  color: rgba(0,0,0,0.87) !important;
-  border-radius: 2px !important;
-}
-.el-textarea__inner:focus {
-  box-shadow: 0 0 0 2px #0288d1 inset !important;
-}
-.el-textarea__inner::placeholder { color: rgba(0,0,0,0.38) !important; }
-
 /* ── Selects ── */
-.el-select__wrapper {
-  background: #fff !important;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.23) inset !important;
-  border-radius: 2px !important;
-  color: rgba(0,0,0,0.87) !important;
-}
-.el-select__wrapper.is-focused {
-  box-shadow: 0 0 0 2px #0288d1 inset !important;
-}
-.el-select__placeholder { color: rgba(0,0,0,0.38) !important; }
-.el-select__selected-item { color: rgba(0,0,0,0.87) !important; }
+.el-select__placeholder { color: var(--md1-text-hint) !important; }
+.el-select__selected-item { color: var(--md1-text-primary) !important; }
 .el-select-dropdown {
   background: #fff !important;
   border: none !important;
@@ -74,7 +43,7 @@
 .el-select-dropdown__item:hover,
 .el-select-dropdown__item.hover { background: rgba(0,0,0,0.04) !important; }
 .el-select-dropdown__item.selected,
-.el-select-dropdown__item.is-selected { color: #0288d1 !important; font-weight: 500 !important; }
+.el-select-dropdown__item.is-selected { color: var(--md1-primary) !important; font-weight: 500 !important; }
 
 /* ── Dialog ── */
 .el-dialog {
@@ -107,9 +76,9 @@
   border-radius: 2px !important;
 }
 .el-pagination .el-pager li.is-active {
-  background: #0288d1 !important;
+  background: var(--md1-primary) !important;
   color: #fff !important;
-  border-color: #0288d1 !important;
+  border-color: var(--md1-primary) !important;
 }
 .el-pagination__total,
 .el-pagination__jump { color: rgba(0,0,0,0.54) !important; }
@@ -138,7 +107,7 @@
   background: #fff !important;
   border-color: rgba(0,0,0,0.38) !important;
 }
-.el-checkbox.is-checked .el-checkbox__inner { background: #0288d1 !important; border-color: #0288d1 !important; }
+.el-checkbox.is-checked .el-checkbox__inner { background: var(--md1-primary) !important; border-color: var(--md1-primary) !important; }
 
 /* ── Popover / Popconfirm ── */
 .el-popover.el-popper {
@@ -157,7 +126,7 @@
 /* ── Loading ── */
 .el-loading-mask { background: rgba(255,255,255,0.8) !important; }
 .el-loading-text { color: rgba(0,0,0,0.54) !important; }
-.el-loading-spinner .circular { stroke: #0288d1 !important; }
+.el-loading-spinner .circular { stroke: var(--md1-primary) !important; }
 
 /* ── Skeleton ── */
 .el-skeleton__item {
@@ -170,7 +139,7 @@
 
 /* ── Switch ── */
 .el-switch__label { color: rgba(0,0,0,0.54) !important; }
-.el-switch.is-checked .el-switch__core { background: #0288d1 !important; border-color: #0288d1 !important; }
+.el-switch.is-checked .el-switch__core { background: var(--md1-primary) !important; border-color: var(--md1-primary) !important; }
 
 /* ── Tag ── */
 .el-tag { border-radius: 2px !important; }
@@ -198,40 +167,7 @@
 
 /* ── Clickable row hover ── */
 .clickable-row { cursor: pointer; }
-.clickable-row:hover td { background: rgba(2,136,209,0.04) !important; }
-
-/* ── Button overrides for MD1 raised style ── */
-.el-button--primary {
-  background: #0288d1 !important;
-  border-color: #0288d1 !important;
-  color: #fff !important;
-  border-radius: 2px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.08em !important;
-  text-transform: uppercase !important;
-  box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20) !important;
-}
-.el-button--primary:hover {
-  background: #0277bd !important;
-  border-color: #0277bd !important;
-  box-shadow: 0 8px 10px rgba(0,0,0,0.14), 0 3px 14px rgba(0,0,0,0.12), 0 5px 5px rgba(0,0,0,0.20) !important;
-}
-.el-button--primary:active {
-  background: #01579b !important;
-  border-color: #01579b !important;
-}
-.el-button--danger {
-  border-radius: 2px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.05em !important;
-}
-.el-button {
-  border-radius: 2px !important;
-  font-family: 'Roboto', sans-serif !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
-}
+.clickable-row:hover td { background: var(--md1-grey-200) !important; }
 
 /* ============================================================
    MD1 Badge Classes
@@ -253,7 +189,7 @@
 .pri-low      { background: #c8e6c9 !important; color: #2e7d32 !important; }
 
 /* Status badges */
-.sta-open        { background: #e3f2fd !important; color: #1565c0 !important; }
+.sta-open        { background: #E3F2FD !important; color: #1976D2 !important; }
 .sta-in_progress { background: #ede7f6 !important; color: #4527a0 !important; }
 .sta-on_hold     { background: #fff3e0 !important; color: #e65100 !important; }
 .sta-resolved    { background: #c8e6c9 !important; color: #2e7d32 !important; }
@@ -266,7 +202,7 @@
 .sla-breached{ background: #ffcdd2 !important; color: #c62828 !important; }
 
 /* Role badges */
-.role-admin      { background: #e3f2fd !important; color: #1565c0 !important; }
+.role-admin      { background: #E3F2FD !important; color: #1976D2 !important; }
 .role-technician { background: #c8e6c9 !important; color: #2e7d32 !important; }
 .role-user       { background: #ede7f6 !important; color: #4527a0 !important; }
 

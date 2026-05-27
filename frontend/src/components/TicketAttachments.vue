@@ -103,9 +103,7 @@ async function upload(file) {
   try {
     const fd = new FormData();
     fd.append('file', file);
-    await api.post(`/tickets/${props.ticketId}/attachments`, fd, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    await api.post(`/tickets/${props.ticketId}/attachments`, fd);
     await load();
     emit('updated');
   } catch (e) {
@@ -151,7 +149,7 @@ defineExpose({ load });
 .att-header { display:flex; align-items:center; gap:8px; }
 .att-title { font-size:13px; font-weight:500; color: rgba(0,0,0,0.87); }
 .att-count {
-  font-size:11px; font-weight:500; background: #e3f2fd; color: #1565c0;
+  font-size:11px; font-weight:500; background: #E3F2FD; color: #1976D2;
   padding:1px 7px; border-radius:2px;
 }
 
@@ -173,7 +171,7 @@ defineExpose({ load });
   display:flex; align-items:center; justify-content:center; gap:8px;
   transition:border-color 0.15s, background 0.15s;
 }
-.drop-zone:hover, .drop-over { border-color: #0288d1; color: #0288d1; background: rgba(2,136,209,0.04); }
+.drop-zone:hover, .drop-over { border-color: #2196F3; color: #2196F3; background: rgba(33,150,243,0.04); }
 .drop-icon { font-size:16px; }
 .size-hint { color: rgba(0,0,0,0.38); font-size:11px; }
 

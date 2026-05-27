@@ -1,6 +1,7 @@
 const express = require('express');
 const { prisma } = require('../db');
 const { requireAuth } = require('../middleware/auth');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -44,14 +45,14 @@ async function isValidAssignee(id) {
   return u?.role === 'technician' || u?.role === 'admin';
 }
 
-// Pick least-loaded active technician for round-robin auto-assign
+// Pick least-loaded active technician or admin for round-robin auto-assign
 async function autoAssign() {
   const result = await prisma.$queryRaw`
     SELECT u.id, COUNT(t.id)::int AS load
     FROM users u
     LEFT JOIN tickets t ON t.assigned_to = u.id
       AND t.status NOT IN ('resolved','closed')
-    WHERE u.role = 'technician' AND u.is_active = true
+    WHERE u.role IN ('technician', 'admin') AND u.is_active = true
     GROUP BY u.id
     ORDER BY load ASC, u.id ASC
     LIMIT 1
@@ -188,7 +189,8 @@ router.post('/', async (req, res) => {
     });
 
     if (assignee) {
-      const who = (await prisma.user.findUnique({ where: { id: assignee }, select: { name: true } }))?.name ?? 'someone';
+      const assigneeUser = await prisma.user.findUnique({ where: { id: assignee }, select: { name: true, email: true } });
+      const who = assigneeUser?.name ?? 'someone';
       await prisma.ticketComment.create({
         data: {
           ticket_id: ticket.id,
@@ -197,6 +199,7 @@ router.post('/', async (req, res) => {
           is_internal: true,
         },
       });
+      emailService.notifyAssigned(ticket, assigneeUser, req.user.name);
     }
 
     res.status(201).json(ticket);
@@ -222,9 +225,12 @@ router.put('/:id', async (req, res) => {
       }
     }
 
-    // Technicians can only update tickets assigned to them (or unassigned ones they're claiming)
-    if (req.user.role === 'technician' && ticket.assigned_to !== null && ticket.assigned_to !== req.user.id) {
-      return res.status(403).json({ error: 'Access denied' });
+    // Technicians can reassign any ticket, but can only edit other fields on their own tickets
+    if (req.user.role === 'technician') {
+      const onlyReassigning = Object.keys(req.body).every(k => k === 'assigned_to');
+      if (!onlyReassigning && ticket.assigned_to !== null && ticket.assigned_to !== req.user.id) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
     }
 
     // End users cannot reassign tickets
@@ -259,6 +265,7 @@ router.put('/:id', async (req, res) => {
     let resolved_at           = ticket.resolved_at;
     let sla_resolution_breached = ticket.sla_resolution_breached;
     let first_response_at     = ticket.first_response_at;
+    let on_hold_since         = ticket.on_hold_since;
 
     if (newStatus === 'resolved' && ticket.status !== 'resolved') {
       resolved_at = now;
@@ -270,6 +277,12 @@ router.put('/:id', async (req, res) => {
 
     if (!first_response_at && newStatus === 'in_progress') {
       first_response_at = now;
+    }
+
+    if (newStatus === 'on_hold' && ticket.status !== 'on_hold') {
+      on_hold_since = now;
+    } else if (newStatus !== 'on_hold') {
+      on_hold_since = null;
     }
 
     let response_due   = ticket.response_due;
@@ -295,6 +308,7 @@ router.put('/:id', async (req, res) => {
         first_response_at,
         response_due,
         resolution_due,
+        on_hold_since,
       },
       include: {
         assigned_user: { select: { name: true } },
@@ -328,6 +342,25 @@ router.put('/:id', async (req, res) => {
       }));
     }
     if (commentInserts.length) await Promise.all(commentInserts);
+
+    // Best-effort email notifications — fire-and-forget, never block the response
+    const wasReassigned = 'assigned_to' in req.body
+      && assigned_to
+      && Number(assigned_to) !== ticket.assigned_to;
+    const wasResolved = status
+      && (status === 'resolved' || status === 'closed')
+      && status !== ticket.status;
+
+    if (wasReassigned) {
+      prisma.user.findUnique({ where: { id: Number(assigned_to) }, select: { name: true, email: true } })
+        .then(u => emailService.notifyReassigned(updated, u))
+        .catch(err => console.error('[email]', err.message));
+    }
+    if (wasResolved) {
+      prisma.user.findUnique({ where: { id: ticket.created_by }, select: { name: true, email: true } })
+        .then(u => emailService.notifyResolved(updated, u))
+        .catch(err => console.error('[email]', err.message));
+    }
 
     res.json(flattenTicket(updated));
   } catch (err) {
@@ -366,7 +399,16 @@ router.post('/:id/comments', async (req, res) => {
 
     const ticket = await prisma.ticket.findUnique({
       where: { id },
-      select: { id: true, created_by: true },
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        priority: true,
+        created_by: true,
+        assigned_to: true,
+        creator:       { select: { name: true, email: true } },
+        assigned_user: { select: { name: true, email: true } },
+      },
     });
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
@@ -392,7 +434,109 @@ router.post('/:id/comments', async (req, res) => {
     ]);
 
     const { user, ...rest } = comment;
+    if (!isInternal) {
+      emailService.notifyComment(ticket, comment.content, req.user.id);
+    }
     res.status(201).json({ ...rest, author_name: user.name, author_role: user.role });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete comment — admin can delete any; others only their own (on their own ticket)
+router.delete('/:ticketId/comments/:commentId', async (req, res) => {
+  try {
+    const ticketId  = Number(req.params.ticketId);
+    const commentId = Number(req.params.commentId);
+    if (!Number.isInteger(ticketId)  || ticketId  < 1) return res.status(400).json({ error: 'Invalid ticket ID' });
+    if (!Number.isInteger(commentId) || commentId < 1) return res.status(400).json({ error: 'Invalid comment ID' });
+
+    const comment = await prisma.ticketComment.findUnique({
+      where: { id: commentId },
+      include: { ticket: { select: { id: true, created_by: true } } },
+    });
+    if (!comment || comment.ticket_id !== ticketId) return res.status(404).json({ error: 'Comment not found' });
+
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    await prisma.ticketComment.delete({ where: { id: commentId } });
+    console.info(JSON.stringify({ audit: 'COMMENT_DELETE', actor: req.user.id, commentId, ticketId, ts: new Date() }));
+    res.json({ message: 'Comment deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Merge tickets — admin/technician. Merges one or more source tickets INTO this ticket (target).
+router.post('/:id/merge', async (req, res) => {
+  try {
+    if (req.user.role !== 'admin' && req.user.role !== 'technician') return res.status(403).json({ error: 'Access denied' });
+
+    const targetId = Number(req.params.id);
+    if (!Number.isInteger(targetId) || targetId < 1) return res.status(400).json({ error: 'Invalid target ticket ID' });
+
+    const rawIds = Array.isArray(req.body.source_ids) ? req.body.source_ids : [];
+    const sourceIds = [...new Set(rawIds.map(Number).filter(n => Number.isInteger(n) && n > 0))];
+    if (!sourceIds.length) return res.status(400).json({ error: 'At least one source ticket ID is required' });
+    if (sourceIds.includes(targetId)) return res.status(400).json({ error: 'Cannot merge a ticket into itself' });
+
+    const target = await prisma.ticket.findUnique({ where: { id: targetId } });
+    if (!target) return res.status(404).json({ error: 'Target ticket not found' });
+
+    const sources = await prisma.ticket.findMany({ where: { id: { in: sourceIds } } });
+    if (sources.length !== sourceIds.length) {
+      const missing = sourceIds.filter(id => !sources.find(s => s.id === id));
+      return res.status(404).json({ error: `Tickets not found: ${missing.join(', ')}` });
+    }
+    const alreadyMerged = sources.filter(s => s.status === 'closed' && s.merged_into);
+    if (alreadyMerged.length) {
+      return res.status(400).json({ error: `Already merged: #${alreadyMerged.map(s => s.id).join(', #')}` });
+    }
+
+    const now = new Date();
+    const sourceLabel = sourceIds.map(id => `#${id}`).join(', ');
+
+    await prisma.$transaction([
+      // Move all attachments from every source to target
+      prisma.ticketAttachment.updateMany({
+        where: { ticket_id: { in: sourceIds } },
+        data:  { ticket_id: targetId },
+      }),
+      // Close all sources and mark merged
+      prisma.ticket.updateMany({
+        where: { id: { in: sourceIds } },
+        data:  { status: 'closed', merged_into: targetId, updated_at: now },
+      }),
+      // Internal comment on each source
+      ...sourceIds.map(sourceId => prisma.ticketComment.create({
+        data: {
+          ticket_id:   sourceId,
+          user_id:     req.user.id,
+          content:     `This ticket has been merged into ticket #${targetId} by ${req.user.name}.`,
+          is_internal: true,
+        },
+      })),
+      // Single summary comment on target
+      prisma.ticketComment.create({
+        data: {
+          ticket_id:   targetId,
+          user_id:     req.user.id,
+          content:     `Tickets ${sourceLabel} were merged into this ticket by ${req.user.name}.`,
+          is_internal: true,
+        },
+      }),
+      prisma.ticket.update({
+        where: { id: targetId },
+        data:  { updated_at: now },
+      }),
+    ]);
+
+    console.info(JSON.stringify({ audit: 'TICKET_MERGE', actor: req.user.id, targetId, sourceIds, ts: now }));
+    res.json({ message: `Merged ${sourceIds.length} ticket${sourceIds.length > 1 ? 's' : ''} into this ticket` });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

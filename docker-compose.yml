@@ -15,6 +15,7 @@ services:
       retries: 5
 
   backend:
+    image: ${BACKEND_IMAGE:-helpit-backend}
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -28,12 +29,19 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       CORS_ORIGIN: ${CORS_ORIGIN}
       PORT: 3001
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME}
+      SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
     command: >
       sh -c "npx prisma migrate deploy && node src/server.js"
     volumes:
       - uploads_data:/app/uploads
 
   frontend:
+    image: ${FRONTEND_IMAGE:-helpit-frontend}
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -41,7 +49,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "${PORT:-80}:80"
+      - "192.168.30.112:8084:80"
 
 volumes:
   postgres_data:

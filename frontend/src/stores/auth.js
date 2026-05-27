@@ -9,23 +9,25 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(JSON.parse(localStorage.getItem('helpit_user') || 'null'));
   const isAuthenticated = computed(() => !!user.value);
 
+  function setUser(u) {
+    user.value = u;
+    localStorage.setItem('helpit_user', JSON.stringify(u));
+  }
+
   async function login(email, password, rememberMe = false) {
     const res = await api.post('/auth/login', { email, password, rememberMe });
-    user.value = res.data.user;
-    localStorage.setItem('helpit_user', JSON.stringify(res.data.user));
+    setUser(res.data.user);
 
     if (res.data.user.must_change_password) {
       router.push('/change-password');
-      return;
+    } else {
+      router.push(res.data.user.role === 'user' ? '/portal' : '/dashboard');
     }
-
-    router.push(res.data.user.role === 'user' ? '/portal' : '/dashboard');
   }
 
   async function changePassword(newPassword) {
     const res = await api.post('/auth/change-password', { new_password: newPassword });
-    user.value = res.data.user;
-    localStorage.setItem('helpit_user', JSON.stringify(res.data.user));
+    setUser(res.data.user);
     router.push(res.data.user.role === 'user' ? '/portal' : '/dashboard');
   }
 
@@ -43,13 +45,12 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchMe() {
     try {
       const res = await api.get('/auth/me');
-      user.value = res.data;
-      localStorage.setItem('helpit_user', JSON.stringify(res.data));
+      setUser(res.data);
     } catch {
       user.value = null;
       localStorage.removeItem('helpit_user');
     }
   }
 
-  return { user, isAuthenticated, login, logout, fetchMe, changePassword };
+  return { user, isAuthenticated, login, changePassword, logout, fetchMe };
 });

@@ -6,7 +6,7 @@
       <div class="card">
         <div class="ticket-header">
           <div>
-            <div class="ticket-num">#{{ String(ticket.id).padStart(4,'0') }}</div>
+            <div class="ticket-num">#{{ ticket.id }}</div>
             <h2 class="ticket-title-full">{{ ticket.title }}</h2>
           </div>
           <div class="header-badges">
@@ -37,6 +37,18 @@
                 <strong>{{ c.author_name }}</strong>
                 <span v-if="c.is_internal" class="internal-tag">internal note</span>
                 <span class="comment-time">{{ fmtDatetime(c.created_at) }}</span>
+                <el-popconfirm
+                  v-if="isAdmin"
+                  title="Delete this comment?"
+                  confirm-button-type="danger"
+                  @confirm="deleteComment(c.id)"
+                >
+                  <template #reference>
+                    <el-button class="del-comment-btn" size="small" text type="danger" title="Delete comment">
+                      <el-icon><Delete /></el-icon>
+                    </el-button>
+                  </template>
+                </el-popconfirm>
               </div>
               <div class="comment-text">{{ c.content }}</div>
             </div>
@@ -138,6 +150,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import { Delete } from '@element-plus/icons-vue';
 import api from '../api';
 import TicketAttachments from '../components/TicketAttachments.vue';
 import { useAuthStore } from '../stores/auth';
@@ -154,6 +167,7 @@ const allUsers = ref([]);
 const newComment = ref('');
 const isInternal = ref(false);
 const submitting = ref(false);
+
 
 const editStatus   = ref('');
 const editPriority = ref('');
@@ -257,6 +271,17 @@ async function addComment() {
   }
 }
 
+async function deleteComment(commentId) {
+  try {
+    await api.delete(`/tickets/${ticket.value.id}/comments/${commentId}`);
+    await load();
+    ElMessage.success('Comment deleted');
+  } catch {
+    ElMessage.error('Failed to delete comment');
+  }
+}
+
+
 async function deleteTicket() {
   await api.delete(`/tickets/${ticket.value.id}`);
   ElMessage.success('Ticket deleted');
@@ -306,13 +331,14 @@ onMounted(load);
 }
 .comment-avatar {
   width: 30px; height: 30px;
-  background: #0288d1; border-radius: 50%;
+  background: #2196F3; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 500; color: #fff; flex-shrink: 0;
 }
-.comment-meta { display: flex; gap: 8px; align-items: baseline; margin-bottom: 4px; font-size: 12px; }
+.comment-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; font-size: 12px; }
 .comment-meta strong { color: rgba(0,0,0,0.87); }
 .comment-time { color: rgba(0,0,0,0.38); margin-left: auto; }
+.del-comment-btn { padding: 0 2px !important; height: auto !important; }
 .internal-tag { background: #fff8e1; color: #f57f17; border-radius: 2px; padding: 1px 5px; font-size: 10px; font-weight: 500; }
 .comment-text { font-size: 13px; color: rgba(0,0,0,0.87); line-height: 1.5; }
 
@@ -332,4 +358,5 @@ onMounted(load);
 .danger-zone { padding: 12px; }
 
 .empty-state, .loading-state { padding: 40px; }
+
 </style>

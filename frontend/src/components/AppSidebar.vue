@@ -6,6 +6,7 @@
         :key="item.to"
         :to="item.to"
         class="nav-item"
+        @mousedown="createRipple"
       >
         <el-icon class="nav-icon"><component :is="item.icon" /></el-icon>
         <span class="nav-label">{{ item.label }}</span>
@@ -27,6 +28,25 @@
 <script setup>
 import { computed } from 'vue';
 import { useAuthStore } from '../stores/auth';
+
+function createRipple(event) {
+  const el = event.currentTarget;
+  const existing = el.querySelector('.md-ripple');
+  if (existing) existing.remove();
+
+  const diameter = Math.max(el.clientWidth, el.clientHeight);
+  const radius = diameter / 2;
+  const rect = el.getBoundingClientRect();
+
+  const ripple = document.createElement('span');
+  ripple.classList.add('md-ripple');
+  ripple.style.width = ripple.style.height = `${diameter}px`;
+  ripple.style.left = `${event.clientX - rect.left - radius}px`;
+  ripple.style.top  = `${event.clientY - rect.top  - radius}px`;
+  el.appendChild(ripple);
+
+  ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+}
 
 const auth = useAuthStore();
 
@@ -78,13 +98,37 @@ const navItems = computed(() =>
   font-weight: 500;
   border-left: 3px solid transparent;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s;
 }
-.nav-item:hover { background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.87); }
+.nav-item:hover {
+  background: rgba(0,0,0,0.06);
+  color: rgba(0,0,0,0.87);
+}
+.nav-item:active { background: rgba(0,0,0,0.1); }
 .nav-item.router-link-active {
-  background: rgba(2,136,209,0.08);
-  color: #0288d1;
-  border-left-color: #0288d1;
+  background: rgba(33,150,243,0.08);
+  color: #2196F3;
+  border-left-color: #2196F3;
+}
+.nav-item.router-link-active:hover { background: rgba(33,150,243,0.13); }
+
+/* MD1 ink ripple */
+.nav-item :deep(.md-ripple) {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.12);
+  transform: scale(0);
+  pointer-events: none;
+  animation: md-ripple 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.nav-item.router-link-active :deep(.md-ripple) {
+  background: rgba(33,150,243,0.2);
+}
+
+@keyframes md-ripple {
+  to { transform: scale(4); opacity: 0; }
 }
 
 .nav-icon { font-size: 18px; flex-shrink: 0; }
@@ -117,7 +161,7 @@ const navItems = computed(() =>
 
 .avatar {
   width: 34px; height: 34px; flex-shrink: 0;
-  background: #0288d1;
+  background: #898D8E;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 500; color: #fff;

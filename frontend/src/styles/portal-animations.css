@@ -1,0 +1,23 @@
+/* View Transitions API — shared element between ticket list row and detail hero */
+::view-transition-old(ticket-shared) {
+  animation: 280ms cubic-bezier(0.4, 0, 1, 1) both vt-slide-out;
+}
+::view-transition-new(ticket-shared) {
+  animation: 360ms cubic-bezier(0, 0, 0.2, 1) both vt-slide-in;
+}
+
+@keyframes vt-slide-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-12px); }
+}
+@keyframes vt-slide-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Suppress the default root transition so only the named element animates */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

@@ -11,13 +11,12 @@ function audit(action, actor, details) {
 }
 
 const ADMIN_USER_SELECT = {
-  id: true, name: true, email: true, role: true,
-  department: true, phone: true, is_active: true,
-  must_change_password: true, created_at: true,
+  id: true, name: true, email: true, username: true, role: true,
+  department: true, phone: true, is_active: true, must_change_password: true, created_at: true,
 };
 
 const TECH_USER_SELECT = {
-  id: true, name: true, email: true, role: true, department: true,
+  id: true, name: true, email: true, username: true, role: true, department: true,
 };
 
 // All authenticated users can list users (needed for ticket assignment dropdowns)
@@ -55,19 +54,24 @@ router.post('/', async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
 
-    const { name, email, password, role = 'technician', department = '', phone = '' } = req.body;
+    const { name, email, username, password, role = 'technician', department = '', phone = '' } = req.body;
     if (!name || !email || !password) return res.status(400).json({ error: 'Name, email and password are required' });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email address' });
-    if (password.length < 12) return res.status(400).json({ error: 'Password must be at least 12 characters' });
+    if (username && !/^[a-zA-Z0-9_.-]{3,32}$/.test(username)) return res.status(400).json({ error: 'Username must be 3–32 characters (letters, numbers, _ . -)' });
+    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
     if (password.length > 128) return res.status(400).json({ error: 'Password too long' });
     if (!['admin', 'technician', 'user'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
 
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) return res.status(409).json({ error: 'Email already in use' });
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) return res.status(409).json({ error: 'Email already in use' });
+    if (username) {
+      const existingUsername = await prisma.user.findUnique({ where: { username } });
+      if (existingUsername) return res.status(409).json({ error: 'Username already in use' });
+    }
 
     const hash = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({
-      data: { name, email, password_hash: hash, role, department, phone },
+      data: { name, email, username: username || null, password_hash: hash, role, department, phone },
       select: ADMIN_USER_SELECT,
     });
     audit('USER_CREATE', req.user.id, { targetId: user.id, email: user.email, role: user.role });
@@ -86,7 +90,7 @@ router.put('/:id', async (req, res) => {
     const user = await prisma.user.findUnique({ where: { id: Number(req.params.id) } });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const { name, email, role, department, phone, is_active, password } = req.body;
+    const { name, email, username, role, department, phone, is_active, password } = req.body;
 
     if (role && !['admin', 'technician', 'user'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role' });
@@ -97,13 +101,19 @@ router.put('/:id', async (req, res) => {
       if (existing) return res.status(409).json({ error: 'Email already in use' });
     }
 
+    if (username !== undefined && username !== null && username !== user.username) {
+      if (username && !/^[a-zA-Z0-9_.-]{3,32}$/.test(username)) return res.status(400).json({ error: 'Username must be 3–32 characters (letters, numbers, _ . -)' });
+      if (username) {
+        const existing = await prisma.user.findFirst({ where: { username, NOT: { id: user.id } } });
+        if (existing) return res.status(409).json({ error: 'Username already in use' });
+      }
+    }
+
     let password_hash = user.password_hash;
-    let passwordReset = false;
     if (password) {
-      if (password.length < 12) return res.status(400).json({ error: 'Password must be at least 12 characters' });
+      if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
       if (password.length > 128) return res.status(400).json({ error: 'Password too long' });
       password_hash = await bcrypt.hash(password, 12);
-      passwordReset = true;
     }
 
     const updated = await prisma.user.update({
@@ -111,12 +121,13 @@ router.put('/:id', async (req, res) => {
       data: {
         name:        name        ?? user.name,
         email:       email       ?? user.email,
+        username:    username !== undefined ? (username || null) : user.username,
         password_hash,
         role:        role        ?? user.role,
         department:  department  ?? user.department,
         phone:       phone       ?? user.phone,
         is_active:   is_active !== undefined ? Boolean(is_active) : user.is_active,
-        ...(passwordReset && { must_change_password: true }),
+        ...(password ? { must_change_password: true } : {}),
       },
       select: ADMIN_USER_SELECT,
     });

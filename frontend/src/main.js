@@ -4,12 +4,18 @@ import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import VueApexCharts from 'vue3-apexcharts';
+import './styles/md1-tokens.css';
 import './assets/theme.css';
+import './styles/element-plus-md1-overrides.css';
+import './styles/portal-animations.css';
+import { md1Ripple } from './directives/md1-ripple.js';
 
 import App from './App.vue';
 import router from './router';
 
 const app = createApp(App);
+
+app.directive('md1-ripple', md1Ripple);
 
 for (const [name, comp] of Object.entries(ElementPlusIconsVue)) {
   app.component(name, comp);

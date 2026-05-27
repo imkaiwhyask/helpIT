@@ -81,7 +81,15 @@ router.get('/tickets/:ticketId/attachments', async (req, res) => {
 });
 
 // Upload attachment to a ticket
-router.post('/tickets/:ticketId/attachments', upload.single('file'), async (req, res) => {
+router.post('/tickets/:ticketId/attachments', (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err && err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File too large (max 10 MB)' });
+    }
+    if (err) return res.status(400).json({ error: 'Upload error' });
+    next();
+  });
+}, async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No valid file uploaded (max 10 MB, allowed types only)' });
 
   // Magic byte validation — verify actual file content matches claimed type

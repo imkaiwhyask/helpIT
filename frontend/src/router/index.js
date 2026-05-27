@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 import LoginView from '../views/LoginView.vue';
 import ChangePasswordView from '../views/ChangePasswordView.vue';
+import PrivacyNoticeView from '../views/PrivacyNoticeView.vue';
 // IT/Admin layout
 import AppLayout from '../components/AppLayout.vue';
 import DashboardView from '../views/DashboardView.vue';
@@ -23,6 +24,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/login', component: LoginView, meta: { public: true } },
+    { path: '/privacy', component: PrivacyNoticeView, meta: { public: true } },
     { path: '/change-password', component: ChangePasswordView },
 
     // ── IT / Admin portal ──
@@ -68,6 +70,10 @@ router.beforeEach((to) => {
 
   if (to.path === '/login' && user) {
     return role === 'user' ? '/portal' : '/dashboard';
+  }
+
+  if (user?.must_change_password && to.path !== '/change-password') {
+    return '/change-password';
   }
 
   if (to.meta.roles && user && !to.meta.roles.includes(role)) {

@@ -1,0 +1,431 @@
+/**
+ * element-plus-md1-overrides.css
+ * Phase 1 — Maps Element Plus CSS custom properties onto MD1 tokens.
+ * Import AFTER element-plus/dist/index.css and md1-tokens.css.
+ * Do not put component logic here — tokens and El-Plus variable mapping only.
+ */
+
+/* ================================================================
+   ROOT — override El-Plus global variables with MD1 tokens
+   ================================================================ */
+:root {
+  /* Primary color chain */
+  --el-color-primary:         var(--md1-primary);
+  --el-color-primary-dark-2:  var(--md1-primary-dark);
+  --el-color-primary-light-3: color-mix(in srgb, var(--md1-primary) 70%, white);
+  --el-color-primary-light-5: color-mix(in srgb, var(--md1-primary) 50%, white);
+  --el-color-primary-light-7: color-mix(in srgb, var(--md1-primary) 30%, white);
+  --el-color-primary-light-8: color-mix(in srgb, var(--md1-primary) 20%, white);
+  --el-color-primary-light-9: color-mix(in srgb, var(--md1-primary) 10%, white);
+
+  /* Semantic colors → MD1 spec */
+  --el-color-success:       #4CAF50;  /* Green 500  */
+  --el-color-success-dark-2:#388E3C;  /* Green 700  */
+  --el-color-success-light-3:color-mix(in srgb, #4CAF50 70%, white);
+  --el-color-success-light-5:color-mix(in srgb, #4CAF50 50%, white);
+  --el-color-success-light-9:color-mix(in srgb, #4CAF50 10%, white);
+
+  --el-color-warning:       #FFA000;  /* Amber 700  */
+  --el-color-warning-dark-2:#FF6F00;  /* Amber 900  */
+  --el-color-warning-light-3:color-mix(in srgb, #FFA000 70%, white);
+  --el-color-warning-light-5:color-mix(in srgb, #FFA000 50%, white);
+  --el-color-warning-light-9:color-mix(in srgb, #FFA000 10%, white);
+
+  --el-color-danger:        #F44336;  /* Red 500    */
+  --el-color-danger-dark-2: #D32F2F;  /* Red 700    */
+  --el-color-danger-light-3:color-mix(in srgb, #F44336 70%, white);
+  --el-color-danger-light-5:color-mix(in srgb, #F44336 50%, white);
+  --el-color-danger-light-9:color-mix(in srgb, #F44336 10%, white);
+
+  --el-color-info:          #546E7A;  /* Blue Grey 600 */
+  --el-color-info-dark-2:   #37474F;
+  --el-color-info-light-3:  color-mix(in srgb, #546E7A 70%, white);
+  --el-color-info-light-5:  color-mix(in srgb, #546E7A 50%, white);
+  --el-color-info-light-9:  color-mix(in srgb, #546E7A 10%, white);
+
+  /* Typography */
+  --el-font-family:         var(--md1-font-family);
+  --el-font-size-base:      var(--md1-type-body1-size);    /* 14px */
+  --el-font-size-small:     var(--md1-type-caption-size);  /* 12px */
+  --el-font-size-large:     var(--md1-type-subhead-size);  /* 16px */
+  --el-font-weight-primary: 500;
+
+  /* Border radius — MD1 uses 2px everywhere */
+  --el-border-radius-base:   var(--md1-radius-base);   /* 2px */
+  --el-border-radius-small:  var(--md1-radius-base);
+  --el-border-radius-round:  var(--md1-radius-base);
+
+  /* Borders */
+  --el-border-color:         rgba(0,0,0,0.23);
+  --el-border-color-light:   rgba(0,0,0,0.12);
+  --el-border-color-lighter: rgba(0,0,0,0.08);
+
+  /* Shadows → MD1 elevation */
+  --el-box-shadow:           var(--md1-shadow-z8);
+  --el-box-shadow-light:     var(--md1-shadow-z4);
+  --el-box-shadow-lighter:   var(--md1-shadow-z2);
+  --el-box-shadow-dark:      var(--md1-shadow-z16);
+
+  /* Transitions → MD1 easings */
+  --el-transition-duration:        var(--md1-duration-standard);
+  --el-transition-duration-fast:   var(--md1-duration-short);
+  --el-transition-function-ease-in-out-bezier: var(--md1-ease-standard);
+  --el-transition-function-fast-bezier:        var(--md1-ease-decelerate);
+
+  /* Text */
+  --el-text-color-primary:   var(--md1-text-primary);
+  --el-text-color-regular:   var(--md1-text-primary);
+  --el-text-color-secondary: var(--md1-text-secondary);
+  --el-text-color-disabled:  var(--md1-text-disabled);
+  --el-text-color-placeholder: var(--md1-text-hint);
+
+  /* Fill */
+  --el-fill-color-blank: #FFFFFF;
+  --el-fill-color:       var(--md1-grey-100);
+  --el-fill-color-light: var(--md1-grey-50);
+  --el-fill-color-dark:  var(--md1-grey-200);
+
+  /* Background */
+  --el-bg-color:         #FFFFFF;
+  --el-bg-color-page:    var(--md1-background);
+  --el-bg-color-overlay: #FFFFFF;
+}
+
+/* ================================================================
+   BUTTONS — MD1 raised button system
+   ================================================================ */
+.el-button {
+  --el-button-font-weight:  500;
+  border-radius: var(--md1-radius-base) !important;
+  font-family:   var(--md1-font-family) !important;
+  font-size:     var(--md1-type-button-size) !important;
+  font-weight:   500 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  transition:
+    box-shadow var(--md1-duration-standard) var(--md1-ease-standard),
+    background-color var(--md1-duration-short) var(--md1-ease-standard) !important;
+
+  /* Default (raised white) */
+  --el-button-bg-color:           #FFFFFF;
+  --el-button-border-color:       rgba(0,0,0,0.23);
+  --el-button-text-color:         var(--md1-text-primary);
+  --el-button-hover-bg-color:     var(--md1-grey-200);
+  --el-button-hover-border-color: rgba(0,0,0,0.38);
+  --el-button-hover-text-color:   var(--md1-text-primary);
+  --el-button-active-bg-color:    var(--md1-grey-300);
+  --el-button-active-border-color:rgba(0,0,0,0.38);
+  --el-button-disabled-bg-color:  rgba(0,0,0,0.12);
+  --el-button-disabled-border-color: rgba(0,0,0,0.12);
+  --el-button-disabled-text-color: rgba(0,0,0,0.26);
+
+  box-shadow: var(--md1-shadow-z2) !important;
+}
+.el-button:hover { box-shadow: var(--md1-shadow-z4) !important; }
+.el-button:active { box-shadow: var(--md1-shadow-z2) !important; }
+
+/* Primary — blue */
+.el-button--primary {
+  --el-button-bg-color:           var(--md1-accent);
+  --el-button-border-color:       var(--md1-accent);
+  --el-button-text-color:         #FFFFFF;
+  --el-button-hover-bg-color:     var(--md1-accent-dark);
+  --el-button-hover-border-color: var(--md1-accent-dark);
+  --el-button-hover-text-color:   #FFFFFF;
+  --el-button-active-bg-color:    var(--md1-accent-dark);
+  --el-button-active-border-color:var(--md1-accent-dark);
+  --el-button-disabled-bg-color:  color-mix(in srgb, var(--md1-accent) 45%, white);
+  --el-button-disabled-border-color: color-mix(in srgb, var(--md1-accent) 45%, white);
+  background-color: var(--md1-accent)      !important;
+  border-color:     var(--md1-accent)      !important;
+  color:            #FFFFFF                !important;
+}
+.el-button--primary:hover  {
+  background-color: var(--md1-accent-dark) !important;
+  border-color:     var(--md1-accent-dark) !important;
+}
+.el-button--primary:active {
+  background-color: var(--md1-accent-dark) !important;
+  border-color:     var(--md1-accent-dark) !important;
+}
+
+/* Danger */
+.el-button--danger {
+  --el-button-hover-bg-color:     #D32F2F;
+  --el-button-hover-border-color: #D32F2F;
+  --el-button-active-bg-color:    #B71C1C;
+  --el-button-active-border-color:#B71C1C;
+}
+.el-button--danger:hover  { background-color: #D32F2F !important; border-color: #D32F2F !important; }
+.el-button--danger:active { background-color: #B71C1C !important; border-color: #B71C1C !important; }
+
+/* Plain/outlined — no shadow, transparent bg */
+.el-button.is-plain {
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+.el-button.is-plain:hover { box-shadow: none !important; }
+
+/* Small */
+.el-button--small {
+  font-size:      12px !important;
+  letter-spacing: 0.06em !important;
+  height:         28px !important;
+  padding:        0 10px !important;
+}
+
+/* Header nav button — white raised on dark app bar */
+.el-button.header-btn {
+  --el-button-bg-color:           #FFFFFF;
+  --el-button-border-color:       #FFFFFF;
+  --el-button-text-color:         var(--md1-primary);
+  --el-button-hover-bg-color:     var(--md1-blue-100);
+  --el-button-hover-border-color: var(--md1-blue-100);
+  --el-button-hover-text-color:   var(--md1-primary);
+  --el-button-active-bg-color:    var(--md1-blue-200);
+  --el-button-active-border-color:var(--md1-blue-200);
+  background-color: #FFFFFF           !important;
+  border-color:     #FFFFFF           !important;
+  color:            var(--md1-primary) !important;
+  box-shadow: var(--md1-shadow-z2) !important;
+}
+.el-button.header-btn:hover {
+  background-color: var(--md1-blue-100) !important;
+  border-color:     var(--md1-blue-100) !important;
+  color:            var(--md1-primary)  !important;
+  box-shadow: var(--md1-shadow-z4) !important;
+}
+
+/* ================================================================
+   INPUTS — MD1 underline style
+   ================================================================ */
+.el-input__wrapper {
+  background:  transparent !important;
+  border:      none !important;
+  border-bottom: 1px solid var(--md1-input-bottom-border) !important;
+  border-radius: 0 !important;
+  box-shadow:  none !important;
+  padding:     4px 0 8px !important;
+  transition:  border-color var(--md1-duration-short) var(--md1-ease-standard) !important;
+}
+.el-input__wrapper:hover {
+  border-bottom-color: var(--md1-text-primary) !important;
+}
+.el-input__wrapper.is-focus {
+  border-bottom: 2px solid var(--md1-primary) !important;
+  box-shadow: none !important;
+}
+.el-input__inner {
+  font-family: var(--md1-font-family) !important;
+  font-size:   var(--md1-type-subhead-size) !important;  /* 16px */
+  font-weight: 400 !important;
+  color:       var(--md1-text-primary) !important;
+  padding:     0 !important;
+}
+.el-input__inner::placeholder { color: var(--md1-text-hint) !important; }
+
+/* Textarea */
+.el-textarea__inner {
+  font-family:   var(--md1-font-family) !important;
+  font-size:     var(--md1-type-body1-size) !important;
+  border:        none !important;
+  border-bottom: 1px solid var(--md1-input-bottom-border) !important;
+  border-radius: 0 !important;
+  background:    transparent !important;
+  box-shadow:    none !important;
+  resize:        vertical;
+  padding:       4px 0 8px !important;
+  transition:    border-color var(--md1-duration-short) var(--md1-ease-standard) !important;
+}
+.el-textarea__inner:focus {
+  border-bottom: 2px solid var(--md1-primary) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Select wrapper — same underline treatment */
+.el-select__wrapper {
+  background:    transparent !important;
+  border:        none !important;
+  border-bottom: 1px solid var(--md1-input-bottom-border) !important;
+  border-radius: 0 !important;
+  box-shadow:    none !important;
+  padding:       4px 0 8px !important;
+}
+.el-select__wrapper.is-focused {
+  border-bottom: 2px solid var(--md1-primary) !important;
+  box-shadow: none !important;
+}
+
+/* Form labels */
+.el-form-item__label {
+  font-family: var(--md1-font-family) !important;
+  font-size:   var(--md1-type-caption-size) !important;  /* 12px */
+  font-weight: 400 !important;
+  color:       var(--md1-primary) !important;
+}
+
+/* ================================================================
+   TABLE — MD1 data table spec
+   ================================================================ */
+.el-table {
+  font-family: var(--md1-font-family) !important;
+  font-size:   var(--md1-type-body1-size) !important;
+  background:  transparent !important;
+}
+.el-table th.el-table__cell {
+  background:    var(--md1-grey-50) !important;
+  color:         var(--md1-text-secondary) !important;
+  font-size:     12px !important;
+  font-weight:   500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1px solid var(--md1-text-divider) !important;
+  height:        56px !important;
+}
+.el-table td.el-table__cell {
+  color:         var(--md1-text-primary) !important;
+  border-bottom: 1px solid var(--md1-text-divider) !important;
+  height:        48px !important;
+}
+.el-table tr { background: #FFFFFF !important; }
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+  background: var(--md1-grey-200) !important;
+}
+
+/* ================================================================
+   DIALOG — MD1 z24 shadow
+   ================================================================ */
+.el-dialog {
+  border-radius: var(--md1-radius-base) !important;
+  box-shadow:    var(--md1-shadow-z24) !important;
+}
+.el-dialog__title {
+  font-family: var(--md1-font-family) !important;
+  font-size:   var(--md1-type-headline-size) !important;  /* 24px */
+  font-weight: 400 !important;
+  color:       var(--md1-text-primary) !important;
+}
+.el-dialog__header {
+  border-bottom: 1px solid var(--md1-text-divider) !important;
+  padding-bottom: var(--md1-space-2) !important;
+}
+.el-dialog__footer {
+  border-top: 1px solid var(--md1-text-divider) !important;
+}
+.el-overlay { background: rgba(0,0,0,0.5) !important; }
+
+/* ================================================================
+   DROPDOWN — MD1 z8 shadow, 48dp items
+   ================================================================ */
+.el-dropdown-menu {
+  border-radius: var(--md1-radius-base) !important;
+  box-shadow:    var(--md1-shadow-z8) !important;
+  border:        none !important;
+  padding:       var(--md1-space-1) 0 !important;
+}
+.el-dropdown-menu__item {
+  font-family: var(--md1-font-family) !important;
+  font-size:   var(--md1-type-menu-size) !important;
+  height:      48px !important;
+  line-height: 48px !important;
+  padding:     0 var(--md1-space-2) !important;
+  color:       var(--md1-text-primary) !important;
+}
+.el-dropdown-menu__item:hover {
+  background: var(--md1-grey-200) !important;
+  color:      var(--md1-text-primary) !important;
+}
+
+/* ================================================================
+   CHECKBOX — MD1 primary color
+   ================================================================ */
+.el-checkbox__inner {
+  border-color:  rgba(0,0,0,0.54) !important;
+  border-radius: var(--md1-radius-base) !important;
+}
+.el-checkbox.is-checked .el-checkbox__inner {
+  background: var(--md1-primary) !important;
+  border-color: var(--md1-primary) !important;
+}
+
+/* ================================================================
+   SWITCH — MD1 primary color
+   ================================================================ */
+.el-switch.is-checked .el-switch__core {
+  background:   var(--md1-primary) !important;
+  border-color: var(--md1-primary) !important;
+}
+
+/* ================================================================
+   PAGINATION
+   ================================================================ */
+.el-pagination .el-pager li.is-active {
+  background:   var(--md1-primary) !important;
+  color:        #FFFFFF !important;
+  border-color: var(--md1-primary) !important;
+  border-radius: var(--md1-radius-base) !important;
+}
+
+/* ================================================================
+   SELECT DROPDOWN
+   ================================================================ */
+.el-select-dropdown {
+  border-radius: var(--md1-radius-base) !important;
+  box-shadow:    var(--md1-shadow-z8) !important;
+  border:        none !important;
+}
+.el-select-dropdown__item.is-selected {
+  color:       var(--md1-primary) !important;
+  font-weight: 500 !important;
+}
+
+/* ================================================================
+   ALERT
+   ================================================================ */
+.el-alert {
+  border-radius: var(--md1-radius-base) !important;
+  border-left-width: 4px !important;
+}
+
+/* ================================================================
+   POPOVER / POPCONFIRM
+   ================================================================ */
+.el-popover.el-popper {
+  border-radius: var(--md1-radius-base) !important;
+  box-shadow:    var(--md1-shadow-z8) !important;
+  border:        none !important;
+}
+
+/* ================================================================
+   LOADING SPINNER — primary color
+   ================================================================ */
+.el-loading-spinner .circular { stroke: var(--md1-primary) !important; }
+
+/* ================================================================
+   PROGRESS BAR
+   ================================================================ */
+.el-progress-bar__inner { background: var(--md1-primary) !important; }
+
+/* ================================================================
+   TAG / CHIP
+   ================================================================ */
+.el-tag { border-radius: var(--md1-radius-base) !important; }
+
+/* ================================================================
+   MD1 DIALOG ENTER ANIMATION
+   ================================================================ */
+.el-dialog {
+  animation: md1-dialog-in var(--md1-duration-standard) var(--md1-ease-decelerate) both !important;
+}
+@keyframes md1-dialog-in {
+  from { opacity: 0; transform: scale(0.9) translateY(-16px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+.el-overlay {
+  animation: md1-overlay-in var(--md1-duration-standard) var(--md1-ease-standard) both !important;
+}
+@keyframes md1-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

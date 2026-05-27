@@ -25,6 +25,16 @@
       </el-select>
 
       <div class="filter-spacer" />
+
+      <!-- Merge button — appears when 2+ tickets selected and user is staff -->
+      <el-button
+        v-if="isItStaff && selectedTickets.length >= 2"
+        type="warning"
+        @click="openMergeDialog"
+      >
+        Merge Selected ({{ selectedTickets.length }})
+      </el-button>
+
       <RouterLink to="/tickets/new">
         <el-button type="primary"><el-icon><Plus /></el-icon> New Ticket</el-button>
       </RouterLink>
@@ -33,15 +43,19 @@
     <!-- Table -->
     <div class="card">
       <el-table
+        ref="tableRef"
         :data="tickets"
         v-loading="loading"
         style="width:100%"
         row-class-name="clickable-row"
-        @row-click="row => router.push(`/tickets/${row.id}`)"
+        @row-click="onRowClick"
+        @selection-change="onSelectionChange"
       >
-        <el-table-column label="#" width="72">
+        <el-table-column type="selection" width="44" />
+
+        <el-table-column label="#" width="90">
           <template #default="{ row }">
-            <span class="tid">#{{ String(row.id).padStart(4,'0') }}</span>
+            <span class="tid">#{{ row.id }}</span>
           </template>
         </el-table-column>
 
@@ -94,35 +108,86 @@
         />
       </div>
     </div>
+
+    <!-- Merge dialog -->
+    <el-dialog v-model="mergeDialog" title="Merge Duplicate Tickets" width="500px" :close-on-click-modal="false" @closed="mergeTargetId = null">
+      <p style="font-size:13px;color:rgba(0,0,0,0.6);margin-bottom:16px">
+        Select the ticket to <strong>keep open</strong>. The rest will be merged into it and closed.
+      </p>
+
+      <el-radio-group v-model="mergeTargetId" style="width:100%">
+        <div
+          v-for="t in selectedTickets"
+          :key="t.id"
+          :class="['merge-row', mergeTargetId === t.id && 'merge-row-selected']"
+          @click="mergeTargetId = t.id"
+        >
+          <el-radio :value="t.id" @click.stop />
+          <div class="merge-row-info">
+            <span class="merge-tid">#{{ t.id }}</span>
+            <span class="merge-title">{{ t.title }}</span>
+          </div>
+          <div class="merge-row-badges">
+            <span :class="['badge','pri-'+t.priority]">{{ t.priority }}</span>
+            <span :class="['badge','sta-'+t.status]">{{ fmtStatus(t.status) }}</span>
+          </div>
+        </div>
+      </el-radio-group>
+
+      <p v-if="mergeTargetId" style="font-size:12px;color:rgba(0,0,0,0.5);margin-top:14px">
+        {{ selectedTickets.length - 1 }} ticket{{ selectedTickets.length - 1 > 1 ? 's' : '' }} will be closed and merged into
+        <strong>#{{ mergeTargetId }}</strong>.
+      </p>
+
+      <template #footer>
+        <el-button @click="mergeDialog = false">Cancel</el-button>
+        <el-button type="warning" :loading="merging" :disabled="!mergeTargetId" @click="mergeTickets">
+          Merge
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import api from '../api';
+import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
-const tickets = ref([]);
-const loading = ref(false);
-const total = ref(0);
-const page = ref(1);
-const limit = 20;
+const route  = useRoute();
+const auth   = useAuthStore();
+
+const isItStaff = computed(() => auth.user?.role === 'admin' || auth.user?.role === 'technician');
+
+const tableRef = ref(null);
+const tickets  = ref([]);
+const loading  = ref(false);
+const total    = ref(0);
+const page     = ref(1);
+const limit    = 20;
+
+const selectedTickets = ref([]);
+const mergeDialog     = ref(false);
+const mergeTargetId   = ref(null);
+const merging         = ref(false);
 
 const filters = ref({ search: '', status: '', priority: '', category: '' });
 
 const statusOptions = [
-  { value: 'open', label: 'Open' },
+  { value: 'open',        label: 'Open' },
   { value: 'in_progress', label: 'In Progress' },
-  { value: 'on_hold', label: 'On Hold' },
-  { value: 'resolved', label: 'Resolved' },
-  { value: 'closed', label: 'Closed' },
+  { value: 'on_hold',     label: 'On Hold' },
+  { value: 'resolved',    label: 'Resolved' },
+  { value: 'closed',      label: 'Closed' },
 ];
 const priorityOptions = [
   { value: 'critical', label: 'Critical' },
-  { value: 'high', label: 'High' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'low', label: 'Low' },
+  { value: 'high',     label: 'High' },
+  { value: 'medium',   label: 'Medium' },
+  { value: 'low',      label: 'Low' },
 ];
 const categoryOptions = ['Hardware', 'Software', 'Network', 'Access', 'Other'];
 
@@ -136,7 +201,7 @@ async function fetchTickets() {
     if (filters.value.category) params.category = filters.value.category;
     const res = await api.get('/tickets', { params });
     tickets.value = res.data.tickets;
-    total.value = res.data.total;
+    total.value   = res.data.total;
   } finally {
     loading.value = false;
   }
@@ -148,10 +213,41 @@ function debouncedFetch() {
   debounceTimer = setTimeout(fetchTickets, 350);
 }
 
+function onSelectionChange(rows) {
+  selectedTickets.value = rows;
+}
+
+function onRowClick(row, column) {
+  if (column?.type === 'selection') return;
+  router.push(`/tickets/${row.id}`);
+}
+
+function openMergeDialog() {
+  mergeTargetId.value = selectedTickets.value[0]?.id ?? null;
+  mergeDialog.value   = true;
+}
+
+async function mergeTickets() {
+  if (!mergeTargetId.value) return;
+  merging.value = true;
+  const sourceIds = selectedTickets.value.filter(t => t.id !== mergeTargetId.value).map(t => t.id);
+  try {
+    const res = await api.post(`/tickets/${mergeTargetId.value}/merge`, { source_ids: sourceIds });
+    mergeDialog.value = false;
+    tableRef.value?.clearSelection();
+    await fetchTickets();
+    ElMessage.success(res.data.message);
+  } catch (e) {
+    ElMessage.error(e.response?.data?.error || 'Merge failed');
+  } finally {
+    merging.value = false;
+  }
+}
+
 function getSlaStatus(row) {
   if (['resolved', 'closed'].includes(row.status)) return row.sla_resolution_breached ? 'breached' : 'met';
-  const now = Date.now();
-  const due = new Date(row.resolution_due).getTime();
+  const now     = Date.now();
+  const due     = new Date(row.resolution_due).getTime();
   const created = new Date(row.created_at).getTime();
   if (now > due) return 'breached';
   if ((now - created) / (due - created) > 0.8) return 'risk';
@@ -171,7 +267,10 @@ function fmtDate(d) {
   return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
 }
 
-onMounted(fetchTickets);
+onMounted(() => {
+  if (route.query.status) filters.value.status = route.query.status;
+  fetchTickets();
+});
 </script>
 
 <style scoped>
@@ -196,4 +295,23 @@ onMounted(fetchTickets);
 .ticket-title { font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.87); }
 
 .pagination { padding: 14px 16px; display: flex; justify-content: flex-end; }
+
+/* Merge dialog rows */
+.merge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 2px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.merge-row:hover { border-color: rgba(0,0,0,0.3); }
+.merge-row-selected { border-color: #e6a23c; border-width: 2px; background: #fdf6ec; }
+.merge-row-info { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; }
+.merge-tid { font-family: monospace; font-size: 11px; color: rgba(0,0,0,0.38); flex-shrink: 0; }
+.merge-title { font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.87); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.merge-row-badges { display: flex; gap: 4px; flex-shrink: 0; }
 </style>

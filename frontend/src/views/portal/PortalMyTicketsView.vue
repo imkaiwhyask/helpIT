@@ -22,23 +22,27 @@
       </el-select>
     </div>
 
-    <div class="ticket-list" v-loading="loading">
-      <div
-        v-for="t in tickets"
-        :key="t.id"
-        class="ticket-row"
-        @click="$router.push(`/portal/tickets/${t.id}`)"
-      >
-        <div class="tr-id">#{{ String(t.id).padStart(4,'0') }}</div>
-        <div class="tr-info">
-          <div class="tr-title">{{ t.title }}</div>
-          <div class="tr-meta">{{ t.category }}<span v-if="t.subcategory"> · {{ t.subcategory }}</span> &middot; Submitted {{ fmtDate(t.created_at) }}</div>
+    <div v-loading="loading">
+      <TransitionGroup name="list" tag="div" class="ticket-list">
+        <div
+          v-for="(t, i) in tickets"
+          :key="t.id"
+          class="ticket-row"
+          v-md1-ripple.dark
+          :style="{ '--i': i }"
+          @click="goToTicket(t, $event)"
+        >
+          <div class="tr-id">#{{ t.id }}</div>
+          <div class="tr-info">
+            <div class="tr-title">{{ t.title }}</div>
+            <div class="tr-meta">{{ t.category }}<span v-if="t.subcategory"> · {{ t.subcategory }}</span> &middot; Submitted {{ fmtDate(t.created_at) }}</div>
+          </div>
+          <div class="tr-right">
+            <span :class="['sta','sta-'+t.status]">{{ fmtStatus(t.status) }}</span>
+            <el-icon class="tr-arrow"><ArrowRight /></el-icon>
+          </div>
         </div>
-        <div class="tr-right">
-          <span :class="['sta','sta-'+t.status]">{{ fmtStatus(t.status) }}</span>
-          <el-icon class="tr-arrow"><ArrowRight /></el-icon>
-        </div>
-      </div>
+      </TransitionGroup>
 
       <div v-if="!loading && !tickets.length" class="empty">
         <el-empty description="No requests found">
@@ -62,8 +66,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import api from '../../api';
+
+const router = useRouter();
 
 const tickets = ref([]);
 const loading = ref(false);
@@ -77,7 +84,7 @@ async function fetchTickets() {
   loading.value = true;
   try {
     const params = { page: page.value, limit };
-    if (search.value)      params.search = search.value;
+    if (search.value)       params.search = search.value;
     if (statusFilter.value) params.status = statusFilter.value;
     const res = await api.get('/tickets', { params });
     tickets.value = res.data.tickets;
@@ -95,6 +102,24 @@ function fmtStatus(s) {
 }
 function fmtDate(d) {
   return new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function goToTicket(t, event) {
+  if (!document.startViewTransition) {
+    router.push(`/portal/tickets/${t.id}`);
+    return;
+  }
+  const row = event.currentTarget;
+  row.style.viewTransitionName = 'ticket-shared';
+
+  const vt = document.startViewTransition(async () => {
+    await router.push(`/portal/tickets/${t.id}`);
+    await nextTick();
+  });
+
+  vt.finished.finally(() => {
+    row.style.viewTransitionName = '';
+  });
 }
 
 onMounted(fetchTickets);
@@ -116,11 +141,16 @@ onMounted(fetchTickets);
   align-items:center;
   gap:16px;
   cursor:pointer;
-  transition: box-shadow 0.15s;
+  position: relative;
+  overflow: hidden;
+  transition:
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
 }
 .ticket-row:hover {
-  box-shadow: 0 4px 5px rgba(0,0,0,0.14), 0 1px 10px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.20);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.14), 0 1px 18px rgba(0,0,0,0.12), 0 3px 5px rgba(0,0,0,0.20);
+  transform: translateY(-1px);
 }
 
 .tr-id { font-family:monospace; font-size:12px; color: rgba(0,0,0,0.38); font-weight:500; min-width:52px; }
@@ -129,10 +159,20 @@ onMounted(fetchTickets);
 .tr-meta { font-size:12px; color: rgba(0,0,0,0.54); }
 
 .tr-right { display:flex; align-items:center; gap:12px; }
-.tr-arrow { color: rgba(0,0,0,0.38); font-size:14px; }
+.tr-arrow {
+  color: rgba(0,0,0,0.38);
+  font-size:14px;
+  transition:
+    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ticket-row:hover .tr-arrow {
+  color: #2196F3;
+  transform: translateX(5px);
+}
 
 .sta { display:inline-block; padding:3px 10px; border-radius:2px; font-size:11px; font-weight:500; white-space:nowrap; }
-.sta-open        { background: #e3f2fd; color: #1565c0; }
+.sta-open        { background: #E3F2FD; color: #1976D2; }
 .sta-in_progress { background: #ede7f6; color: #4527a0; }
 .sta-on_hold     { background: #fff3e0; color: #e65100; }
 .sta-resolved    { background: #c8e6c9; color: #2e7d32; }
@@ -140,4 +180,27 @@ onMounted(fetchTickets);
 
 .pager { display:flex; justify-content:center; margin-top:20px; }
 .empty { padding:48px 0; }
+
+/* TransitionGroup stagger */
+.list-enter-active {
+  transition:
+    opacity 0.32s cubic-bezier(0, 0, 0.2, 1),
+    transform 0.32s cubic-bezier(0, 0, 0.2, 1);
+  transition-delay: calc(var(--i) * 40ms);
+}
+.list-enter-from {
+  opacity: 0;
+  transform: translateY(14px);
+}
+.list-leave-active {
+  transition:
+    opacity 0.2s cubic-bezier(0.4, 0, 1, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 1, 1);
+  position: absolute;
+  width: 100%;
+}
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
 </style>

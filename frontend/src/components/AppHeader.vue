@@ -7,7 +7,7 @@
     </div>
     <div class="header-actions">
       <RouterLink to="/tickets/new">
-        <el-button class="header-btn" size="small">
+        <el-button v-md1-ripple.dark class="header-btn" size="small">
           <el-icon><Plus /></el-icon> New Ticket
         </el-button>
       </RouterLink>
@@ -60,7 +60,7 @@ function handleCommand(cmd) {
 
 <style scoped>
 .app-header {
-  background: #0288d1;
+  background: #2196F3;
   box-shadow: 0 4px 5px rgba(0,0,0,0.14), 0 1px 10px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.20);
   padding: 0 24px; height: 56px;
   display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
@@ -89,23 +89,9 @@ function handleCommand(cmd) {
 .user-chip:hover { background: rgba(255,255,255,0.12); color: #fff; }
 .avatar-sm {
   width: 28px; height: 28px; border-radius: 50%;
-  background: rgba(255,255,255,0.25);
+  background: #898D8E;
   display: flex; align-items: center; justify-content: center;
   font-size: 11px; font-weight: 500; color: #fff;
 }
-.header-btn {
-  background: #fff !important;
-  border-color: #fff !important;
-  color: #0288d1 !important;
-  font-weight: 500 !important;
-  font-size: 12px !important;
-  letter-spacing: 0.06em !important;
-  text-transform: uppercase !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.20) !important;
-}
-.header-btn:hover {
-  background: #e3f2fd !important;
-  border-color: #e3f2fd !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.20) !important;
-}
+/* header-btn global styles are in theme.css */
 </style>

@@ -6,7 +6,7 @@
 
     <div class="ticket-hero">
       <div class="hero-left">
-        <div class="ticket-num">#{{ String(ticket.id).padStart(4,'0') }}</div>
+        <div class="ticket-num">#{{ ticket.id }}</div>
         <h2 class="ticket-title">{{ ticket.title }}</h2>
         <div class="ticket-meta">
           {{ ticket.category }}<span v-if="ticket.subcategory"> · {{ ticket.subcategory }}</span>
@@ -202,7 +202,7 @@ onMounted(load);
 
 .breadcrumb {
   display:inline-flex; align-items:center; gap:6px;
-  color: #0288d1; font-size:13px; font-weight:500;
+  color: #2196F3; font-size:13px; font-weight:500;
   text-decoration:none; margin-bottom:20px;
 }
 .breadcrumb:hover { text-decoration:underline; }
@@ -212,6 +212,8 @@ onMounted(load);
   border-radius:2px; padding:24px 28px; margin-bottom:20px;
   display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
   box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
+  view-transition-name: ticket-shared;
+  animation: card-in 0.35s cubic-bezier(0, 0, 0.2, 1) both;
 }
 .ticket-num { font-family:monospace; font-size:12px; color: rgba(0,0,0,0.38); margin-bottom:6px; }
 .ticket-title { font-size:20px; font-weight:500; color: rgba(0,0,0,0.87); margin-bottom:6px; line-height:1.3; }
@@ -225,6 +227,7 @@ onMounted(load);
   background: #fff;
   border-radius:2px; padding:22px;
   box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
+  animation: card-in 0.35s cubic-bezier(0, 0, 0.2, 1) both;
 }
 .section-label { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:0.06em; color: rgba(0,0,0,0.54); margin-bottom:14px; }
 
@@ -238,8 +241,8 @@ onMounted(load);
   display:flex; align-items:center; justify-content:center;
   font-size:12px; font-weight:500; color:#fff; flex-shrink:0;
 }
-.av-user { background: #0288d1; }
-.av-it   { background: #01579b; }
+.av-user { background: #898D8E; }
+.av-it   { background: #2196F3; }
 
 .comment-body {
   background: #f5f5f5; border: 1px solid rgba(0,0,0,0.08);
@@ -247,7 +250,7 @@ onMounted(load);
 }
 .comment-meta { display:flex; align-items:baseline; gap:8px; margin-bottom:5px; font-size:12px; }
 .comment-meta strong { color: rgba(0,0,0,0.87); }
-.c-role-tag { background: #e3f2fd; color: #1565c0; border-radius:2px; padding:1px 6px; font-size:10px; font-weight:500; }
+.c-role-tag { background: #E3F2FD; color: #1976D2; border-radius:2px; padding:1px 6px; font-size:10px; font-weight:500; }
 .c-time { color: rgba(0,0,0,0.38); margin-left:auto; }
 .c-text { font-size:13px; color: rgba(0,0,0,0.87); line-height:1.5; }
 
@@ -267,8 +270,8 @@ onMounted(load);
 
 .resolution-estimate {
   display:flex; align-items:center; gap:6px;
-  font-size:12px; color: #1565c0;
-  background: #e3f2fd; border-radius:2px;
+  font-size:12px; color: #1976D2;
+  background: #E3F2FD; border-radius:2px;
   padding:8px 12px; margin-top:14px;
 }
 
@@ -282,7 +285,7 @@ onMounted(load);
   width:2px; height:24px;
   background: rgba(0,0,0,0.12);
 }
-.step-done::after { background: #0288d1 !important; }
+.step-done::after { background: #2196F3 !important; }
 
 .step-dot {
   width:18px; height:18px;
@@ -290,17 +293,17 @@ onMounted(load);
   border:2px solid rgba(0,0,0,0.23);
   background: transparent;
   flex-shrink:0;
-  transition:all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.step-done .step-dot  { background: #0288d1; border-color: #0288d1; }
-.step-active .step-dot { background: transparent; border-color: #0288d1; box-shadow:0 0 0 3px rgba(2,136,209,0.2); }
+.step-done .step-dot  { background: #2196F3; border-color: #2196F3; }
+.step-active .step-dot { background: transparent; border-color: #2196F3; box-shadow:0 0 0 3px rgba(33,150,243,0.2); }
 
 .step-label { font-size:13px; color: rgba(0,0,0,0.38); }
 .step-done .step-label, .step-active .step-label { color: rgba(0,0,0,0.87); font-weight:500; }
 
 /* Badges */
 .sta { display:inline-block; padding:4px 12px; border-radius:2px; font-size:12px; font-weight:500; }
-.sta-open        { background: #e3f2fd; color: #1565c0; }
+.sta-open        { background: #E3F2FD; color: #1976D2; }
 .sta-in_progress { background: #ede7f6; color: #4527a0; }
 .sta-on_hold     { background: #fff3e0; color: #e65100; }
 .sta-resolved    { background: #c8e6c9; color: #2e7d32; }
@@ -311,4 +314,16 @@ onMounted(load);
 .pri-high     { background: #ffe0b2; color: #e65100; }
 .pri-medium   { background: #fff8e1; color: #f57f17; }
 .pri-low      { background: #c8e6c9; color: #2e7d32; }
+
+.ticket-hero              { animation-delay: 0s; }
+.main-col .card:nth-child(1) { animation-delay: 0.05s; }
+.main-col .card:nth-child(2) { animation-delay: 0.1s; }
+.sidebar .card:nth-child(1)  { animation-delay: 0.08s; }
+.sidebar .card:nth-child(2)  { animation-delay: 0.13s; }
+.sidebar .card:nth-child(3)  { animation-delay: 0.18s; }
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 </style>

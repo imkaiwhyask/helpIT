@@ -9,6 +9,8 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const { prisma } = require('./db');
 
+const { checkConfig: checkEmailConfig } = require('./services/emailService');
+
 const authRoutes       = require('./routes/auth');
 const usersRoutes      = require('./routes/users');
 const ticketsRoutes    = require('./routes/tickets');
@@ -54,15 +56,9 @@ const globalLimiter = rateLimit({
 });
 app.use('/api', globalLimiter);
 
-// Tight limiter on login — 10 attempts per 15 min
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many login attempts. Try again in 15 minutes.' },
-});
-app.use('/api/auth/login', authLimiter);
+// Serve uploaded files (attachments + KB images)
+const UPLOAD_DIR = path.join(__dirname, '../uploads');
+app.use('/uploads', express.static(UPLOAD_DIR));
 
 // Health check — no auth required, used by Docker/k8s
 app.get('/api/health', (req, res) => {
@@ -86,10 +82,45 @@ app.use((err, req, res, next) => {
 
 const server = app.listen(PORT, () => {
   console.log(`HelpIT API running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  checkEmailConfig();
 });
+
+// Auto-close tickets that have been on_hold for more than 8 hours
+async function autoCloseOnHoldTickets() {
+  try {
+    const cutoff = new Date(Date.now() - 8 * 3600 * 1000);
+    const stale = await prisma.ticket.findMany({
+      where: { status: 'on_hold', on_hold_since: { lt: cutoff } },
+      select: { id: true },
+    });
+    if (!stale.length) return;
+    await prisma.$transaction([
+      prisma.ticket.updateMany({
+        where: { id: { in: stale.map(t => t.id) } },
+        data:  { status: 'closed', updated_at: new Date() },
+      }),
+      ...stale.map(t => prisma.ticketComment.create({
+        data: {
+          ticket_id:   t.id,
+          user_id:     1, // system — fallback to first admin; comment is marked internal
+          content:     'Ticket automatically closed after being on hold for more than 8 hours.',
+          is_internal: true,
+        },
+      })),
+    ]);
+    console.info(JSON.stringify({ audit: 'AUTO_CLOSE_ON_HOLD', count: stale.length, ids: stale.map(t => t.id), ts: new Date() }));
+  } catch (err) {
+    console.error('[auto-close]', err.message);
+  }
+}
+
+// Run on startup then every 30 minutes
+autoCloseOnHoldTickets();
+const autoCloseInterval = setInterval(autoCloseOnHoldTickets, 30 * 60 * 1000);
 
 async function shutdown(signal) {
   console.log(`${signal} received — shutting down gracefully`);
+  clearInterval(autoCloseInterval);
   server.close(async () => {
     await prisma.$disconnect();
     process.exit(0);

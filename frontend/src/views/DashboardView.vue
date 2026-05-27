@@ -2,53 +2,70 @@
   <div>
     <!-- Stat cards -->
     <div class="stat-grid">
-      <div class="stat-card" v-for="s in statCards" :key="s.label" :style="{ borderLeftColor: s.color }">
-        <div class="stat-icon" :style="{ background: s.bg }">
-          <el-icon :style="{ color: s.color }"><component :is="s.icon" /></el-icon>
-        </div>
-        <div class="stat-info">
-          <div class="stat-value">{{ data ? data.stats[s.key] : '–' }}</div>
-          <div class="stat-label">{{ s.label }}</div>
-        </div>
-      </div>
+      <Md1StatCard
+        v-for="s in statCards"
+        :key="s.label"
+        :label="s.label"
+        :value="data ? data.stats[s.key] : '–'"
+        :icon="s.icon"
+        :color="s.color"
+        :icon-bg="s.bg"
+        @click="router.push(s.route)"
+      />
     </div>
 
     <!-- Charts row -->
     <div class="charts-row">
-      <!-- SLA Compliance -->
-      <div class="card chart-wide">
-        <div class="card-header">
-          <h3>SLA Compliance – Last 7 Days</h3>
-          <span class="card-sub">% of tickets resolved within SLA</span>
+      <!-- SLA Compliance — Md1Card demo -->
+      <Md1Card class="chart-wide">
+        <template #title>SLA Compliance – Last 7 Days</template>
+        <template #subtitle>% of tickets resolved within SLA</template>
+        <div class="chart-box">
+          <Line v-if="data" :data="slaChartData" :options="slaChartOptions" />
+          <div v-else class="chart-empty">Loading…</div>
         </div>
-        <apexchart v-if="slaReady" type="area" height="220" :options="slaOptions" :series="slaSeries" />
-        <div v-else class="chart-empty">Loading…</div>
-      </div>
+      </Md1Card>
 
       <!-- Tickets by Priority -->
-      <div class="card chart-narrow">
-        <div class="card-header"><h3>Open by Priority</h3></div>
-        <apexchart v-if="slaReady" type="bar" height="220" :options="priorityOptions" :series="prioritySeries" />
-      </div>
+      <Md1Card class="chart-narrow">
+        <template #title>Open by Priority</template>
+        <div class="chart-box">
+          <Bar v-if="data" :data="priorityChartData" :options="priorityChartOptions" />
+        </div>
+      </Md1Card>
     </div>
 
     <!-- Status donut + Recent tickets -->
     <div class="charts-row">
-      <div class="card chart-narrow">
-        <div class="card-header"><h3>Tickets by Status</h3></div>
-        <apexchart v-if="slaReady" type="donut" height="240" :options="statusOptions" :series="statusSeries" />
-      </div>
+      <Md1Card class="chart-narrow">
+        <template #title>Tickets by Status</template>
+        <div class="chart-box chart-box--donut">
+          <Doughnut v-if="data" :data="statusChartData" :options="statusChartOptions" />
+        </div>
+        <div v-if="data" class="status-breakdown">
+          <div
+            v-for="s in statusBreakdown"
+            :key="s.label"
+            class="status-row"
+            @click="router.push('/tickets?status=' + s.key)"
+          >
+            <span class="status-dot" :style="{ background: s.color }"></span>
+            <span class="status-name">{{ s.label }}</span>
+            <span class="status-count">{{ s.count }}</span>
+          </div>
+        </div>
+      </Md1Card>
 
       <!-- Recent tickets -->
-      <div class="card chart-wide">
-        <div class="card-header">
-          <h3>Recent Tickets</h3>
+      <Md1Card class="chart-wide">
+        <template #title>Recent Tickets</template>
+        <template #menu>
           <RouterLink to="/tickets" class="see-all">See all</RouterLink>
-        </div>
+        </template>
         <el-table :data="recentTickets" size="small" style="width:100%" @row-click="goTicket">
-          <el-table-column label="#" width="60">
+          <el-table-column label="#" width="90">
             <template #default="{ row }">
-              <span class="ticket-id">#{{ String(row.id).padStart(4,'0') }}</span>
+              <span class="ticket-id">#{{ row.id }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="title" label="Title" min-width="160" show-overflow-tooltip />
@@ -68,7 +85,7 @@
             </template>
           </el-table-column>
         </el-table>
-      </div>
+      </Md1Card>
     </div>
   </div>
 </template>
@@ -77,78 +94,134 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../api';
+import Md1Card from '../components/md1/Md1Card.vue';
+import Md1StatCard from '../components/md1/Md1StatCard.vue';
+
+import {
+  Chart as ChartJS,
+  CategoryScale, LinearScale, PointElement, LineElement,
+  BarElement, ArcElement, Tooltip, Legend, Filler,
+} from 'chart.js';
+import { Line, Bar, Doughnut } from 'vue-chartjs';
+
+ChartJS.register(
+  CategoryScale, LinearScale, PointElement, LineElement,
+  BarElement, ArcElement, Tooltip, Legend, Filler,
+);
 
 const router = useRouter();
 const data = ref(null);
 
 const statCards = [
-  { key: 'open',           label: 'Open',            icon: 'FolderOpened',  color: '#1565c0', bg: '#e3f2fd' },
-  { key: 'in_progress',   label: 'In Progress',     icon: 'Loading',       color: '#4527a0', bg: '#ede7f6' },
-  { key: 'on_hold',       label: 'On Hold',         icon: 'VideoPause',    color: '#e65100', bg: '#fff3e0' },
-  { key: 'overdue',       label: 'Overdue',         icon: 'Warning',       color: '#c62828', bg: '#ffcdd2' },
-  { key: 'resolved_today',label: 'Resolved Today',  icon: 'CircleCheck',   color: '#2e7d32', bg: '#c8e6c9' },
+  { key: 'open',            label: 'Open',           icon: 'FolderOpened', color: '#2196F3', bg: '#E3F2FD', route: '/tickets?status=open' },
+  { key: 'in_progress',    label: 'In Progress',    icon: 'Loading',      color: '#4527a0', bg: '#ede7f6', route: '/tickets?status=in_progress' },
+  { key: 'on_hold',        label: 'On Hold',        icon: 'VideoPause',   color: '#e65100', bg: '#fff3e0', route: '/tickets?status=on_hold' },
+  { key: 'overdue',        label: 'Overdue',        icon: 'Warning',      color: '#c62828', bg: '#ffcdd2', route: '/tickets?status=open' },
+  { key: 'resolved_today', label: 'Resolved Today', icon: 'CircleCheck',  color: '#2e7d32', bg: '#c8e6c9', route: '/tickets?status=resolved' },
 ];
 
-const slaReady = computed(() => !!data.value);
-
-const slaOptions = computed(() => ({
-  chart: { type: 'area', toolbar: { show: false }, sparkline: { enabled: false }, background: 'transparent', foreColor: 'rgba(0,0,0,0.54)' },
-  stroke: { curve: 'smooth', width: 2 },
-  fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.02 } },
-  dataLabels: { enabled: false },
-  xaxis: { categories: data.value?.sla_compliance.map(d => d.date) || [], labels: { style: { colors: 'rgba(0,0,0,0.54)' } } },
-  yaxis: { min: 0, max: 100, labels: { formatter: v => v + '%', style: { colors: 'rgba(0,0,0,0.54)' } } },
-  colors: ['#0288d1'],
-  tooltip: { y: { formatter: v => (v ?? 'N/A') + '%' }, theme: 'light' },
-  grid: { borderColor: 'rgba(0,0,0,0.12)' },
-  markers: { size: 4 },
+// ── SLA Compliance (Line) ──────────────────────────────────────────
+const slaChartData = computed(() => ({
+  labels: data.value?.sla_compliance.map(d => d.date) ?? [],
+  datasets: [{
+    label: 'SLA Compliance',
+    data: data.value?.sla_compliance.map(d => d.rate) ?? [],
+    borderColor: '#2196F3',
+    backgroundColor: 'rgba(33,150,243,0.1)',
+    fill: true,
+    tension: 0.4,
+    pointRadius: 4,
+    pointBackgroundColor: '#2196F3',
+    pointBorderColor: '#fff',
+    pointBorderWidth: 2,
+  }],
 }));
 
-const slaSeries = computed(() => [{
-  name: 'SLA Compliance',
-  data: data.value?.sla_compliance.map(d => d.rate) || [],
-}]);
-
-const priorityOptions = {
-  chart: { type: 'bar', toolbar: { show: false }, background: 'transparent', foreColor: 'rgba(0,0,0,0.54)' },
-  plotOptions: { bar: { borderRadius: 2, distributed: true } },
-  legend: { show: false },
-  dataLabels: { enabled: false },
-  xaxis: { categories: ['Critical', 'High', 'Medium', 'Low'], labels: { style: { colors: 'rgba(0,0,0,0.54)' } } },
-  yaxis: { labels: { style: { colors: 'rgba(0,0,0,0.54)' } } },
-  colors: ['#c62828', '#e65100', '#f57f17', '#2e7d32'],
-  grid: { borderColor: 'rgba(0,0,0,0.12)' },
-  tooltip: { theme: 'light' },
+const slaChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: { label: ctx => ctx.raw != null ? `SLA Compliance: ${ctx.raw}%` : 'N/A' },
+    },
+  },
+  scales: {
+    x: { grid: { color: 'rgba(0,0,0,0.08)' }, ticks: { color: 'rgba(0,0,0,0.54)', font: { size: 11 } } },
+    y: {
+      min: 0, max: 100,
+      grid: { color: 'rgba(0,0,0,0.08)' },
+      ticks: { color: 'rgba(0,0,0,0.54)', font: { size: 11 }, callback: v => v + '%' },
+    },
+  },
 };
 
-const prioritySeries = computed(() => [{
-  name: 'Open',
-  data: [
-    data.value?.by_priority.critical || 0,
-    data.value?.by_priority.high || 0,
-    data.value?.by_priority.medium || 0,
-    data.value?.by_priority.low || 0,
-  ],
-}]);
+// ── Open by Priority (Bar) ─────────────────────────────────────────
+const priorityChartData = computed(() => ({
+  labels: ['Critical', 'High', 'Medium', 'Low'],
+  datasets: [{
+    data: [
+      data.value?.by_priority.critical ?? 0,
+      data.value?.by_priority.high     ?? 0,
+      data.value?.by_priority.medium   ?? 0,
+      data.value?.by_priority.low      ?? 0,
+    ],
+    backgroundColor: ['#c62828', '#e65100', '#f57f17', '#2e7d32'],
+    borderRadius: 2,
+    barPercentage: 0.6,
+  }],
+}));
 
-const statusOptions = {
+const priorityChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { display: false }, ticks: { color: 'rgba(0,0,0,0.54)', font: { size: 11 } } },
+    y: {
+      grid: { color: 'rgba(0,0,0,0.08)' },
+      ticks: { color: 'rgba(0,0,0,0.54)', font: { size: 11 }, precision: 0 },
+    },
+  },
+};
+
+// ── Tickets by Status (Doughnut) ───────────────────────────────────
+const statusChartData = computed(() => ({
   labels: ['Open', 'In Progress', 'On Hold', 'Resolved', 'Closed'],
-  colors: ['#1565c0', '#4527a0', '#e65100', '#2e7d32', '#546e7a'],
-  legend: { position: 'bottom', fontSize: '12px', labels: { colors: 'rgba(0,0,0,0.54)' } },
-  dataLabels: { enabled: false },
-  plotOptions: { pie: { donut: { size: '60%' } } },
-  chart: { background: 'transparent', foreColor: 'rgba(0,0,0,0.54)' },
-  tooltip: { theme: 'light' },
+  datasets: [{
+    data: [
+      data.value?.by_status.open        ?? 0,
+      data.value?.by_status.in_progress ?? 0,
+      data.value?.by_status.on_hold     ?? 0,
+      data.value?.by_status.resolved    ?? 0,
+      data.value?.by_status.closed      ?? 0,
+    ],
+    backgroundColor: ['#2196F3', '#4527a0', '#e65100', '#2e7d32', '#546e7a'],
+    borderWidth: 0,
+  }],
+}));
+
+const statusChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: false,
+  cutout: '64%',
+  plugins: {
+    legend: { display: false },
+  },
 };
 
-const statusSeries = computed(() => [
-  data.value?.by_status.open || 0,
-  data.value?.by_status.in_progress || 0,
-  data.value?.by_status.on_hold || 0,
-  data.value?.by_status.resolved || 0,
-  data.value?.by_status.closed || 0,
+const statusBreakdown = computed(() => [
+  { key: 'open',        label: 'Open',        count: data.value?.by_status.open        ?? 0, color: '#2196F3' },
+  { key: 'in_progress', label: 'In Progress',  count: data.value?.by_status.in_progress ?? 0, color: '#4527a0' },
+  { key: 'on_hold',     label: 'On Hold',      count: data.value?.by_status.on_hold     ?? 0, color: '#e65100' },
+  { key: 'resolved',    label: 'Resolved',     count: data.value?.by_status.resolved    ?? 0, color: '#2e7d32' },
+  { key: 'closed',      label: 'Closed',       count: data.value?.by_status.closed      ?? 0, color: '#546e7a' },
 ]);
 
+// ── Recent tickets ─────────────────────────────────────────────────
 const recentTickets = computed(() => data.value?.recent_tickets || []);
 
 function slaStatus(row) {
@@ -162,8 +235,7 @@ function slaStatus(row) {
 }
 
 function fmtSla(row) {
-  const s = slaStatus(row);
-  return { ok: 'On Track', risk: 'At Risk', breached: 'Breached', met: 'Met' }[s] || s;
+  return { ok: 'On Track', risk: 'At Risk', breached: 'Breached', met: 'Met' }[slaStatus(row)] || '';
 }
 
 function fmtStatus(s) {
@@ -196,6 +268,11 @@ onMounted(async () => {
   align-items: center;
   gap: 14px;
   box-shadow: 0 2px 2px rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px rgba(0,0,0,0.20);
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.stat-card:hover {
+  box-shadow: 0 8px 10px rgba(0,0,0,0.14), 0 3px 14px rgba(0,0,0,0.12), 0 5px 5px rgba(0,0,0,0.20);
 }
 .stat-icon {
   width: 44px; height: 44px;
@@ -224,9 +301,45 @@ onMounted(async () => {
 }
 .card-header h3 { font-size: 14px; font-weight: 500; color: rgba(0,0,0,0.87); }
 .card-sub { font-size: 12px; color: rgba(0,0,0,0.54); }
-.see-all { font-size: 12px; color: #0288d1; text-decoration: none; }
+.see-all { font-size: 12px; color: var(--md1-primary); text-decoration: none; }
 
-.chart-empty { height: 220px; display: flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.38); }
+.chart-box { position: relative; height: 220px; }
+.chart-box--donut { height: 240px; }
+.chart-empty { height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.38); }
 
 .ticket-id { font-family: monospace; font-size: 12px; color: rgba(0,0,0,0.38); }
+
+.status-breakdown {
+  padding: 4px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.status-row:hover { background: rgba(0,0,0,0.04); }
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-name {
+  flex: 1;
+  font-size: 13px;
+  color: rgba(0,0,0,0.7);
+}
+.status-count {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0,0,0,0.87);
+  font-variant-numeric: tabular-nums;
+}
 </style>
