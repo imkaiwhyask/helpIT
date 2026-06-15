@@ -200,8 +200,8 @@ Created by `npm run seed` (development only):
 
 | Email                  | Password   | Role      | Access                          |
 |------------------------|------------|-----------|---------------------------------|
-| `admin@helpit.local`   | `admin123` | Admin     | Full access — users, all tickets, reports |
-| `user@helpit.local`    | `user1234` | End User  | Self-service portal only        |
+| `admin@helpit.local`   | `Admin@1234` | Admin     | Full access — users, all tickets, reports |
+| `user@helpit.local`    | `User@1234`  | End User  | Self-service portal only        |
 
 > Create Technician accounts from the User Management page after logging in as Admin.
 
