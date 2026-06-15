@@ -1,0 +1,281 @@
+/**
+ * md1-tokens.css
+ * Material Design 1 design tokens — sourced from google/material-design-lite.
+ *
+ * Source verification:
+ *   Easings   → reference/mdl/src/_variables.scss ($animation-curve-*)
+ *   Shadows   → reference/mdl/src/_mixins.scss    (@mixin shadow-Xdp)
+ *   Opacities → reference/mdl/src/_variables.scss ($shadow-key-umbra-opacity etc.)
+ *   Type      → reference/mdl/src/_mixins.scss    (@mixin typo-*)
+ *   Palettes  → reference/mdl/src/_color-definitions.scss
+ *
+ * COLOR PALETTE PROPOSAL — awaiting confirmation before Phase 1:
+ *   Primary  → Blue ramp  (brand override: #002d72, sits between Blue 900 #0D47A1 and a custom navy)
+ *   Accent   → Blue ramp  (Blue 500 #2196F3)
+ *   Neutrals → Grey ramp  (exact MDL values)
+ *   Semantic → Green 500, Amber 700, Red 500, Blue Grey 600 (standard MDL semantic mapping)
+ */
+
+:root {
+
+  /* ================================================================
+     EASINGS
+     Source: _variables.scss — $animation-curve-*
+     ================================================================ */
+  --md1-ease-standard:    cubic-bezier(0.4, 0,   0.2, 1); /* fast-out-slow-in  */
+  --md1-ease-decelerate:  cubic-bezier(0,   0,   0.2, 1); /* linear-out-slow-in */
+  --md1-ease-accelerate:  cubic-bezier(0.4, 0,   1,   1); /* fast-out-linear-in */
+
+  /* ================================================================
+     DURATIONS
+     Source: _mixins.scss default $duration params on animation mixins
+     (0.2s default for all; MDL docs specify short/standard/long)
+     ================================================================ */
+  --md1-duration-short:    150ms;
+  --md1-duration-standard: 250ms;  /* matches MDL menu: 0.3s expand, 0.2s fade */
+  --md1-duration-long:     375ms;
+
+  /* ================================================================
+     ELEVATION SHADOWS
+     Source: _mixins.scss @mixin shadow-Xdp
+     Opacities: umbra 0.2, penumbra 0.14, ambient 0.12
+     MDL defines: 2dp 3dp 4dp 6dp 8dp 16dp 24dp only.
+     Intermediate dp values below are zero (no elevation).
+     ================================================================ */
+  --md1-shadow-z0:  none;
+  --md1-shadow-z2:  0  2px  2px 0   rgba(0,0,0,0.14),
+                    0  3px  1px -2px rgba(0,0,0,0.20),
+                    0  1px  5px 0   rgba(0,0,0,0.12);
+  --md1-shadow-z3:  0  3px  4px 0   rgba(0,0,0,0.14),
+                    0  3px  3px -2px rgba(0,0,0,0.20),
+                    0  1px  8px 0   rgba(0,0,0,0.12);
+  --md1-shadow-z4:  0  4px  5px 0   rgba(0,0,0,0.14),
+                    0  2px  4px -1px rgba(0,0,0,0.20),
+                    0  1px 10px 0   rgba(0,0,0,0.12);
+  --md1-shadow-z6:  0  6px 10px 0   rgba(0,0,0,0.14),
+                    0  3px  5px -1px rgba(0,0,0,0.20),
+                    0  1px 18px 0   rgba(0,0,0,0.12);
+  --md1-shadow-z8:  0  8px 10px  1px rgba(0,0,0,0.14),
+                    0  5px  5px -3px rgba(0,0,0,0.20),
+                    0  3px 14px  2px rgba(0,0,0,0.12);
+  --md1-shadow-z16: 0 16px 24px  2px rgba(0,0,0,0.14),
+                    0  8px 10px -5px rgba(0,0,0,0.20),
+                    0  6px 30px  5px rgba(0,0,0,0.12);
+  --md1-shadow-z24: 0 24px 38px  3px rgba(0,0,0,0.14),
+                    0  9px 46px  8px rgba(0,0,0,0.12),
+                    0 11px 15px -7px rgba(0,0,0,0.20);
+
+  /* Named aliases matching common MDL usage contexts */
+  --md1-shadow-card:    var(--md1-shadow-z2);
+  --md1-shadow-raised-button: var(--md1-shadow-z2);
+  --md1-shadow-raised-button-hover: var(--md1-shadow-z4);
+  --md1-shadow-app-bar: var(--md1-shadow-z4);
+  --md1-shadow-fab:     var(--md1-shadow-z6);
+  --md1-shadow-fab-hover: var(--md1-shadow-z8);
+  --md1-shadow-nav-drawer: var(--md1-shadow-z16);
+  --md1-shadow-dialog:  var(--md1-shadow-z24);
+
+  /* ================================================================
+     SPACING — 8dp grid
+     ================================================================ */
+  --md1-space-1:  8px;
+  --md1-space-2:  16px;
+  --md1-space-3:  24px;
+  --md1-space-4:  32px;
+  --md1-space-5:  40px;
+  --md1-space-6:  48px;
+  --md1-space-7:  56px;
+  --md1-space-8:  64px;
+  --md1-space-9:  72px;
+  --md1-space-10: 80px;
+
+  /* MDL layout keylines */
+  --md1-keyline-1: 16px;  /* mobile side margin */
+  --md1-keyline-2: 72px;  /* start of content after icon/avatar column */
+
+  /* ================================================================
+     BORDER RADIUS
+     MDL: 2px on most components, 0 on app bars, full on FAB
+     ================================================================ */
+  --md1-radius-base: 2px;
+  --md1-radius-none: 0px;
+  --md1-radius-full: 50%;
+
+  /* ================================================================
+     TYPE SCALE — Roboto
+     Source: _mixins.scss @mixin typo-*
+     ================================================================ */
+  --md1-font-family:        'Roboto', 'Helvetica', 'Arial', sans-serif;
+
+  /* Display 4: 112px / 300 / ls -0.04em */
+  --md1-type-display4-size:   112px;
+  --md1-type-display4-weight: 300;
+  --md1-type-display4-ls:     -0.04em;
+
+  /* Display 3: 56px / 400 / ls -0.02em */
+  --md1-type-display3-size:   56px;
+  --md1-type-display3-weight: 400;
+  --md1-type-display3-ls:     -0.02em;
+
+  /* Display 2: 45px / 400 / lh 48px */
+  --md1-type-display2-size:   45px;
+  --md1-type-display2-weight: 400;
+  --md1-type-display2-lh:     48px;
+
+  /* Display 1: 34px / 400 / lh 40px */
+  --md1-type-display1-size:   34px;
+  --md1-type-display1-weight: 400;
+  --md1-type-display1-lh:     40px;
+
+  /* Headline: 24px / 400 / lh 32px */
+  --md1-type-headline-size:   24px;
+  --md1-type-headline-weight: 400;
+  --md1-type-headline-lh:     32px;
+
+  /* Title: 20px / 500 / ls 0.02em */
+  --md1-type-title-size:      20px;
+  --md1-type-title-weight:    500;
+  --md1-type-title-ls:        0.02em;
+
+  /* Subhead: 16px / 400 / lh 24px / ls 0.04em */
+  --md1-type-subhead-size:    16px;
+  --md1-type-subhead-weight:  400;
+  --md1-type-subhead-lh:      24px;
+  --md1-type-subhead-ls:      0.04em;
+
+  /* Body 2: 14px / 500 (Roboto) / lh 24px */
+  --md1-type-body2-size:      14px;
+  --md1-type-body2-weight:    500;
+  --md1-type-body2-lh:        24px;
+
+  /* Body 1: 14px / 400 / lh 24px */
+  --md1-type-body1-size:      14px;
+  --md1-type-body1-weight:    400;
+  --md1-type-body1-lh:        24px;
+
+  /* Caption: 12px / 400 / lh 1 */
+  --md1-type-caption-size:    12px;
+  --md1-type-caption-weight:  400;
+  --md1-type-caption-lh:      1;
+
+  /* Button: 14px / 500 / uppercase / ls 0 */
+  --md1-type-button-size:     14px;
+  --md1-type-button-weight:   500;
+
+  /* Menu: 14px / 500 / lh 1 */
+  --md1-type-menu-size:       14px;
+  --md1-type-menu-weight:     500;
+
+  /* ================================================================
+     GREY PALETTE
+     Source: _color-definitions.scss $palette-grey (no A-variants)
+     ================================================================ */
+  --md1-grey-50:  #FAFAFA;  /* rgb(250,250,250) */
+  --md1-grey-100: #F5F5F5;  /* rgb(245,245,245) */
+  --md1-grey-200: #EEEEEE;  /* rgb(238,238,238) */
+  --md1-grey-300: #E0E0E0;  /* rgb(224,224,224) */
+  --md1-grey-400: #BDBDBD;  /* rgb(189,189,189) */
+  --md1-grey-500: #9E9E9E;  /* rgb(158,158,158) */
+  --md1-grey-600: #757575;  /* rgb(117,117,117) */
+  --md1-grey-700: #616161;  /* rgb(97,97,97)   */
+  --md1-grey-800: #424242;  /* rgb(66,66,66)   */
+  --md1-grey-900: #212121;  /* rgb(33,33,33)   */
+
+  /* ================================================================
+     PRIMARY PALETTE — Blue (closest MDL ramp to brand navy #002d72)
+     Source: _color-definitions.scss $palette-blue
+     Brand override: --md1-primary = #002d72 (custom, darker than Blue 900)
+     ================================================================ */
+  --md1-blue-50:   #E3F2FD;  /* rgb(227,242,253) */
+  --md1-blue-100:  #BBDEFB;  /* rgb(187,222,251) */
+  --md1-blue-200:  #90CAF9;  /* rgb(144,202,249) */
+  --md1-blue-300:  #64B5F6;  /* rgb(100,181,246) */
+  --md1-blue-400:  #42A5F5;  /* rgb(66,165,245)  */
+  --md1-blue-500:  #2196F3;  /* rgb(33,150,243)  */
+  --md1-blue-600:  #1E88E5;  /* rgb(30,136,229)  */
+  --md1-blue-700:  #1976D2;  /* rgb(25,118,210)  */
+  --md1-blue-800:  #1565C0;  /* rgb(21,101,192)  */
+  --md1-blue-900:  #0D47A1;  /* rgb(13,71,161)   */
+  --md1-blue-A100: #82B1FF;  /* rgb(130,177,255) */
+  --md1-blue-A200: #448AFF;  /* rgb(68,138,255)  */
+  --md1-blue-A400: #2979FF;  /* rgb(41,121,255)  */
+  --md1-blue-A700: #2962FF;  /* rgb(41,98,255)   */
+
+  /* ================================================================
+     ACCENT PALETTE — Blue (MDL Blue ramp, accent role)
+     Source: _color-definitions.scss $palette-blue
+     ================================================================ */
+  --md1-deep-orange-50:   #FBE9E7;  /* rgb(251,233,231) */
+  --md1-deep-orange-100:  #FFCCBC;  /* rgb(255,204,188) */
+  --md1-deep-orange-200:  #FFAB91;  /* rgb(255,171,145) */
+  --md1-deep-orange-300:  #FF8A65;  /* rgb(255,138,101) */
+  --md1-deep-orange-400:  #FF7043;  /* rgb(255,112,67)  */
+  --md1-deep-orange-500:  #FF5722;  /* rgb(255,87,34)   */
+  --md1-deep-orange-600:  #F4511E;  /* rgb(244,81,30)   */
+  --md1-deep-orange-700:  #E64A19;  /* rgb(230,74,25)   */
+  --md1-deep-orange-800:  #D84315;  /* rgb(216,67,21)   */
+  --md1-deep-orange-900:  #BF360C;  /* rgb(191,54,12)   */
+  --md1-deep-orange-A100: #FF9E80;  /* rgb(255,158,128) */
+  --md1-deep-orange-A200: #FF6E40;  /* rgb(255,110,64)  */
+  --md1-deep-orange-A400: #FF3D00;  /* rgb(255,61,0)    */
+  --md1-deep-orange-A700: #DD2C00;  /* rgb(221,44,0)    */
+
+  /* ================================================================
+     SEMANTIC COLORS — standard MDL mappings
+     Source: _variables.scss component color notes + MDL spec
+     ================================================================ */
+  /* Success → Green 500 */
+  --md1-green-500: #4CAF50;
+  --md1-green-700: #388E3C;
+  /* Warning → Amber 700 */
+  --md1-amber-700: #FFA000;
+  --md1-amber-500: #FFC107;
+  /* Error/Danger → Red A700 (MDL input error color) / Red 500 */
+  --md1-red-A700:  #D50000;
+  --md1-red-500:   #F44336;
+  --md1-red-700:   #D32F2F;
+  /* Info → Blue Grey 600 */
+  --md1-blue-grey-600: #546E7A;
+
+  /* ================================================================
+     BRAND TOKENS — map brand colors onto MD1 primary/accent roles.
+     These are the working tokens used throughout the app.
+     Pending confirmation of palette proposal above.
+     ================================================================ */
+  --md1-primary:           #0D47A1;  /* Blue 900 — MDL standard primary            */
+  --md1-primary-dark:      #0a3882;  /* custom dark (Blue 900 - 10% brightness)    */
+  --md1-primary-light:     #1976D2;  /* Blue 700 — hover tint                      */
+  --md1-primary-contrast:  #FFFFFF;  /* text on primary bg                          */
+
+  --md1-accent:            #2196F3;  /* Blue 500 — standard accent                 */
+  --md1-accent-dark:       #1976D2;  /* Blue 700 — pressed/active                  */
+  --md1-accent-light:      #42A5F5;  /* Blue 400 — hover tint                      */
+  --md1-accent-contrast:   #FFFFFF;  /* text on accent bg                           */
+
+  /* Text emphasis levels — from MDL spec */
+  --md1-text-primary:   rgba(0,0,0,0.87);
+  --md1-text-secondary: rgba(0,0,0,0.54);
+  --md1-text-disabled:  rgba(0,0,0,0.38);
+  --md1-text-hint:      rgba(0,0,0,0.38);
+  --md1-text-divider:   rgba(0,0,0,0.12);
+
+  /* Surface / background */
+  --md1-surface:          #FFFFFF;
+  --md1-background:       #FAFAFA;  /* grey-50 */
+  --md1-drawer-bg:        #F5F5F5;  /* grey-100 — MDL drawer default */
+
+  /* Input field — from MDL _variables.scss $input-text-* */
+  --md1-input-bottom-border:    rgba(0,0,0,0.42);
+  --md1-input-label-color:      rgba(0,0,0,0.54);
+  --md1-input-highlight-color:  var(--md1-primary);
+  --md1-input-error-color:      var(--md1-red-A700);
+
+  /* Ripple */
+  --md1-ripple-light: rgba(255,255,255,0.3);   /* on dark surfaces  */
+  --md1-ripple-dark:  rgba(0,0,0,0.12);         /* on light surfaces */
+
+  /* ================================================================
+     CARD — from _card.scss + _variables.scss
+     ================================================================ */
+  --md1-card-title-weight: 300;   /* $card-title-text-font-weight — Roboto Light */
+}

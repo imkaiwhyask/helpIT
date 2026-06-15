@@ -1,0 +1,219 @@
+/* ============================================================
+   helpIT – Global Material Design 1 Light Theme
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+* { font-family: 'Roboto', sans-serif !important; }
+
+/* ── Tables ── */
+.el-table { background: transparent !important; }
+.el-table__header-wrapper,
+.el-table__body-wrapper { background: transparent !important; }
+.el-table th.el-table__cell {
+  background: #fafafa !important;
+  color: rgba(0,0,0,0.54) !important;
+  border-bottom: 1px solid rgba(0,0,0,0.12) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+.el-table td.el-table__cell {
+  border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+  color: rgba(0,0,0,0.87) !important;
+}
+.el-table tr { background: #fff !important; }
+.el-table--enable-row-hover .el-table__body tr:hover > td {
+  background: var(--md1-grey-200) !important;
+}
+.el-table__inner-wrapper::before { background: rgba(0,0,0,0.12) !important; }
+.el-table__empty-block { background: transparent !important; }
+.el-table__empty-text { color: rgba(0,0,0,0.38) !important; }
+
+/* ── Selects ── */
+.el-select__placeholder { color: var(--md1-text-hint) !important; }
+.el-select__selected-item { color: var(--md1-text-primary) !important; }
+.el-select-dropdown {
+  background: #fff !important;
+  border: none !important;
+  border-radius: 2px !important;
+  box-shadow: 0 8px 10px rgba(0,0,0,0.14), 0 3px 14px rgba(0,0,0,0.12), 0 5px 5px rgba(0,0,0,0.20) !important;
+}
+.el-select-dropdown__item { color: rgba(0,0,0,0.87) !important; font-size: 14px !important; }
+.el-select-dropdown__item:hover,
+.el-select-dropdown__item.hover { background: rgba(0,0,0,0.04) !important; }
+.el-select-dropdown__item.selected,
+.el-select-dropdown__item.is-selected { color: var(--md1-primary) !important; font-weight: 500 !important; }
+
+/* ── Dialog ── */
+.el-dialog {
+  background: #fff !important;
+  border: none !important;
+  border-radius: 2px !important;
+  box-shadow: 0 16px 24px rgba(0,0,0,0.14), 0 6px 30px rgba(0,0,0,0.12), 0 8px 10px rgba(0,0,0,0.20) !important;
+}
+.el-dialog__title {
+  color: rgba(0,0,0,0.87) !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+.el-dialog__body { color: rgba(0,0,0,0.87) !important; }
+.el-dialog__header {
+  border-bottom: 1px solid rgba(0,0,0,0.12) !important;
+  padding-bottom: 16px !important;
+}
+.el-dialog__footer { border-top: 1px solid rgba(0,0,0,0.12) !important; }
+.el-overlay { background: rgba(0,0,0,0.5) !important; }
+.el-dialog__headerbtn .el-dialog__close { color: rgba(0,0,0,0.54) !important; }
+.el-dialog__headerbtn:hover .el-dialog__close { color: rgba(0,0,0,0.87) !important; }
+
+/* ── Pagination ── */
+.el-pagination button,
+.el-pagination .el-pager li {
+  background: #fff !important;
+  color: rgba(0,0,0,0.54) !important;
+  border: 1px solid rgba(0,0,0,0.12) !important;
+  border-radius: 2px !important;
+}
+.el-pagination .el-pager li.is-active {
+  background: var(--md1-primary) !important;
+  color: #fff !important;
+  border-color: var(--md1-primary) !important;
+}
+.el-pagination__total,
+.el-pagination__jump { color: rgba(0,0,0,0.54) !important; }
+
+/* ── Dropdown menu ── */
+.el-dropdown-menu {
+  background: #fff !important;
+  border: none !important;
+  border-radius: 2px !important;
+  box-shadow: 0 8px 10px rgba(0,0,0,0.14), 0 3px 14px rgba(0,0,0,0.12), 0 5px 5px rgba(0,0,0,0.20) !important;
+}
+.el-dropdown-menu__item { color: rgba(0,0,0,0.87) !important; font-size: 14px !important; }
+.el-dropdown-menu__item:not(.is-disabled):hover {
+  background: rgba(0,0,0,0.04) !important;
+  color: rgba(0,0,0,0.87) !important;
+}
+.el-dropdown-menu__item.is-disabled { color: rgba(0,0,0,0.38) !important; }
+.el-popper.is-light .el-popper__arrow::before { display: none !important; }
+
+/* ── Form labels ── */
+.el-form-item__label { color: rgba(0,0,0,0.54) !important; font-size: 14px !important; }
+
+/* ── Checkbox ── */
+.el-checkbox__label { color: rgba(0,0,0,0.87) !important; }
+.el-checkbox__inner {
+  background: #fff !important;
+  border-color: rgba(0,0,0,0.38) !important;
+}
+.el-checkbox.is-checked .el-checkbox__inner { background: var(--md1-primary) !important; border-color: var(--md1-primary) !important; }
+
+/* ── Popover / Popconfirm ── */
+.el-popover.el-popper {
+  background: #fff !important;
+  border: none !important;
+  border-radius: 2px !important;
+  box-shadow: 0 8px 10px rgba(0,0,0,0.14), 0 3px 14px rgba(0,0,0,0.12), 0 5px 5px rgba(0,0,0,0.20) !important;
+  color: rgba(0,0,0,0.87) !important;
+}
+.el-popconfirm__main { color: rgba(0,0,0,0.87) !important; }
+.el-popper__arrow::before {
+  background: #fff !important;
+  border-color: rgba(0,0,0,0.12) !important;
+}
+
+/* ── Loading ── */
+.el-loading-mask { background: rgba(255,255,255,0.8) !important; }
+.el-loading-text { color: rgba(0,0,0,0.54) !important; }
+.el-loading-spinner .circular { stroke: var(--md1-primary) !important; }
+
+/* ── Skeleton ── */
+.el-skeleton__item {
+  background: #e0e0e0 !important;
+  background-image: linear-gradient(90deg, #e0e0e0 25%, #eeeeee 37%, #e0e0e0 63%) !important;
+}
+
+/* ── Empty ── */
+.el-empty__description p { color: rgba(0,0,0,0.38) !important; }
+
+/* ── Switch ── */
+.el-switch__label { color: rgba(0,0,0,0.54) !important; }
+.el-switch.is-checked .el-switch__core { background: var(--md1-primary) !important; border-color: var(--md1-primary) !important; }
+
+/* ── Tag ── */
+.el-tag { border-radius: 2px !important; }
+
+/* ── Input icon colors ── */
+.el-input__prefix-inner .el-icon,
+.el-input__suffix-inner .el-icon { color: rgba(0,0,0,0.38) !important; }
+.el-select__suffix .el-icon,
+.el-select__prefix .el-icon { color: rgba(0,0,0,0.38) !important; }
+
+/* ── Divider ── */
+.el-divider { border-top-color: rgba(0,0,0,0.12) !important; }
+.el-divider--horizontal { border-top-color: rgba(0,0,0,0.12) !important; }
+
+/* ── Alert ── */
+.el-alert { border-radius: 2px !important; }
+
+/* ── Result ── */
+.el-result__title p { color: rgba(0,0,0,0.87) !important; }
+.el-result__subtitle p { color: rgba(0,0,0,0.54) !important; }
+
+/* ── Progress ── */
+.el-progress__text { color: rgba(0,0,0,0.54) !important; }
+.el-progress-bar__outer { background: rgba(0,0,0,0.12) !important; }
+
+/* ── Clickable row hover ── */
+.clickable-row { cursor: pointer; }
+.clickable-row:hover td { background: var(--md1-grey-200) !important; }
+
+/* ============================================================
+   MD1 Badge Classes
+   ============================================================ */
+.badge {
+  display: inline-block !important;
+  padding: 2px 8px !important;
+  border-radius: 2px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  text-transform: capitalize !important;
+  white-space: nowrap !important;
+}
+
+/* Priority badges */
+.pri-critical { background: #ffcdd2 !important; color: #c62828 !important; }
+.pri-high     { background: #ffe0b2 !important; color: #e65100 !important; }
+.pri-medium   { background: #fff8e1 !important; color: #f57f17 !important; }
+.pri-low      { background: #c8e6c9 !important; color: #2e7d32 !important; }
+
+/* Status badges */
+.sta-open        { background: #fff0e6 !important; color: #1565c0 !important; }
+.sta-in_progress { background: #ede7f6 !important; color: #4527a0 !important; }
+.sta-on_hold     { background: #fff3e0 !important; color: #e65100 !important; }
+.sta-resolved    { background: #c8e6c9 !important; color: #2e7d32 !important; }
+.sta-closed      { background: #eceff1 !important; color: #546e7a !important; }
+
+/* SLA badges */
+.sla-ok      { background: #c8e6c9 !important; color: #2e7d32 !important; }
+.sla-met     { background: #c8e6c9 !important; color: #2e7d32 !important; }
+.sla-risk    { background: #fff8e1 !important; color: #f57f17 !important; }
+.sla-breached{ background: #ffcdd2 !important; color: #c62828 !important; }
+
+/* Role badges */
+.role-admin      { background: #fff0e6 !important; color: #1565c0 !important; }
+.role-technician { background: #c8e6c9 !important; color: #2e7d32 !important; }
+.role-user       { background: #ede7f6 !important; color: #4527a0 !important; }
+
+/* ============================================================
+   Custom Scrollbar (light)
+   ============================================================ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+}
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
